@@ -25,3 +25,116 @@
 #container a {
   text-decoration: none;
 }
+
+ion-content {
+  --background: #f8f9fa;
+}
+
+ion-card {
+  --background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin: 16px;
+}
+
+.steps-header {
+  padding-bottom: 0;
+
+  .steps-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    ion-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .date-selector {
+      display: flex;
+      align-items: center;
+      background: #f0f0f0;
+      border-radius: 20px;
+      padding: 0 4px;
+
+      span {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #666;
+        margin: 0 4px;
+      }
+    }
+
+    .edit-btn {
+      background: #f0f0f0;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      margin: 0;
+      --padding-start: 0;
+      --padding-end: 0;
+    }
+  }
+}
+
+.small-card {
+  margin: 8px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ion-card-content {
+    padding: 8px;
+    width: 100%;
+
+    p {
+      margin: 8px 0 0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      color: #1e7544;
+    }
+  }
+}
+
+.progress-card {
+  .progress-container {
+    position: relative;
+    height: 60px;
+    width: 60px;
+    margin: 0 auto;
+
+    .progress-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #333;
+    }
+  }
+
+  .progress-details {
+    margin-top: 8px;
+    font-size: 0.65rem;
+    color: #999;
+    display: flex;
+    flex-direction: column;
+
+    span {
+      display: block;
+    }
+  }
+}
+
+canvas {
+  max-width: 100% !important;
+  width: 100% !important;
+}

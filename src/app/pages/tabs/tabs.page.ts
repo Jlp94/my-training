@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { personOutline, barbellOutline, fastFoodOutline, homeOutline } from 'ionicons/icons';
+import { personOutline, barbellOutline, homeOutline, restaurantOutline } from 'ionicons/icons';
 @Component({
   selector: 'app-tabs',
   templateUrl: './tabs.page.html',
@@ -14,7 +14,7 @@ import { personOutline, barbellOutline, fastFoodOutline, homeOutline } from 'ion
 export class TabsPage implements OnInit {
 
   constructor() {
-    addIcons({ homeOutline, barbellOutline, fastFoodOutline, personOutline });
+    addIcons({ homeOutline, barbellOutline, restaurantOutline, personOutline });
   }
 
   ngOnInit() {

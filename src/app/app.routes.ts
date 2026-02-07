@@ -3,8 +3,12 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'tabs',
+    redirectTo: 'login',
     pathMatch: 'full',
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./core/login/login.page').then(m => m.LoginPage)
   },
   {
     path: 'tabs',
@@ -35,7 +39,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'tabs',
+    redirectTo: 'login',
     pathMatch: 'full',
   },
 ];
