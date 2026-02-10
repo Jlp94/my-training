@@ -1,12 +1,14 @@
-<app-header titulo="training" [showBack]="true"></app-header>
+<app-header titulo="training" [showBack]="true" url="/tabs/home"></app-header>
 
 <ion-content>
-  @for(i of options; track $index){
-  <ion-card mode="ios" class="ion-text-center ion-padding">
-    <ion-icon name="{{i.img}}" size="large" color="primary"></ion-icon>
-    <ion-card-content>
-      <p>{{i.title}}</p>
-    </ion-card-content>
-  </ion-card>
-  }
+  <app-layout>
+    @for(opcion of options; track $index){
+    <ion-card mode="ios" class="ion-text-center ion-padding" [routerLink]="opcion.url">
+      <ion-icon name="{{opcion.img}}" size="large" color="primary"></ion-icon>
+      <ion-card-content>
+        <p>{{opcion.title}}</p>
+      </ion-card-content>
+    </ion-card>
+    }
+  </app-layout>
 </ion-content>

@@ -1,72 +1,74 @@
-<app-header titulo="home" [showBack]="false"></app-header>
+<app-header titulo="home" [showBack]="false" url=""></app-header>
 
-<ion-content [fullscreen]="true">
-  <!-- Weight Tracking Card -->
-  <ion-card mode="ios">
-    <ion-card-content>
-      <canvas #weightChart></canvas>
-    </ion-card-content>
-  </ion-card>
+<ion-content>
+  <app-layout>
+    <!-- Weight Tracking Card -->
+    <ion-card mode="ios">
+      <ion-card-content>
+        <canvas #weightChart></canvas>
+      </ion-card-content>
+    </ion-card>
 
-  <!-- Steps Tracking Card -->
-  <ion-card mode="ios">
-    <ion-card-header class="steps-header">
-      <div class="steps-title-row">
-        <ion-card-title>Pasos</ion-card-title>
-        <div class="date-selector">
-          <ion-button fill="clear" size="small">
-            <ion-icon name="chevron-back-outline" slot="icon-only" color="medium"></ion-icon>
-          </ion-button>
-          <span>05 ene — 11 ene</span>
-          <ion-button fill="clear" size="small">
-            <ion-icon name="chevron-forward-outline" slot="icon-only" color="medium"></ion-icon>
+    <!-- Steps Tracking Card -->
+    <ion-card mode="ios">
+      <ion-card-header class="steps-header">
+        <div class="steps-title-row">
+          <ion-card-title>Pasos</ion-card-title>
+          <div class="date-selector">
+            <ion-button fill="clear" size="small">
+              <ion-icon name="chevron-back-outline" slot="icon-only" color="medium"></ion-icon>
+            </ion-button>
+            <span>05 ene — 11 ene</span>
+            <ion-button fill="clear" size="small">
+              <ion-icon name="chevron-forward-outline" slot="icon-only" color="medium"></ion-icon>
+            </ion-button>
+          </div>
+          <ion-button fill="clear" size="small" class="edit-btn">
+            <ion-icon name="pencil-outline" slot="icon-only" color="medium"></ion-icon>
           </ion-button>
         </div>
-        <ion-button fill="clear" size="small" class="edit-btn">
-          <ion-icon name="pencil-outline" slot="icon-only" color="medium"></ion-icon>
-        </ion-button>
-      </div>
-    </ion-card-header>
-    <ion-card-content>
-      <canvas #stepsChart></canvas>
-    </ion-card-content>
-  </ion-card>
+      </ion-card-header>
+      <ion-card-content>
+        <canvas #stepsChart></canvas>
+      </ion-card-content>
+    </ion-card>
 
-  <!-- Bottom Small Cards Grid -->
-  <ion-grid>
-    <ion-row>
-      <ion-col size="4">
-        <ion-card mode="ios" class="small-card">
-          <ion-card-content class="ion-text-center">
-            <ion-icon name="body" class="card-icon"></ion-icon>
-            <p>Medidas</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      <ion-col size="4">
-        <ion-card mode="ios" class="small-card progress-card">
-          <ion-card-content class="ion-text-center">
-            <div class="progress-container">
-              <canvas #progressChart></canvas>
-              <div class="progress-text">
-                <strong>95%</strong>
+    <!-- Bottom Small Cards Grid -->
+    <ion-grid>
+      <ion-row>
+        <ion-col size="4">
+          <ion-card mode="ios" class="small-card" routerLink="/tabs/user/medidas">
+            <ion-card-content class="ion-text-center">
+              <ion-icon name="body" class="card-icon"></ion-icon>
+              <p>Medidas</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="4">
+          <ion-card mode="ios" class="small-card progress-card" routerLink="/tabs/training/cardio">
+            <ion-card-content class="ion-text-center">
+              <div class="progress-container">
+                <canvas #progressChart></canvas>
+                <div class="progress-text">
+                  <strong>95%</strong>
+                </div>
               </div>
-            </div>
-            <div class="progress-details">
-              <span>100.002 /</span>
-              <span>105.000</span>
-            </div>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      <ion-col size="4">
-        <ion-card mode="ios" class="small-card">
-          <ion-card-content class="ion-text-center">
-            <ion-icon name="medkit-outline" class="card-icon"></ion-icon>
-            <p><small>Suplementacion</small></p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+              <div class="progress-details">
+                <span>100.002 /</span>
+                <span>105.000</span>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="4">
+          <ion-card mode="ios" class="small-card" routerLink="/tabs/diet/supplementation">
+            <ion-card-content class="ion-text-center">
+              <ion-icon name="medkit-outline" class="card-icon"></ion-icon>
+              <p><small>Suplementacion</small></p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </app-layout>
 </ion-content>

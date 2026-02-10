@@ -10,6 +10,8 @@ import {
   chevronBackOutline, chevronForwardOutline, pencilOutline,
   analyticsOutline, medkitOutline, body
 } from 'ionicons/icons';
+import { LayoutComponent } from "src/app/components/layout/layout.component";
+import { RouterLink } from '@angular/router';
 
 Chart.register(...registerables);
 
@@ -21,7 +23,9 @@ Chart.register(...registerables);
   imports: [
     IonContent, IonCard, IonCardHeader,
     IonCardTitle, IonCardContent, IonButton, IonIcon, IonGrid, IonRow, IonCol,
-    HeaderComponent
+    HeaderComponent,
+    LayoutComponent,
+    RouterLink
   ],
 })
 export class HomePage implements AfterViewInit {
@@ -47,12 +51,12 @@ export class HomePage implements AfterViewInit {
         labels: ['27/12', '29/12', '31/12', '03/01', '05/01', '07/01', '09/01', '11/01'],
         datasets: [{
           data: [78, 81, 79, 80, 81, 92, 81, 80, 81, 79, 80, 80, 80],
-          borderColor: '#1e7544',
-          backgroundColor: 'rgba(30, 117, 68, 0.1)',
+          borderColor: '#3880ff',
+          backgroundColor: 'rgba(56, 128, 255, 0.1)',
           fill: true,
           tension: 0.4,
           pointRadius: 4,
-          pointBackgroundColor: '#1e7544'
+          pointBackgroundColor: '#3880ff'
         }]
       },
       options: {
@@ -79,7 +83,7 @@ export class HomePage implements AfterViewInit {
         labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
         datasets: [{
           data: [14000, 12000, 15000, 16000, 10000, 32000, 0],
-          backgroundColor: '#1e7544',
+          backgroundColor: '#3880ff',
           borderRadius: 8,
           barThickness: 25
         }]
@@ -106,7 +110,7 @@ export class HomePage implements AfterViewInit {
       data: {
         datasets: [{
           data: [95, 5],
-          backgroundColor: ['#1e7544', '#f0f0f0'],
+          backgroundColor: ['#3880ff', '#f0f0f0'],
           borderWidth: 0
         }]
       },

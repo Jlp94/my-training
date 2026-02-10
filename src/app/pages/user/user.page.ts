@@ -11,7 +11,8 @@ import {
   barbell, restaurant, analyticsOutline, logOutOutline,
   chevronBackOutline, notificationsOutline
 } from 'ionicons/icons';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { LayoutComponent } from "src/app/components/layout/layout.component";
 
 @Component({
   selector: 'app-user',
@@ -21,14 +22,16 @@ import { Router } from '@angular/router';
   imports: [
     IonContent, IonAvatar, IonGrid, IonRow, IonCol,
     IonCard, IonCardContent, IonIcon, CommonModule, FormsModule,
-    HeaderComponent
+    HeaderComponent,
+    LayoutComponent,
+    RouterLink
   ]
 })
 export class UserPage implements OnInit {
   private readonly router: Router = inject(Router);
 
 
-  userName = signal('MADELYN');
+  userName = signal('USER');
 
   constructor() {
     addIcons({

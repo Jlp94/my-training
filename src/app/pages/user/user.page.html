@@ -1,61 +1,63 @@
-<app-header titulo="Usuario" [showBack]="true"></app-header>
+<app-header titulo="Usuario" [showBack]="true" url="/tabs/home"></app-header>
 
 <ion-content>
-    <!-- Perfil Card -->
-    <ion-card mode="ios" class="profile-card">
-        <ion-card-content class="ion-text-center">
-            <div class="avatar-container">
-                <ion-avatar>
-                    <div class="initials">M</div>
-                </ion-avatar>
-            </div>
+    <app-layout>
+        <!-- Perfil Card -->
+        <ion-card mode="ios" class="profile-card">
+            <ion-card-content class="ion-text-center">
+                <div class="avatar-container">
+                    <ion-avatar>
+                        <div class="initials">U</div>
+                    </ion-avatar>
+                </div>
 
-            <h2 class="user-name">{{ userName() }}</h2>
+                <h2 class="user-name">{{ userName() }}</h2>
 
-            <div class="notifications-status">
-                <p>Notificaciones activadas</p>
-            </div>
-        </ion-card-content>
-    </ion-card>
+                <div class="notifications-status">
+                    <p>Notificaciones activadas</p>
+                </div>
+            </ion-card-content>
+        </ion-card>
 
-    <ion-grid>
-        <ion-row>
-            <ion-col size="6">
-                <ion-card mode="ios" class="option-card ion-text-center">
-                    <ion-card-content>
-                        <ion-icon name="barbell" color="primary" class="option-icon"></ion-icon>
-                        <p>Ejercicios favoritos</p>
-                    </ion-card-content>
-                </ion-card>
-            </ion-col>
-            <ion-col size="6">
-                <ion-card mode="ios" class="option-card ion-text-center">
-                    <ion-card-content>
-                        <ion-icon name="restaurant" color="primary" class="option-icon"></ion-icon>
-                        <p>Alimentos favoritos</p>
-                    </ion-card-content>
-                </ion-card>
-            </ion-col>
-        </ion-row>
+        <ion-grid>
+            <ion-row>
+                <ion-col size="6">
+                    <ion-card mode="ios" class="option-card ion-text-center">
+                        <ion-card-content>
+                            <ion-icon name="barbell" color="primary" class="option-icon"></ion-icon>
+                            <p>Ejercicios favoritos</p>
+                        </ion-card-content>
+                    </ion-card>
+                </ion-col>
+                <ion-col size="6">
+                    <ion-card mode="ios" class="option-card ion-text-center">
+                        <ion-card-content>
+                            <ion-icon name="restaurant" color="primary" class="option-icon"></ion-icon>
+                            <p>Alimentos favoritos</p>
+                        </ion-card-content>
+                    </ion-card>
+                </ion-col>
+            </ion-row>
 
-        <ion-row>
-            <ion-col size="6">
-                <ion-card mode="ios" class="option-card ion-text-center">
-                    <ion-card-content>
-                        <ion-icon name="analytics-outline" color="primary" class="option-icon"></ion-icon>
-                        <p>Medidas</p>
-                    </ion-card-content>
-                </ion-card>
-            </ion-col>
-            <ion-col size="6">
-                <ion-card mode="ios" class="option-card ion-text-center logout-card">
-                    <ion-card-content (click)="logout()">
-                        <ion-icon name="log-out-outline" color="danger" class="option-icon"></ion-icon>
-                        <p class="logout-text">Cerrar sesión</p>
-                    </ion-card-content>
-                </ion-card>
-            </ion-col>
-        </ion-row>
-    </ion-grid>
+            <ion-row>
+                <ion-col size="6">
+                    <ion-card mode="ios" class="option-card ion-text-center" routerLink="/tabs/user/medidas">
+                        <ion-card-content>
+                            <ion-icon name="analytics-outline" color="primary" class="option-icon"></ion-icon>
+                            <p>Medidas</p>
+                        </ion-card-content>
+                    </ion-card>
+                </ion-col>
+                <ion-col size="6">
+                    <ion-card mode="ios" class="option-card ion-text-center logout-card">
+                        <ion-card-content (click)="logout()">
+                            <ion-icon name="log-out-outline" color="danger" class="option-icon"></ion-icon>
+                            <p class="logout-text">Cerrar sesión</p>
+                        </ion-card-content>
+                    </ion-card>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </app-layout>
 
 </ion-content>
