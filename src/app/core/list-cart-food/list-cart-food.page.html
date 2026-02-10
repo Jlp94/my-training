@@ -1,0 +1,46 @@
+<app-header titulo="Lista de la compra" url="/tabs/diet" [showBack]="true"></app-header>
+
+<ion-content>
+  <app-layout>
+    <div class="segment-container">
+      <ion-segment [value]="selectedPeriod" (ionChange)="segmentChanged($event)" mode="ios" color="primary">
+        <ion-segment-button value="semanal">
+          <ion-label>Semanal</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="2semanas">
+          <ion-label>2 semanas</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="mensual">
+          <ion-label>Mensual</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <ion-list lines="full" class="shopping-list">
+      @for (item of shoppingList; track item.name) {
+      <ion-item class="shopping-item">
+        <ion-label>
+          <h3>{{item.name}}</h3>
+          <p>{{ item.baseWeight * multiplier }} g</p>
+        </ion-label>
+        <ion-checkbox slot="end" [(ngModel)]="item.selected" color="primary"></ion-checkbox>
+      </ion-item>
+      }
+    </ion-list>
+  </app-layout>
+</ion-content>
+
+<ion-footer class="ion-no-border">
+  <ion-toolbar class="footer-toolbar">
+    <div class="footer-buttons">
+      <ion-button expand="block" color="primary" class="action-btn" (click)="toggleSelectAll(true)">
+        <ion-icon name="checkbox-outline" slot="start"></ion-icon>
+        Marcar todo
+      </ion-button>
+      <ion-button expand="block" color="light" class="action-btn" (click)="toggleSelectAll(false)">
+        <ion-icon name="square-outline" slot="start"></ion-icon>
+        Desmarcar todo
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

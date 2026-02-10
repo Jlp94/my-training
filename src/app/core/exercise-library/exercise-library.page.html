@@ -1,0 +1,41 @@
+<app-header titulo="Explicación Ejercicios" url="/tabs/training" [showBack]="true"></app-header>
+
+<ion-content class="ion-padding">
+  <app-layout>
+    <ion-searchbar placeholder="Buscar por nombre, grupo o etiqueta..."></ion-searchbar>
+
+    <ion-accordion-group>
+      @for (exc of exercises; track exc.id) {
+      <ion-accordion value="{{exc.id}}" mode="ios">
+        <ion-item slot="header" lines="none">
+          <ion-thumbnail slot="start">
+            <div class="thumbnail-icon">
+              <ion-icon name="barbell" color="primary"></ion-icon>
+            </div>
+          </ion-thumbnail>
+          <ion-label>
+            <h2 class="exercise-name">{{exc.name}}</h2>
+            <p class="exercise-subtitle">{{exc.target}} · {{exc.equipment}}</p>
+          </ion-label>
+          <ion-text slot="end" color="primary" class="ver-toggle">Ver</ion-text>
+        </ion-item>
+
+        <div class="ion-padding" slot="content">
+          <p class="exercise-description">{{exc.description}}</p>
+          <div class="tags-container" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+            @for (tag of exc.tags; track $index) {
+            <ion-badge color="light">#{{tag}}</ion-badge>
+            }
+          </div>
+
+          <a [href]="exc.videoUrl" target="_blank"
+            style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: #ff0000;">
+            <ion-icon name="logo-youtube" style="font-size: 20px;"></ion-icon>
+            Ver video
+          </a>
+        </div>
+      </ion-accordion>
+      }
+    </ion-accordion-group>
+  </app-layout>
+</ion-content>

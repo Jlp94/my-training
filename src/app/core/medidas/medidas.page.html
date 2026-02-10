@@ -1,0 +1,99 @@
+<app-header titulo="Medidas" url="/tabs/user" [showBack]="true"></app-header>
+
+<ion-content>
+  <app-layout>
+    <div class="body-container">
+      <img src="assets/images/persona_medidas.png" alt="medidas" class="body-image" />
+
+      <div class="measure-badge hombros">
+        <span class="measure-value">{{medidas[0].value}} {{medidas[0].unit}}</span>
+      </div>
+      <div class="measure-badge pecho">
+        <span class="measure-value">{{medidas[1].value}} {{medidas[1].unit}}</span>
+      </div>
+      <div class="measure-badge biceps">
+        <span class="measure-value">{{medidas[2].value}} {{medidas[2].unit}}</span>
+      </div>
+      <div class="measure-badge cintura">
+        <span class="measure-value">{{medidas[3].value}} {{medidas[3].unit}}</span>
+      </div>
+      <div class="measure-badge cadera">
+        <span class="measure-value">{{medidas[4].value}} {{medidas[4].unit}}</span>
+      </div>
+      <div class="measure-badge pierna">
+        <span class="measure-value">{{medidas[5].value}} {{medidas[5].unit}}</span>
+      </div>
+      <div class="measure-badge gemelo">
+        <span class="measure-value">{{medidas[6].value}} {{medidas[6].unit}}</span>
+      </div>
+    </div>
+
+    <div class="measures-list-container">
+      <ion-list lines="full">
+        <ion-item class="measure-item">
+          <ion-label>
+            <h3>{{medidas[0].name}}</h3>
+          </ion-label>
+          <ion-note slot="end" color="dark" class="measure-note">
+            <strong>{{medidas[0].value}} {{medidas[0].unit}}</strong>
+          </ion-note>
+        </ion-item>
+        <ion-item class="measure-item">
+          <ion-label>
+            <h3>{{medidas[1].name}}</h3>
+          </ion-label>
+          <ion-note slot="end" color="dark" class="measure-note">
+            <strong>{{medidas[1].value}} {{medidas[1].unit}}</strong>
+          </ion-note>
+        </ion-item>
+        <ion-item class="measure-item">
+          <ion-label>
+            <h3>{{medidas[2].name}}</h3>
+          </ion-label>
+          <ion-note slot="end" color="dark" class="measure-note">
+            <strong>{{medidas[2].value}} {{medidas[2].unit}}</strong>
+          </ion-note>
+        </ion-item>
+        <ion-item class="measure-item">
+          <ion-label>
+            <h3>{{medidas[3].name}}</h3>
+          </ion-label>
+          <ion-note slot="end" color="dark" class="measure-note">
+            <strong>{{medidas[3].value}} {{medidas[3].unit}}</strong>
+          </ion-note>
+        </ion-item>
+        <ion-item class="measure-item">
+          <ion-label>
+            <h3>{{medidas[4].name}}</h3>
+          </ion-label>
+          <ion-note slot="end" color="dark" class="measure-note">
+            <strong>{{medidas[4].value}} {{medidas[4].unit}}</strong>
+          </ion-note>
+        </ion-item>
+        <ion-item class="measure-item">
+          <ion-label>
+            <h3>{{medidas[5].name}}</h3>
+          </ion-label>
+          <ion-note slot="end" color="dark" class="measure-note">
+            <strong>{{medidas[5].value}} {{medidas[5].unit}}</strong>
+          </ion-note>
+        </ion-item>
+        <ion-item class="measure-item">
+          <ion-label>
+            <h3>{{medidas[6].name}}</h3>
+          </ion-label>
+          <ion-note slot="end" color="dark" class="measure-note">
+            <strong>{{medidas[6].value}} {{medidas[6].unit}}</strong>
+          </ion-note>
+        </ion-item>
+        <ion-item class="measure-item">
+          <ion-label color="primary">Observaciones</ion-label>
+          <ion-note slot="end" color="dark" class="measure-note">
+            <strong>56,2KG 70CM CINT</strong>
+          </ion-note>
+        </ion-item>
+      </ion-list>
+
+    </div>
+  </app-layout>
+</ion-content>

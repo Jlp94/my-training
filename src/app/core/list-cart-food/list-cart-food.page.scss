@@ -1,0 +1,79 @@
+app-layout {
+    display: block;
+    height: 100%;
+}
+
+.segment-container {
+    padding: 16px;
+
+    ion-segment {
+        ion-segment-button::part(indicator-background) {
+            background: var(--ion-color-primary);
+        }
+
+        ion-segment-button.ios {
+            --color-checked: var(--ion-color-primary);
+            --background-checked: var(--ion-color-primary);
+            color: var(--ion-color-primary);
+            --border-radius: 20px;
+        }
+
+        .segment-button-checked.ios::part(native) {
+            color: #fff;
+        }
+    }
+}
+
+.shopping-list {
+    padding: 0 16px 100px;
+
+    .shopping-item {
+        --background: #fff;
+        --border-radius: 12px;
+        // border: 1px solid var(--ion-color-primary);
+        // border-radius: 12px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+        h3 {
+            font-weight: 600;
+            color: var(--ion-color-dark);
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        p {
+            color: var(--ion-color-medium);
+            font-size: 0.9rem;
+        }
+
+        ion-checkbox {
+            --size: 24px;
+            --checkbox-background-checked: var(--ion-color-primary);
+            --border-color-checked: var(--ion-color-primary);
+        }
+    }
+}
+
+ion-footer {
+    background: #fff;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
+
+    .footer-toolbar {
+        --background: transparent;
+        padding: 8px 16px;
+    }
+
+    .footer-buttons {
+        display: flex;
+        gap: 12px;
+
+        .action-btn {
+            flex: 1;
+            height: 48px;
+            font-weight: 600;
+            --border-radius: 12px;
+            margin: 0;
+        }
+    }
+}

@@ -1,0 +1,43 @@
+<ion-content>
+
+  <app-layout>
+
+    <ion-card mode="ios" class="ion-margin-top">
+      <ion-card-content class="ion-text-center">
+        <div class="ion-display-flex ion-justify-content-center">
+          <ion-thumbnail slot="start">
+            <div class="thumbnail-icon">
+              <ion-icon name="barbell" color="primary"></ion-icon>
+            </div>
+          </ion-thumbnail>
+        </div>
+
+        <h2 class="app-name">App Training</h2>
+        <p class="subtitle">Accede con tu cuenta</p>
+
+        <div class="form-container ion-text-left">
+          <div class="input-group">
+            <ion-label position="stacked">Email</ion-label>
+            <ion-item lines="none" class="custom-input">
+              <ion-input type="email" [ngModel]="email()" (ngModelChange)="email.set($event)"></ion-input>
+            </ion-item>
+          </div>
+
+          <div class="input-group">
+            <ion-label position="stacked">Password</ion-label>
+            <ion-item lines="none" class="custom-input">
+              <ion-input [type]="showPassword() ? 'text' : 'password'" [ngModel]="password()"
+                (ngModelChange)="password.set($event)"></ion-input>
+            </ion-item>
+          </div>
+
+          <ion-button expand="block" shape="round" (click)='onLogin()'>
+            Entrar
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+  </app-layout>
+
+</ion-content>

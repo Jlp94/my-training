@@ -1,0 +1,68 @@
+<app-header titulo="Cardio" [showBack]="true" url="/tabs/training"></app-header>
+
+<ion-content class="ion-padding">
+  <app-layout>
+
+    <!-- Tarjeta de Progreso Semanal -->
+    <ion-card class="stats-card">
+      <ion-card-header>
+        <div class="card-top-row">
+          <ion-card-title>Progreso semanal</ion-card-title>
+          <span class="date-range">02 feb - 08 feb</span>
+        </div>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-progress-bar [value]="progress()"></ion-progress-bar>
+        <p class="stats-text">{{ currentMinutes() }} / {{ targetMinutes() }} min · {{ currentKcal() | number:'1.0-0' }}
+          / {{
+          targetKcal() }} kcal</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Tarjeta de Cinta Máxima Inclinación -->
+    <ion-card class="activity-card">
+      <ion-card-header>
+        <div class="card-top-row">
+          <div>
+            <ion-card-title>Cinta máxima inclinación</ion-card-title>
+            <ion-card-subtitle>META 8 · {{ kcalPerMinute }} kcal/min</ion-card-subtitle>
+          </div>
+          <div class="goal-stats">
+            <span class="goal-time">{{ targetMinutes() }} min/sem</span>
+            <span class="goal-kcal">{{ targetKcal() }} kcal</span>
+          </div>
+        </div>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-progress-bar [value]="progress()" [color]="isCompleted() ? 'success' : 'primary'"></ion-progress-bar>
+        <p class="stats-text">
+          {{ currentMinutes() }} / {{ targetMinutes() }} min · {{ currentKcal() | number:'1.0-0' }} / {{ targetKcal() }}
+          kcal
+        </p>
+        @if (extraMinutes() > 0) {
+        <p class="extra-text">
+          + {{ extraMinutes() }} min extra realizados
+        </p>
+        }
+
+        <div class="input-actions-row">
+          <div class="input-wrapper">
+            <ion-input type="number" placeholder="+10" class="time-input" [ngModel]="enteredMinutes()"
+              (ngModelChange)="enteredMinutes.set($event)"></ion-input>
+            <span class="speed-label">4,5 VELOCIDAD</span>
+          </div>
+
+          <ion-button color="primary" class="action-btn register-btn" (click)="registerMinutes()">
+            Registrar
+          </ion-button>
+
+          <div class="completed-check generic-check" [class.active]="isCompleted()">
+            <span>Completado</span>
+            <ion-checkbox [checked]="isCompleted()" disabled="true" mode="ios"></ion-checkbox>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </app-layout>
+</ion-content>

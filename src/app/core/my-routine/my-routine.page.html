@@ -1,0 +1,107 @@
+<app-header titulo="Mi Rutina" url="/tabs/training" [showBack]="true"></app-header>
+
+
+
+<ion-content class="ion-padding-bottom">
+  <app-layout>
+
+    <div class="day-selector-container">
+      <swiper-container #swiper slides-per-view="auto" centered-slides="true" initial-slide="15" space-between="-10"
+        free-mode="true" pagination="false" navigation="true">
+        @for (day of days; track $index) {
+        <swiper-slide>
+          <ion-card class="day-card" [class.active]="selectedDay === $index" (click)="selectDay($index)">
+            <span class="day-name">{{day.dayName}}</span>
+            <span class="day-number">{{day.date}}</span>
+            @if (selectedDay === $index) {
+            <div class="dot"></div>
+            }
+          </ion-card>
+        </swiper-slide>
+        }
+      </swiper-container>
+    </div>
+
+    <div class="ion-padding-horizontal ion-margin-top">
+      <h5><strong class="ion-margin-end">Elige el día de entrenamiento</strong>
+        <small class="ion-margin-start">{{days[selectedDay]?.fullDate | date:'dd MMM yyyy'}}</small>
+      </h5>
+    </div>
+
+    <form [formGroup]="routineForm">
+      <ion-accordion-group class="ion-margin-top">
+        <ng-container formArrayName="exercises">
+          @for (exercise of exercises.controls; track i; let i = $index) {
+          <ion-accordion [value]="'exercise-'+i" mode="ios" [formGroupName]="i">
+            <ion-item slot="header" lines="none">
+              <ion-thumbnail slot="start">
+                <div class="thumbnail-icon">
+                  <ion-icon name="barbell" color="primary"></ion-icon>
+                </div>
+              </ion-thumbnail>
+              <ion-label>
+                <h2 class="exercise-name">{{exercise.get('name')?.value}}</h2>
+                <p class="exercise-target">{{exercise.get('target')?.value}}</p>
+              </ion-label>
+            </ion-item>
+
+            <div class="ion-padding" slot="content">
+              <ng-container formArrayName="sets">
+                @for (set of getSets(i).controls; track j; let j = $index) {
+                <div class="card">
+                  <div [formGroupName]="j" class="ion-padding">
+                    <div class="set-header">Serie {{j+1}}
+                      <div class="ion-display-flex ion-justify-content-between ion-align-items-center">
+                        <ion-badge class="ion-margin-end" slot="start">2 min</ion-badge>
+                        <ion-badge slot="start">2-1-0</ion-badge>
+                      </div>
+                    </div>
+                    <ion-row>
+                      <ion-col>
+                        <ion-input mode="md" label="Rp" label-placement="floating" fill="outline" type="number"
+                          formControlName="reps" placeholder="Ej: 10"></ion-input>
+                      </ion-col>
+                      <ion-col>
+                        <ion-input mode="md" label="Kg" label-placement="floating" fill="outline" type="number"
+                          formControlName="weight" placeholder="Ej: 80"></ion-input>
+                      </ion-col>
+                      <ion-col>
+                        <ion-input mode="md" label="Rir" label-placement="floating" fill="outline" type="number"
+                          formControlName="rir" placeholder="Ej: 2"></ion-input>
+                      </ion-col>
+                      <ion-col
+                        class="ion-margin-start ion-display-flex ion-justify-content-between ion-align-items-center">
+                        <ion-button fill="clear" size="small" color="warning" (click)="startTimer(i, j)">
+                          <ion-icon class="card__icon" name="alarm-outline" slot="icon-only"></ion-icon>
+                        </ion-button>
+                        <ion-button fill="clear" size="small" color="danger" (click)="removeSet(i, j)">
+                          <ion-icon class="card__icon" name="trash-outline" slot="icon-only"></ion-icon>
+                        </ion-button>
+                      </ion-col>
+                    </ion-row>
+                  </div>
+                </div>
+
+                }
+              </ng-container>
+
+              <ion-button expand="block" fill="outline" class="ion-margin-top add-btn" (click)="addSet(i)">
+                <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+                Añadir serie
+              </ion-button>
+            </div>
+          </ion-accordion>
+          }
+        </ng-container>
+      </ion-accordion-group>
+    </form>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="block" shape="round" color="primary" (click)="saveRoutine()">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          Guardar
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </app-layout>
+</ion-content>

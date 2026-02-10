@@ -1,0 +1,163 @@
+<app-header titulo="Mi Dieta" url="/tabs/diet" [showBack]="true"></app-header>
+
+<ion-content>
+  <app-layout>
+
+    <!-- Header Simulado (ya que tenemos app-header arriba, esto es el contenido scrollable) -->
+    <div class="diet-header ion-padding-top ion-padding-horizontal">
+      <ion-grid>
+        <ion-row class="ion-align-items-center">
+          <ion-col size="2">
+            <div class="icon-box">
+              <ion-icon name="barbell" color="primary"></ion-icon>
+            </div>
+          </ion-col>
+          <ion-col>
+            <h2 class="diet-title">DIA ENTRENAMIENTO</h2>
+            <p class="diet-subtitle">entreno</p>
+            <p class="diet-date">05 feb 2026</p>
+            <p class="diet-kcal">{{caloriesConsumed}} kcal</p>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <!-- Macros Card with Chart -->
+    <ion-card class="macros-card" mode="ios">
+      <ion-card-header>
+        <ion-card-title>Macros consumidos</ion-card-title>
+        <ion-card-subtitle>0 kcal / {{caloriesTarget}} kcal</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content class="chart-container">
+        <div class="chart-wrapper">
+          <canvas #macrosChart></canvas>
+        </div>
+
+        <!-- Custom Legend logic can go here or within the chart plugins -->
+        <div class="custom-legend ion-margin-top">
+          <ion-grid>
+            <ion-row class="ion-justify-content-center">
+              <ion-col size="auto" class="legend-item">
+                <span class="dot protein"></span> Prote
+              </ion-col>
+              <ion-col size="auto" class="legend-item">
+                <span class="dot carbs"></span> Carbos
+              </ion-col>
+              <ion-col size="auto" class="legend-item">
+                <span class="dot fats"></span> Grasas
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Meal Cards Loop -->
+    @for (meal of meals; track meal.name) {
+    <ion-card class="meal-card" mode="ios">
+      <ion-card-header>
+        <div class="meal-header-top">
+          <ion-checkbox color="primary" [(ngModel)]="meal.completed" class="meal-checkbox"></ion-checkbox>
+          <ion-card-title>{{ meal.name }}</ion-card-title>
+        </div>
+        <div class="meal-header-bottom">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>{{ meal.time }}</span>
+          <ion-icon name="flame" class="fire-icon"></ion-icon>
+          <span>{{ meal.calories }} kcal</span>
+        </div>
+      </ion-card-header>
+
+      <ion-card-content class="meal-content">
+        <ion-list lines="none">
+          @for (food of meal.foods; track food.name) {
+          <ion-item class="food-item">
+            <div class="food-info">
+              <span class="food-name">{{ food.name }}</span>
+              <span class="food-amount" *ngIf="food.amount">{{ food.amount }}</span>
+            </div>
+            <ion-note slot="end" class="food-kcal">{{ food.kcal }} kcal</ion-note>
+          </ion-item>
+          }
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+    }
+
+    <!-- Extras Section -->
+    <div class="extras-section ion-padding">
+      <div class="extras-header">
+        <h3>Extras del día</h3>
+        <ion-button fill="outline" color="dark" size="small" (click)="setOpen(true)">Añadir extra</ion-button>
+      </div>
+      <p class="no-extras">Sin extras añadidos.</p>
+    </div>
+
+    <div class="ion-padding">
+      <ion-button expand="block" shape="round" color="secondary" class="submit-btn" size="large">Enviar
+        resumen</ion-button>
+    </div>
+
+
+    <!-- Add Extra Modal -->
+    <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpen(false)" class="add-extra-modal">
+      <ng-template>
+        <div class="modal-content">
+          <div class="modal-search">
+            <ion-item lines="none" class="search-item">
+              <ion-input placeholder="Nombre (ej. McFlurry)" [(ngModel)]="extraName"></ion-input>
+              <ion-button slot="end" fill="clear" color="primary">
+                <ion-icon name="search"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </div>
+
+          <div class="modal-form">
+            <ion-label>Cantidad (g/ml)</ion-label>
+            <ion-item lines="none" class="input-item">
+              <ion-input type="number" [(ngModel)]="extraAmount" placeholder="100"></ion-input>
+            </ion-item>
+
+            <ion-grid class="macros-inputs">
+              <ion-row>
+                <ion-col>
+                  <ion-label>Kcal</ion-label>
+                  <ion-item lines="none" class="input-item small">
+                    <ion-input type="number" [(ngModel)]="extraKcal" placeholder="0"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col>
+                  <ion-label>Prote</ion-label>
+                  <ion-item lines="none" class="input-item small">
+                    <ion-input type="number" [(ngModel)]="extraProtein" placeholder="0"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <ion-label>Carbos</ion-label>
+                  <ion-item lines="none" class="input-item small">
+                    <ion-input type="number" [(ngModel)]="extraCarbs" placeholder="0"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col>
+                  <ion-label>Grasa</ion-label>
+                  <ion-item lines="none" class="input-item small">
+                    <ion-input type="number" [(ngModel)]="extraFat" placeholder="0"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+
+            <div class="modal-actions">
+              <ion-button expand="block" color="success" class="add-btn" (click)="addExtra()">Agregar</ion-button>
+              <ion-button expand="block" color="danger" fill="outline" class="cancel-btn"
+                (click)="setOpen(false)">Cancelar</ion-button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </ion-modal>
+
+  </app-layout>
+</ion-content>
