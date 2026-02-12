@@ -7,7 +7,7 @@
     text-align: center;
     background: #FBFCF8;
     border-radius: 20px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 16px rgba(var(--ion-color-dark-rgb), 0.2);
 
     .body-image {
         max-height: 400px;
@@ -18,7 +18,7 @@
     .measure-badge {
         position: absolute;
         background: rgba(var(--ion-color-primary-rgb), 0.15);
-        color: var(--ion-color-dark);
+        color: var(--ion-color-medium-shade);
         border: 1px solid var(--ion-color-primary);
         padding: 4px 12px;
         border-radius: 20px;
@@ -26,12 +26,11 @@
         font-weight: 700;
         white-space: nowrap;
         transform: translate(-50%, -50%);
-        backdrop-filter: blur(4px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px rgba(var(--ion-color-primary-rgb), 0.2);
         z-index: 10;
 
         .measure-value {
-            color: var(--ion-color-dark);
+            color: var(--ion-color-medium-shade);
         }
 
         &.hombros {
@@ -79,12 +78,12 @@
         padding: 0;
 
         .measure-item {
-            --background: #f4f6f7;
+            --background: var(--ion-color-light);
             --border-radius: 12px;
-            border: 1px solid #e1e2e3;
+            border: 1px solid var(--ion-color-light-shade);
             border-radius: 12px;
             margin-bottom: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 2px 8px rgba(var(--ion-color-dark-rgb), 0.2);
 
             h3 {
                 font-weight: 600;
@@ -100,11 +99,11 @@
     }
 
     .observations-card {
-        --background: #f4f6f7;
+        --background: var(--ion-color-light);
         border: 1px solid var(--ion-color-medium);
         border-radius: 12px;
         margin: 20px 0 0;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 16px rgba(var(--ion-color-dark-rgb), 0.5);
 
         ion-label {
             display: block;

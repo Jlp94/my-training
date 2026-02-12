@@ -1,14 +1,13 @@
 ion-content {
-    --background: #f8f9fa;
+    --background: var(--ion-color-light);
 }
-
 
 // Perfil Card
 .profile-card {
     margin: 16px;
     border-radius: 20px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
-    background: white;
+    box-shadow: 0 4px 16px rgba(var(--ion-color-dark-rgb), 0.2);
+    border-color: 1px solid var(--ion-color-light-shade);
 
     ion-card-content {
         padding: 24px 16px;
@@ -23,22 +22,27 @@ ion-content {
     ion-avatar {
         width: 100px;
         height: 100px;
-        background: #f0f4ff;
+        background: rgba(var(--ion-color-tertiary-rgb), 0.35);
         padding: 4px;
-        border: 1px solid #e0e6f0;
+        // border: 1px solid var(--ion-color-tertiary);
+
 
         .initials {
             width: 100%;
             height: 100%;
-            background: #f0f4ff;
+            background: rgba(var(--ion-color-light-rgb), 0.35);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
-            font-weight: 600;
-            color: #1a1a4b;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            box-shadow: inset 0 2px 4px rgba(var(--ion-color-medium-rgb), 0.4);
+            backdrop-filter: blur(4px);
+
+            .initials__text {
+                font-size: 2.5rem;
+                font-weight: 600;
+                color: var(--ion-color-tertiary);
+            }
         }
     }
 }
@@ -46,7 +50,7 @@ ion-content {
 .user-name {
     font-size: 1.4rem;
     font-weight: 700;
-    color: #333;
+    color: var(--ion-color-medium-shade);
     margin: 0;
     letter-spacing: 0.5px;
 }
@@ -56,7 +60,7 @@ ion-content {
 
     p {
         font-size: 0.9rem;
-        color: #999;
+        color: var(--ion-color-medium);
         margin: 0;
     }
 }
@@ -68,14 +72,17 @@ ion-grid {
 
 .option-card {
     margin: 4px;
-    border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-    background: white;
+    --border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(var(--ion-color-medium-rgb), 0.3);
+    border-color: 1px solid var(--ion-color-light-shade);
 
     ion-card-content {
         padding: 16px 8px;
 
         .option-icon {
+            background: rgba(var(--ion-color-tertiary-rgb), 0.15);
+            border-radius: 50%;
+            padding: 10px;
             font-size: 1.8rem;
             margin-bottom: 8px;
         }
@@ -84,7 +91,7 @@ ion-grid {
             margin: 0;
             font-size: 0.85rem;
             font-weight: 600;
-            color: #333;
+            color: var(--ion-color-medium-shade);
             line-height: 1.2;
         }
     }
@@ -92,15 +99,17 @@ ion-grid {
 
 .logout-card {
     .logout-text {
-        color: #eb445a;
+        color: var(--ion-color-danger);
     }
 }
 
 // Badges Card
 .badges-card {
     margin: 16px;
-    border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    --background: var(--ion-color-light);
+    --border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(var(--ion-color-dark-rgb), 0.3);
+    border-color: 1px solid var(--ion-color-light-shade);
 
     .badges-header {
         display: flex;
@@ -111,17 +120,17 @@ ion-grid {
         ion-card-title {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #333;
+            color: var(--ion-color-medium-shade);
         }
 
         .badge-count {
-            color: #888;
+            color: var(--ion-color-medium-shade);
             font-size: 0.9rem;
         }
     }
 
     .no-badges-msg {
-        color: #888;
+        color: var(--ion-color-medium-shade);
         font-size: 0.9rem;
         margin: 0;
     }

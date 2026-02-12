@@ -5,8 +5,9 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { IonContent, IonIcon, IonButton, IonAccordionGroup, IonAccordion, IonItem, IonLabel, IonInput, IonThumbnail, IonCol } from '@ionic/angular/standalone';
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { addIcons } from 'ionicons';
-import { barbell, alarmOutline, trashOutline, addCircleOutline, saveOutline } from 'ionicons/icons';
+import { barbell, alarmOutline, trashOutline, addCircleOutline, saveOutline, timerOutline } from 'ionicons/icons';
 import { LayoutComponent } from "src/app/components/layout/layout.component";
+import { ExecutionMode } from 'src/app/common/interfaces';
 
 @Component({
   selector: 'app-my-routine',
@@ -43,8 +44,11 @@ export class MyRoutinePage implements OnInit {
   days: any[] = [];
   selectedDay: number = 0;
 
+  routineType: string = '';
+  routineCategory: string = '';
+
   constructor() {
-    addIcons({ barbell, alarmOutline, trashOutline, addCircleOutline, saveOutline });
+    addIcons({ barbell, timerOutline, alarmOutline, trashOutline, addCircleOutline, saveOutline });
     this.generateDays();
   }
 
@@ -77,54 +81,107 @@ export class MyRoutinePage implements OnInit {
   }
 
   loadRoutine() {
-    const EjExercises = [ // Ejemplo de rutina
-      {
-        name: 'Dominadas Asistidas',
-        target: 'Espalda',
-        sets: [
-          { weight: 40, reps: 10, rir: 2, descanso: 120, tempo: '2-1-0' },
-          { weight: 40, reps: 8, rir: 1, descanso: 120, tempo: '2-1-0' },
-          { weight: 40, reps: 8, rir: 0, descanso: 120, tempo: '2-1-0' }
-        ]
-      },
-      {
-        name: 'Press de Banca con Mancuernas',
-        target: 'Pectoral',
-        sets: [
-          { weight: 24, reps: 10, rir: 2, descanso: 120, tempo: '2-1-0' },
-          { weight: 24, reps: 10, rir: 1, descanso: 120, tempo: '2-1-0' },
-        ]
-      },
-      {
-        name: 'Sentadilla Búlgara',
-        target: 'Piernas',
-        sets: [
-          { weight: 12, reps: 12, rir: 3, descanso: 120, tempo: '2-1-0' },
-          { weight: 12, reps: 12, rir: 2, descanso: 120, tempo: '2-1-0' },
-          { weight: 12, reps: 10, rir: 1, descanso: 120, tempo: '2-1-0' }
-        ]
-      }
-    ];
+    const EjExercises = { // Ejemplo de rutina desde API
+      _id: 'mongo_id_123',
+      routineType: 'FullBody', // Tipo de rutina
+      category: '1', // Categoría (String)
+      exercises: [
+        {
+          _id: 'ex_1',
+          name: 'Dominadas Asistidas',
+          target: 'Espalda',
+          rest: 120,
+          executionType: ExecutionMode.NORMAL,
+          restPauseSeconds: null,
+          idExSuperSet: null,
+          sets: [
+            { kg: 40, reps: 10, rir: 2, tempo: { eccentric: 2, isometric: 1, concentric: 0 } },
+            { kg: 40, reps: 8, rir: 1, tempo: { eccentric: 2, isometric: 1, concentric: 0 } },
+            { kg: 40, reps: 8, rir: 0, tempo: { eccentric: 2, isometric: 1, concentric: 0 } }
+          ]
+        },
+        {
+          _id: 'ex_2',
+          name: 'Press Banca',
+          target: 'Pectoral',
+          rest: 90,
+          executionType: ExecutionMode.SUPER_SET,
+          restPauseSeconds: null,
+          idExSuperSet: 'ex_3',
+          sets: [
+            { kg: 60, reps: 10, rir: 2, tempo: { eccentric: 3, isometric: 0, concentric: 1 } },
+          ]
+        },
+        {
+          _id: 'ex_3',
+          name: 'Remo con Barra',
+          target: 'Espalda',
+          rest: 90,
+          executionType: ExecutionMode.SUPER_SET,
+          restPauseSeconds: null,
+          idExSuperSet: 'ex_2',
+          sets: [
+            { kg: 50, reps: 10, rir: 2, tempo: { eccentric: 3, isometric: 0, concentric: 1 } },
+          ]
+        },
+        {
+          _id: 'ex_4',
+          name: 'Elevaciones Laterales',
+          target: 'Hombro',
+          rest: 60,
+          executionType: ExecutionMode.REST_PAUSE,
+          restPauseSeconds: 20,
+          idExSuperSet: null,
+          sets: [
+            { kg: 10, reps: 15, rir: 0, tempo: { eccentric: 2, isometric: 0, concentric: 1 } },
+            { kg: 10, reps: 5, rir: 0, tempo: { eccentric: 2, isometric: 0, concentric: 1 } }, // Mini set
+          ]
+        },
+        {
+          _id: 'ex_5',
+          name: 'Extensiones de Tríceps',
+          target: 'Tríceps',
+          rest: 60,
+          executionType: ExecutionMode.DROP_SET,
+          restPauseSeconds: null,
+          idExSuperSet: null,
+          sets: [
+            { kg: 20, reps: 12, rir: 0, tempo: { eccentric: 2, isometric: 0, concentric: 1 } },
+            { kg: 15, reps: 10, rir: 0, tempo: { eccentric: 2, isometric: 0, concentric: 1 } }, // Drop
+          ]
+        }
+      ]
+    };
 
-    EjExercises.forEach(ex => {
+    if (EjExercises) {
+      this.routineType = EjExercises.routineType;
+      this.routineCategory = EjExercises.category;
+    }
+
+    EjExercises.exercises.forEach(ex => {
       const exerciseGroup = this.formBuilder.group({
+        _id: [ex._id],
         name: [ex.name],
         target: [ex.target],
+        rest: [ex.rest], // <--- ¡AÑADE ESTA LÍNEA!
+        executionType: [ex.executionType],
+        idExSuperSet: [ex.idExSuperSet || null], // Aseguramos el null
+        restPauseSeconds: [ex.restPauseSeconds || null],
         sets: this.formBuilder.array([])
       });
 
       const setsArray = exerciseGroup.get('sets') as FormArray;
       ex.sets.forEach(s => {
-        setsArray.push(this.createSetGroup(s.weight, s.reps, s.rir));
+        setsArray.push(this.createSetGroup(s.kg, s.reps, s.rir));
       });
 
       this.exercises.push(exerciseGroup);
     });
   }
 
-  createSetGroup(weight: number = 0, reps: number = 0, rir: number = 0) { // Crear Grupo de Series
+  createSetGroup(kg: number = 0, reps: number = 0, rir: number = 0) { // Crear Grupo de Series
     return this.formBuilder.group({
-      weight: [weight, Validators.required],
+      kg: [kg, Validators.required],
       reps: [reps, Validators.required],
       rir: [rir, Validators.required],
     });
@@ -140,15 +197,14 @@ export class MyRoutinePage implements OnInit {
 
 
   startTimer(exerciseIndex: number, setIndex: number) {
-    // Lógica simulada del temporizador - en una app real esto activaría una cuenta atrás/modal
-    console.log(`Starting timer for Exercise ${exerciseIndex + 1}, Set ${setIndex + 1}`);
+    const ejercicio = this.exercises.at(exerciseIndex).value;
+    const tiempoDescanso = ejercicio.rest || 120; // Segundos
 
-    this.toastService.cargarToast('Temporizador iniciado (2 min)', 2000, 'primary');
+    this.toastService.cargarToast(`Descanso: ${tiempoDescanso}s`, 2000, 'primary');
 
     setTimeout(() => {
-      this.toastService.cargarToast('Timer finalizado', 2000, 'success');
-      // this.playSound();
-    }, 1000 * 60 * 2);
+      this.toastService.cargarToast('¡A darle!', 2000, 'success');
+    }, tiempoDescanso * 1000);
   }
 
   // playSound() { // Función de sonido de alarma

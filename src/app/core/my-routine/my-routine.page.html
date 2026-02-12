@@ -23,9 +23,13 @@
     </div>
 
     <div class="ion-padding-horizontal ion-margin-top">
-      <h5><strong class="ion-margin-end">Elige el día de entrenamiento</strong>
+      <h6 class="ion-display-flex ion-justify-content-between ion-align-items-center">
+        <div>
+          <strong class="ion-margin-end">{{ routineType }}</strong>
+          <span style="color: var(--ion-color-medium);">{{ routineCategory }}</span>
+        </div>
         <small class="ion-margin-start">{{days[selectedDay]?.fullDate | date:'dd MMM yyyy'}}</small>
-      </h5>
+      </h6>
     </div>
 
     <form [formGroup]="routineForm">
@@ -40,7 +44,14 @@
                 </div>
               </ion-thumbnail>
               <ion-label>
-                <h2 class="exercise-name">{{exercise.get('name')?.value}}</h2>
+                <div class="ion-display-flex ion-align-items-center ion-justify-content-between">
+                  <h6 class="exercise-name">{{exercise.get('name')?.value}}</h6>
+                  @if (exercise.get('executionType')?.value !== 'NORMAL') {
+                  <ion-chip color="primary" mode="ios" class="ion-margin-start">
+                    <small>{{exercise.get('executionType')?.value}}</small>
+                  </ion-chip>
+                  }
+                </div>
                 <p class="exercise-target">{{exercise.get('target')?.value}}</p>
               </ion-label>
             </ion-item>
@@ -52,8 +63,10 @@
                   <div [formGroupName]="j" class="ion-padding">
                     <div class="set-header">Serie {{j+1}}
                       <div class="ion-display-flex ion-justify-content-between ion-align-items-center">
-                        <ion-badge class="ion-margin-end" slot="start">2 min</ion-badge>
-                        <ion-badge slot="start">2-1-0</ion-badge>
+                        <ion-chip color="primary" class="ion-margin-end" slot="start">
+                          <ion-icon name="timer-outline"></ion-icon>
+                          <small>{{ exercise.get('rest')?.value || 120 }} seg</small></ion-chip>
+                        <ion-chip color="primary" slot="start"><small>2-1-0</small></ion-chip>
                       </div>
                     </div>
                     <ion-row>
@@ -63,7 +76,7 @@
                       </ion-col>
                       <ion-col>
                         <ion-input mode="md" label="Kg" label-placement="floating" fill="outline" type="number"
-                          formControlName="weight" placeholder="Ej: 80"></ion-input>
+                          formControlName="kg" placeholder="Ej: 80"></ion-input>
                       </ion-col>
                       <ion-col>
                         <ion-input mode="md" label="Rir" label-placement="floating" fill="outline" type="number"

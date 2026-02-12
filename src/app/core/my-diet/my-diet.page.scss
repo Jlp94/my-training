@@ -1,57 +1,8 @@
-app-layout {
-    display: block;
-    height: 100%;
-}
-
-.diet-header {
-    margin-bottom: 20px;
-
-    .icon-box {
-        background: #e8f5e9;
-        border-radius: 12px;
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        ion-icon {
-            font-size: 24px;
-        }
-    }
-
-    .diet-title {
-        font-size: 1rem;
-        font-weight: 700;
-        margin: 0;
-        color: var(--ion-color-dark);
-    }
-
-    .diet-subtitle {
-        font-size: 0.9rem;
-        margin: 2px 0;
-        color: var(--ion-color-medium);
-    }
-
-    .diet-date {
-        font-size: 0.85rem;
-        margin: 2px 0;
-        color: var(--ion-color-medium);
-    }
-
-    .diet-kcal {
-        font-size: 0.9rem;
-        font-weight: 600;
-        margin-top: 4px;
-        color: var(--ion-color-dark);
-    }
-}
-
 .macros-card {
     border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 16px rgba(var(--ion-color-dark-rgb), 0.25);
     margin: 16px;
-    background: #fff;
+    background: var(--ion-color-light);
 
     ion-card-header {
         padding-bottom: 0;
@@ -62,10 +13,21 @@ app-layout {
         font-weight: 700;
     }
 
-    ion-card-subtitle {
-        font-size: 0.9rem;
-        text-transform: none;
+    .subtitle-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         margin-top: 4px;
+
+        ion-card-subtitle {
+            font-size: 0.9rem;
+            text-transform: none;
+            margin: 0;
+        }
+
+        ion-icon {
+            font-size: 1.2rem;
+        }
     }
 
     .chart-container {
@@ -78,6 +40,30 @@ app-layout {
             position: relative;
             height: 200px;
             width: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .chart-text {
+                position: absolute;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                pointer-events: none;
+
+                .calories-value {
+                    font-size: 1.8rem;
+                    font-weight: 700;
+                    color: var(--ion-color-dark);
+                    line-height: 1;
+                }
+
+                .calories-label {
+                    font-size: 0.8rem;
+                    color: var(--ion-color-medium);
+                    margin-top: 4px;
+                }
+            }
         }
 
         .custom-legend {
@@ -133,17 +119,127 @@ app-layout {
         }
     }
 
+    .meal-macros-summary {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed rgba(var(--ion-color-medium-rgb), 0.2);
+        font-size: 0.8rem;
+        font-weight: 500;
+
+        .macro {
+            &.protein {
+                color: #eb445a;
+            }
+
+            &.carbs {
+                color: #ffc409;
+            }
+
+            &.fat {
+                color: #3880ff;
+            }
+        }
+    }
+
     .no-extras {
         color: var(--ion-color-medium);
         font-size: 0.95rem;
     }
+
+    .extras-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .extra-card {
+            margin: 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(var(--ion-color-dark-rgb), 0.1);
+            background: var(--ion-color-light);
+
+            .extra-content {
+                padding: 12px 16px;
+            }
+
+            .extra-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 4px;
+
+                .extra-name {
+                    margin: 0;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    color: var(--ion-color-dark);
+                }
+
+                ion-button {
+                    margin: 0;
+                    height: 24px;
+                    --padding-start: 4px;
+                    --padding-end: 4px;
+                }
+            }
+
+            .extra-details {
+                font-size: 0.85rem;
+                color: var(--ion-color-medium);
+                margin-bottom: 8px;
+
+                .separator {
+                    margin: 0 6px;
+                }
+
+                .extra-kcal {
+                    font-weight: 600;
+                    color: var(--ion-color-dark);
+                }
+            }
+
+            .extra-macros {
+                display: flex;
+                gap: 12px;
+                font-size: 0.8rem;
+                font-weight: 500;
+
+                .macro {
+                    &.protein {
+                        color: #eb445a;
+                    }
+
+                    &.carbs {
+                        color: #ffc409;
+                    }
+
+                    &.fat {
+                        color: #3880ff;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.excess-warning {
+    display: inline-block;
+    background: rgba(var(--ion-color-danger-rgb), 0.1);
+    color: var(--ion-color-danger);
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+    vertical-align: middle;
+    font-weight: 700;
 }
 
 .meal-card {
     border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 16px rgba(var(--ion-color-dark-rgb), 0.25);
     margin: 16px;
-    background: #fff;
+    background: var(--ion-color-light);
 
     ion-card-header {
         padding-bottom: 8px;
@@ -237,14 +333,14 @@ ion-modal.add-extra-modal {
     --width: 90%;
     --max-width: 400px;
     --border-radius: 16px;
-    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    --box-shadow: 0 10px 30px rgba(var(--ion-color-dark-rgb), 0.2);
 
     /* Center the modal */
     align-items: center;
     justify-content: center;
 
     .modal-content {
-        background: #fff;
+        background: var(--ion-color-light);
         padding: 20px;
         border-radius: 16px;
         /* If using --border-radius on modal, content should fill or handle radius */
@@ -254,8 +350,9 @@ ion-modal.add-extra-modal {
         margin-bottom: 20px;
 
         .search-item {
-            --background: #f4f5f8;
-            --border-radius: 12px;
+            --background: var(--ion-color-light);
+            border: 1px solid var(--ion-color-light-shade);
+            border-radius: 8px;
             --padding-start: 12px;
 
             ion-input {
@@ -274,8 +371,8 @@ ion-modal.add-extra-modal {
         }
 
         .input-item {
-            --background: #fff;
-            border: 1px solid #e0e0e0;
+            --background: var(--ion-color-light);
+            border: 1px solid var(--ion-color-light-shade);
             border-radius: 8px;
             margin-bottom: 16px;
             --padding-start: 12px;

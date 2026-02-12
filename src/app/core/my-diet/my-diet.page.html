@@ -3,34 +3,27 @@
 <ion-content>
   <app-layout>
 
-    <!-- Header Simulado (ya que tenemos app-header arriba, esto es el contenido scrollable) -->
-    <div class="diet-header ion-padding-top ion-padding-horizontal">
-      <ion-grid>
-        <ion-row class="ion-align-items-center">
-          <ion-col size="2">
-            <div class="icon-box">
-              <ion-icon name="barbell" color="primary"></ion-icon>
-            </div>
-          </ion-col>
-          <ion-col>
-            <h2 class="diet-title">DIA ENTRENAMIENTO</h2>
-            <p class="diet-subtitle">entreno</p>
-            <p class="diet-date">05 feb 2026</p>
-            <p class="diet-kcal">{{caloriesConsumed}} kcal</p>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
-
     <!-- Macros Card with Chart -->
     <ion-card class="macros-card" mode="ios">
       <ion-card-header>
-        <ion-card-title>Macros consumidos</ion-card-title>
-        <ion-card-subtitle>0 kcal / {{caloriesTarget}} kcal</ion-card-subtitle>
+        <ion-card-title>
+          Macros
+          <span class="excess-warning" *ngIf="caloriesConsumed > caloriesTarget">
+            +{{ caloriesConsumed - caloriesTarget }} Kcal Extra
+          </span>
+        </ion-card-title>
+        <div class="subtitle-container">
+          <ion-card-subtitle>Objetivo: {{caloriesTarget}} kcal</ion-card-subtitle>
+          <ion-icon name="checkmark-circle" color="success" *ngIf="caloriesConsumed >= caloriesTarget"></ion-icon>
+        </div>
       </ion-card-header>
       <ion-card-content class="chart-container">
-        <div class="chart-wrapper">
+        <div class="chart-wrapper concentric">
           <canvas #macrosChart></canvas>
+          <div class="chart-text">
+            <span class="calories-value">{{caloriesConsumed}}</span>
+            <span class="calories-label">Consumidas</span>
+          </div>
         </div>
 
         <!-- Custom Legend logic can go here or within the chart plugins -->
@@ -38,10 +31,10 @@
           <ion-grid>
             <ion-row class="ion-justify-content-center">
               <ion-col size="auto" class="legend-item">
-                <span class="dot protein"></span> Prote
+                <span class="dot carbs"></span> Carbos
               </ion-col>
               <ion-col size="auto" class="legend-item">
-                <span class="dot carbs"></span> Carbos
+                <span class="dot protein"></span> Prote
               </ion-col>
               <ion-col size="auto" class="legend-item">
                 <span class="dot fats"></span> Grasas
@@ -55,16 +48,15 @@
     <!-- Meal Cards Loop -->
     @for (meal of meals; track meal.name) {
     <ion-card class="meal-card" mode="ios">
-      <ion-card-header>
+      <ion-card-header class="ion-display-flex ion-align-items-center">
         <div class="meal-header-top">
-          <ion-checkbox color="primary" [(ngModel)]="meal.completed" class="meal-checkbox"></ion-checkbox>
+          <ion-checkbox color="primary" [(ngModel)]="meal.completed" (ionChange)="calculateTotalCalories()"
+            class="meal-checkbox"></ion-checkbox>
           <ion-card-title>{{ meal.name }}</ion-card-title>
-        </div>
-        <div class="meal-header-bottom">
-          <ion-icon name="time-outline"></ion-icon>
-          <span>{{ meal.time }}</span>
-          <ion-icon name="flame" class="fire-icon"></ion-icon>
-          <span>{{ meal.calories }} kcal</span>
+          <div class="ion-display-flex ion-align-center">
+            <ion-icon name="flame" class="fire-icon" color="danger"></ion-icon>
+            <span>{{ meal.calories }} kcal</span>
+          </div>
         </div>
       </ion-card-header>
 
@@ -81,6 +73,15 @@
           }
         </ion-list>
       </ion-card-content>
+
+      <!-- Meal Footer with Macros -->
+      <ion-footer class="ion-text-center ion-padding-bottom">
+        <div class="meal-macros-summary ion-display-flex ion-justify-content-evenly">
+          <ion-text color="warning"><span class="macro carbs">C: {{ meal.macros.carbs }}g</span></ion-text>
+          <ion-text color="danger"><span class="macro protein">P: {{ meal.macros.protein }}g</span></ion-text>
+          <ion-text color="primary"><span class="macro fat">G: {{ meal.macros.fat }}g</span></ion-text>
+        </div>
+      </ion-footer>
     </ion-card>
     }
 
@@ -90,7 +91,37 @@
         <h3>Extras del día</h3>
         <ion-button fill="outline" color="dark" size="small" (click)="setOpen(true)">Añadir extra</ion-button>
       </div>
+
+      @if (extras.length === 0) {
       <p class="no-extras">Sin extras añadidos.</p>
+      } @else {
+      <div class="extras-list">
+        @for (extra of extras; track extra.name; let i = $index) {
+        <ion-card class="extra-card" mode="ios">
+          <ion-card-content class="extra-content">
+            <div class="extra-info">
+              <div class="extra-header">
+                <h4 class="extra-name">{{ extra.name }}</h4>
+                <ion-button fill="clear" color="medium" size="small" (click)="removeExtra(i)">
+                  <ion-icon name="close" slot="icon-only"></ion-icon>
+                </ion-button>
+              </div>
+              <div class="extra-details">
+                <span>{{ extra.amount }}</span>
+                <span class="separator">•</span>
+                <span class="extra-kcal">{{ extra.kcal }} kcal</span>
+              </div>
+              <div class="extra-macros">
+                <span class="macro carbs">C: {{ extra.carbs }}g</span>
+                <span class="macro protein">P: {{ extra.protein }}g</span>
+                <span class="macro fat">G: {{ extra.fat }}g</span>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+        }
+      </div>
+      }
     </div>
 
     <div class="ion-padding">

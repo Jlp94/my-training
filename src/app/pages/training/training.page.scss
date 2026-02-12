@@ -1,3 +1,10 @@
 ion-content {
-    --background: #f4f5f8;
+    --background: var(--ion-color-light);
+}
+
+ion-icon {
+    background: rgba(var(--ion-color-danger-rgb), 0.15);
+    border-radius: 50%;
+    padding: 10px;
+    font-size: 1.8rem;
 }

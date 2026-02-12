@@ -1,10 +1,9 @@
 ion-content {
-    background: var(--ion-color-light);
+    --background: var(--ion-color-light);
 }
 
 ion-card {
-    --background: var(--ion-color-white);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 16px rgba(var(--ion-color-medium-rgb), 0.3);
     border-radius: 16px;
     margin-bottom: 20px;
 }
@@ -36,14 +35,13 @@ ion-card {
 .extra-text {
     font-size: 11px;
     font-weight: 600;
-    color: var(--ion-color-tertiary);
+    color: var(--ion-color-tertiary-tint);
     margin-top: 4px;
 }
 
 ion-progress-bar {
     height: 8px;
     border-radius: 4px;
-    --background: var(--ion-color-step-100);
     --progress-background: var(--ion-color-primary);
 }
 
@@ -86,7 +84,7 @@ ion-progress-bar {
             ion-input {
                 --padding-start: 12px;
                 --padding-end: 12px;
-                border: 1px solid var(--ion-color-step-150);
+                border: 1px solid var(--ion-color-light-shade);
                 border-radius: 8px;
                 text-align: center;
                 font-weight: 600;
@@ -115,14 +113,12 @@ ion-progress-bar {
         }
 
         .register-btn {
-            --background: var(--ion-color-success);
             --background: var(--ion-color-primary);
         }
 
         .complete-btn {
             --color: var(--ion-color-primary);
-            --border-color: var(--ion-color-primary);
-            --border-width: 1px;
+            --border-color: 1px solid var(--ion-color-primary);
         }
 
         .completed-check {
@@ -147,7 +143,7 @@ ion-progress-bar {
 
                 ion-checkbox {
                     --checkbox-background-checked: var(--ion-color-success);
-                    --border-color-checked: var(--ion-color-success);
+                    --border-color-checked: var(--ion-color-success-shade);
                 }
             }
         }

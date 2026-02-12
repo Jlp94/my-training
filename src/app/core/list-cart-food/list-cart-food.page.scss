@@ -1,7 +1,8 @@
-app-layout {
-    display: block;
-    height: 100%;
+ion-content {
+    --background: var(--ion-color-light);
 }
+
+
 
 .segment-container {
     padding: 16px;
@@ -26,9 +27,10 @@ app-layout {
 
 .shopping-list {
     padding: 0 16px 100px;
+    background: var(--ion-color-light);
 
     .shopping-item {
-        --background: #fff;
+        --background: var(--ion-color-light-shade);
         --border-radius: 12px;
         // border: 1px solid var(--ion-color-primary);
         // border-radius: 12px;
@@ -56,7 +58,7 @@ app-layout {
 }
 
 ion-footer {
-    background: #fff;
+    background: var(--ion-color-light);
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
 
     .footer-toolbar {

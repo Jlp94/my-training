@@ -123,12 +123,12 @@ ion-accordion {
 }
 
 .card {
-    background: white;
-    border: 1px solid #e1e2e3;
+    background: var(--ion-color-light);
+    border: 1px solid var(--ion-color-light-shade);
     border-radius: 12px;
     margin-bottom: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-    height: 6rem;
+    height: 7rem;
     display: flex;
     align-items: center;
     justify-content: center;

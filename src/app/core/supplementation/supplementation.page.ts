@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonImg, IonText, IonTitle } from '@ionic/angular/standalone';
+import { IonContent, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonImg } from '@ionic/angular/standalone';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { LayoutComponent } from 'src/app/components/layout/layout.component';
 
@@ -10,7 +10,7 @@ import { LayoutComponent } from 'src/app/components/layout/layout.component';
   templateUrl: './supplementation.page.html',
   styleUrls: ['./supplementation.page.scss'],
   standalone: true,
-  imports: [IonTitle, IonContent, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonImg, IonText, CommonModule, FormsModule, HeaderComponent, LayoutComponent]
+  imports: [IonContent, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonImg, CommonModule, FormsModule, HeaderComponent, LayoutComponent]
 })
 export class SupplementationPage implements OnInit {
 
