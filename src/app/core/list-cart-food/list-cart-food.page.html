@@ -16,14 +16,15 @@
       </ion-segment>
     </div>
 
-    <ion-list lines="full" class="shopping-list">
+    <ion-list lines="inset">
       @for (item of shoppingList; track item.name) {
-      <ion-item class="shopping-item">
+      <ion-item button (click)="toggleItem(item)">
+        <ion-checkbox slot="start" [(ngModel)]="item.selected" (ionChange)="saveChecks()"
+          (click)="$event.stopPropagation()" color="primary"></ion-checkbox>
         <ion-label>
-          <h3>{{item.name}}</h3>
-          <p>{{ item.baseWeight * multiplier }} g</p>
+          <h3>{{ item.name }}</h3>
+          <p>{{ item.quantity * multiplier }} g</p>
         </ion-label>
-        <ion-checkbox slot="end" [(ngModel)]="item.selected" color="primary"></ion-checkbox>
       </ion-item>
       }
     </ion-list>
@@ -31,7 +32,7 @@
 </ion-content>
 
 <ion-footer class="ion-no-border">
-  <ion-toolbar class="footer-toolbar">
+  <ion-toolbar>
     <div class="footer-buttons">
       <ion-button expand="block" color="primary" class="action-btn" (click)="toggleSelectAll(true)">
         <ion-icon name="checkbox-outline" slot="start"></ion-icon>

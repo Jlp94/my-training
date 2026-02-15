@@ -1,35 +1,32 @@
 <app-header titulo="Mi Rutina" url="/tabs/training" [showBack]="true"></app-header>
 
-
-
 <ion-content class="ion-padding-bottom">
   <app-layout>
 
-    <div class="day-selector-container">
-      <swiper-container #swiper slides-per-view="auto" centered-slides="true" initial-slide="15" space-between="-10"
-        free-mode="true" pagination="false" navigation="true">
-        @for (day of days; track $index) {
-        <swiper-slide>
-          <ion-card class="day-card" [class.active]="selectedDay === $index" (click)="selectDay($index)">
-            <span class="day-name">{{day.dayName}}</span>
-            <span class="day-number">{{day.date}}</span>
-            @if (selectedDay === $index) {
-            <div class="dot"></div>
-            }
-          </ion-card>
-        </swiper-slide>
-        }
-      </swiper-container>
-    </div>
+    <h2 class="day-title ion-padding-horizontal">{{ dayOfWeekFull }}</h2>
 
-    <div class="ion-padding-horizontal ion-margin-top">
+    @if (hasRoutineForDay) {
+    <div class="ion-padding-horizontal">
       <h6 class="ion-display-flex ion-justify-content-between ion-align-items-center">
-        <div>
+        <div class="routine-title">
+          @if (routineObservations) {
+          <ion-button fill="clear" size="small" class="obs-toggle-btn" (click)="showObservations = !showObservations">
+            <ion-icon name="chatbubble-ellipses-outline" slot="icon-only"
+              [color]="showObservations ? 'primary' : 'medium'"></ion-icon>
+          </ion-button>
+          }
           <strong class="ion-margin-end">{{ routineType }}</strong>
           <span style="color: var(--ion-color-medium);">{{ routineCategory }}</span>
         </div>
-        <small class="ion-margin-start">{{days[selectedDay]?.fullDate | date:'dd MMM yyyy'}}</small>
+        <ion-datetime-button datetime="routineDatetime"></ion-datetime-button>
       </h6>
+
+      @if (showObservations && routineObservations) {
+      <div class="observations-container">
+        <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+        <ion-text color="medium">{{ routineObservations }}</ion-text>
+      </div>
+      }
     </div>
 
     <form [formGroup]="routineForm">
@@ -44,57 +41,57 @@
                 </div>
               </ion-thumbnail>
               <ion-label>
-                <div class="ion-display-flex ion-align-items-center ion-justify-content-between">
+                <div class="exercise-header">
                   <h6 class="exercise-name">{{exercise.get('name')?.value}}</h6>
-                  @if (exercise.get('executionType')?.value !== 'NORMAL') {
-                  <ion-chip color="primary" mode="ios" class="ion-margin-start">
+                  @if (exercise.get('executionType')?.value !== 'normal') {
+                  <ion-chip [class]="'badge-' + exercise.get('executionType')?.value" mode="ios">
                     <small>{{exercise.get('executionType')?.value}}</small>
                   </ion-chip>
                   }
                 </div>
-                <p class="exercise-target">{{exercise.get('target')?.value}}</p>
+                <ion-text color="medium-shade">
+                  <p class="exercise-target">{{exercise.get('target')?.value}}</p>
+                </ion-text>
+                <div class="exercise-info">
+                  <span class="info-item">
+                    <ion-icon name="timer-outline" color="medium"></ion-icon>
+                    {{exercise.get('rest')?.value || 120}}s
+                  </span>
+                  <span class="info-item">
+                    <small>tempo: {{exercise.get('tempo')?.value || '2-1-0'}}</small>
+                  </span>
+                </div>
               </ion-label>
             </ion-item>
 
             <div class="ion-padding" slot="content">
               <ng-container formArrayName="sets">
                 @for (set of getSets(i).controls; track j; let j = $index) {
-                <div class="card">
-                  <div [formGroupName]="j" class="ion-padding">
-                    <div class="set-header">Serie {{j+1}}
-                      <div class="ion-display-flex ion-justify-content-between ion-align-items-center">
-                        <ion-chip color="primary" class="ion-margin-end" slot="start">
-                          <ion-icon name="timer-outline"></ion-icon>
-                          <small>{{ exercise.get('rest')?.value || 120 }} seg</small></ion-chip>
-                        <ion-chip color="primary" slot="start"><small>2-1-0</small></ion-chip>
-                      </div>
+                <div class="set-row" [formGroupName]="j">
+                  <small class="set-label">Serie {{j+1}}</small>
+                  <div class="set-inputs">
+                    <div class="input-group">
+                      <label class="input-header">Rp</label>
+                      <ion-input fill="solid" type="number" formControlName="reps" placeholder="10"></ion-input>
                     </div>
-                    <ion-row>
-                      <ion-col>
-                        <ion-input mode="md" label="Rp" label-placement="floating" fill="outline" type="number"
-                          formControlName="reps" placeholder="Ej: 10"></ion-input>
-                      </ion-col>
-                      <ion-col>
-                        <ion-input mode="md" label="Kg" label-placement="floating" fill="outline" type="number"
-                          formControlName="kg" placeholder="Ej: 80"></ion-input>
-                      </ion-col>
-                      <ion-col>
-                        <ion-input mode="md" label="Rir" label-placement="floating" fill="outline" type="number"
-                          formControlName="rir" placeholder="Ej: 2"></ion-input>
-                      </ion-col>
-                      <ion-col
-                        class="ion-margin-start ion-display-flex ion-justify-content-between ion-align-items-center">
-                        <ion-button fill="clear" size="small" color="warning" (click)="startTimer(i, j)">
-                          <ion-icon class="card__icon" name="alarm-outline" slot="icon-only"></ion-icon>
-                        </ion-button>
-                        <ion-button fill="clear" size="small" color="danger" (click)="removeSet(i, j)">
-                          <ion-icon class="card__icon" name="trash-outline" slot="icon-only"></ion-icon>
-                        </ion-button>
-                      </ion-col>
-                    </ion-row>
+                    <div class="input-group">
+                      <label class="input-header">Kg</label>
+                      <ion-input fill="solid" type="number" formControlName="kg" placeholder="80"></ion-input>
+                    </div>
+                    <div class="input-group">
+                      <label class="input-header">Rir</label>
+                      <ion-input fill="solid" type="number" formControlName="rir" placeholder="2"></ion-input>
+                    </div>
+                  </div>
+                  <div class="set-actions">
+                    <ion-button fill="clear" size="small" color="warning" (click)="startTimer(i, j)">
+                      <ion-icon name="alarm-outline" slot="icon-only"></ion-icon>
+                    </ion-button>
+                    <ion-button fill="clear" size="small" color="danger" (click)="removeSet(i, j)">
+                      <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                    </ion-button>
                   </div>
                 </div>
-
                 }
               </ng-container>
 
@@ -108,13 +105,28 @@
         </ng-container>
       </ion-accordion-group>
     </form>
-    <ion-row>
-      <ion-col>
-        <ion-button expand="block" shape="round" color="primary" (click)="saveRoutine()">
-          <ion-icon name="save-outline" slot="start"></ion-icon>
-          Guardar
-        </ion-button>
-      </ion-col>
-    </ion-row>
+    } @else {
+    <div class="empty-state ion-padding ion-text-center">
+      <ion-datetime-button datetime="routineDatetime"></ion-datetime-button>
+      <p style="color: var(--ion-color-medium); margin-top: 16px;">
+        No hay rutina asignada para el <strong>{{ dayOfWeekFull }}</strong>
+      </p>
+      <small style="color: var(--ion-color-medium);">Día de descanso o sin planificar</small>
+    </div>
+    }
+
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime id="routineDatetime" presentation="date" [value]="selectedDate"
+          (ionChange)="onDateChange($event)"></ion-datetime>
+      </ng-template>
+    </ion-modal>
+
   </app-layout>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="saveRoutine()">
+      <ion-icon name="save-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonContent, IonCard, IonIcon, IonCardContent } from '@ionic/angular/standalone';
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { addIcons } from 'ionicons';
-import { barbell, book, pulseSharp } from 'ionicons/icons';
+import { barbell, book, fitness } from 'ionicons/icons';
 import { RouterLink } from '@angular/router';
 import { LayoutComponent } from "src/app/components/layout/layout.component";
 
@@ -21,14 +21,14 @@ export class TrainingPage implements OnInit {
   options = [
     { title: "Mi rutina", img: "barbell", url: "/tabs/training/my-routine" },
     { title: "Explicación de ejercicios", img: "book", url: "/tabs/training/exercise-library" },
-    { title: "Cardio", img: "pulse-sharp", url: "/tabs/training/cardio" },
+    { title: "Cardio", img: "fitness", url: "/tabs/training/cardio" },
   ];
 
   constructor() {
     addIcons({
       barbell,
       book,
-      pulseSharp,
+      fitness,
     })
   }
 

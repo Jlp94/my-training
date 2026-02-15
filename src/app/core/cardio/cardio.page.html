@@ -3,66 +3,109 @@
 <ion-content class="ion-padding">
   <app-layout>
 
-    <!-- Tarjeta de Progreso Semanal -->
-    <ion-card class="stats-card">
+    <!-- Dashboard de Progreso Semanal -->
+    <ion-card class="dashboard-card" mode="ios">
       <ion-card-header>
-        <div class="card-top-row">
+        <div class="dashboard-header">
           <ion-card-title>Progreso semanal</ion-card-title>
-          <span class="date-range">02 feb - 08 feb</span>
+          <span class="date-range">{{ weeklyKcalTarget() }} kcal objetivo</span>
         </div>
       </ion-card-header>
       <ion-card-content>
-        <ion-progress-bar [value]="progress()"></ion-progress-bar>
-        <p class="stats-text">{{ currentMinutes() }} / {{ targetMinutes() }} min · {{ currentKcal() | number:'1.0-0' }}
-          / {{
-          targetKcal() }} kcal</p>
-      </ion-card-content>
-    </ion-card>
+        <ion-progress-bar [value]="progress()" [color]="isCompleted() ? 'success' : 'primary'"
+          class="progress-thick"></ion-progress-bar>
 
-    <!-- Tarjeta de Cinta Máxima Inclinación -->
-    <ion-card class="activity-card">
-      <ion-card-header>
-        <div class="card-top-row">
-          <div>
-            <ion-card-title>Cinta máxima inclinación</ion-card-title>
-            <ion-card-subtitle>META 8 · {{ kcalPerMinute }} kcal/min</ion-card-subtitle>
+        <div class="dashboard-stats">
+          <div class="stat-item">
+            <ion-icon name="flame-outline" color="danger"></ion-icon>
+            <div class="stat-data">
+              <strong>{{ currentKcal() }}</strong>
+              <small>/ {{ weeklyKcalTarget() }} kcal</small>
+            </div>
           </div>
-          <div class="goal-stats">
-            <span class="goal-time">{{ targetMinutes() }} min/sem</span>
-            <span class="goal-kcal">{{ targetKcal() }} kcal</span>
+          <div class="stat-item">
+            <ion-icon name="time-outline" color="primary"></ion-icon>
+            <div class="stat-data">
+              <strong>{{ currentMinutes() }}</strong>
+              <small>min realizados</small>
+            </div>
+          </div>
+          <div class="stat-item">
+            <ion-icon name="trending-up-outline" color="warning"></ion-icon>
+            <div class="stat-data">
+              <strong>{{ targetMinutes() }}</strong>
+              <small>min restantes ({{ configActual().label }})</small>
+            </div>
           </div>
         </div>
-      </ion-card-header>
 
-      <ion-card-content>
-        <ion-progress-bar [value]="progress()" [color]="isCompleted() ? 'success' : 'primary'"></ion-progress-bar>
-        <p class="stats-text">
-          {{ currentMinutes() }} / {{ targetMinutes() }} min · {{ currentKcal() | number:'1.0-0' }} / {{ targetKcal() }}
-          kcal
-        </p>
-        @if (extraMinutes() > 0) {
-        <p class="extra-text">
-          + {{ extraMinutes() }} min extra realizados
-        </p>
+        @if (extraKcal() > 0) {
+        <p class="extra-text">+ {{ extraKcal() }} kcal extra quemadas 🔥</p>
         }
 
-        <div class="input-actions-row">
-          <div class="input-wrapper">
-            <ion-input type="number" placeholder="+10" class="time-input" [ngModel]="enteredMinutes()"
-              (ngModelChange)="enteredMinutes.set($event)"></ion-input>
-            <span class="speed-label">4,5 VELOCIDAD</span>
-          </div>
-
-          <ion-button color="primary" class="action-btn register-btn" (click)="registerMinutes()">
-            Registrar
-          </ion-button>
-
-          <div class="completed-check generic-check" [class.active]="isCompleted()">
-            <span>Completado</span>
-            <ion-checkbox [checked]="isCompleted()" disabled="true" mode="ios"></ion-checkbox>
-          </div>
+        <div class="completed-check" [class.active]="isCompleted()">
+          <span>{{ isCompleted() ? 'Completado' : 'En progreso' }}</span>
+          <ion-checkbox [checked]="isCompleted()" disabled="true" mode="ios"></ion-checkbox>
         </div>
       </ion-card-content>
     </ion-card>
+
+    <!-- Selector de Actividad + Registro -->
+    <ion-card class="activity-card" mode="ios">
+      <ion-card-header>
+        <ion-card-title>Registrar sesión</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+
+        <!-- Selector de tipo de cardio -->
+        <ion-item lines="none" class="select-cardio">
+          <ion-icon [name]="cardioIcon()" slot="start" color="primary"></ion-icon>
+          <ion-select interface="popover" [value]="tipoCardio()" (ionChange)="cambiarTipoCardio($event)"
+            label="Actividad" label-placement="floating" mode="ios">
+            <ion-select-option value="cinta">Cinta de correr</ion-select-option>
+            <ion-select-option value="eliptica">Elíptica</ion-select-option>
+            <ion-select-option value="bici">Bicicleta</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Instrucciones del entrenador (solo lectura) -->
+        <div class="trainer-instructions">
+          <small class="instructions-label">Indicaciones del entrenador</small>
+          <div class="instructions-grid">
+            @for (inst of configActual().instrucciones; track inst.label) {
+            <div class="instruction-chip">
+              <span class="inst-label">{{ inst.label }}</span>
+              <strong class="inst-value">{{ inst.valor }}</strong>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- Inputs del cliente: solo Tiempo + Pulsaciones -->
+        <div class="client-inputs">
+          <div class="input-group">
+            <label class="input-header">
+              <ion-icon name="time-outline"></ion-icon> Tiempo (min)
+            </label>
+            <ion-input type="number" mode="ios" fill="solid" placeholder="30" [ngModel]="duracion()"
+              (ngModelChange)="duracion.set($event)"></ion-input>
+          </div>
+        </div>
+
+        <!-- Estimación de kcal -->
+        @if (kcalEstimadas() > 0) {
+        <div class="kcal-estimation">
+          <ion-icon name="flame-outline" color="danger"></ion-icon>
+          <span>Quemarás aprox. <strong>{{ kcalEstimadas() }} kcal</strong></span>
+        </div>
+        }
+
+        <!-- Botón registrar -->
+        <ion-button expand="block" color="primary" class="register-btn" (click)="registrarSesion()">
+          Registrar sesión
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
   </app-layout>
 </ion-content>

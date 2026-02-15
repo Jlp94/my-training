@@ -4,6 +4,9 @@
   <app-layout>
     <!-- Weight Tracking Card -->
     <ion-card mode="ios">
+      <ion-card-header>
+        <ion-card-title>Peso</ion-card-title>
+      </ion-card-header>
       <ion-card-content>
         <canvas #weightChart></canvas>
       </ion-card-content>
@@ -15,17 +18,14 @@
         <div class="steps-title-row">
           <ion-card-title>Pasos</ion-card-title>
           <div class="date-selector">
-            <ion-button fill="clear" size="small">
-              <ion-icon name="chevron-back-outline" slot="icon-only" color="medium"></ion-icon>
+            <ion-button fill="clear" size="small" (click)="prevWeek()">
+              <ion-icon name="chevron-back-outline" slot="icon-only" color="primary"></ion-icon>
             </ion-button>
-            <span>05 ene — 11 ene</span>
-            <ion-button fill="clear" size="small">
-              <ion-icon name="chevron-forward-outline" slot="icon-only" color="medium"></ion-icon>
+            <span>{{ weekLabel }}</span>
+            <ion-button fill="clear" size="small" (click)="nextWeek()">
+              <ion-icon name="chevron-forward-outline" slot="icon-only" color="primary"></ion-icon>
             </ion-button>
           </div>
-          <ion-button fill="clear" size="small" class="edit-btn">
-            <ion-icon name="pencil-outline" slot="icon-only" color="medium"></ion-icon>
-          </ion-button>
         </div>
       </ion-card-header>
       <ion-card-content>
@@ -39,7 +39,7 @@
         <ion-col size="4">
           <ion-card mode="ios" class="small-card" routerLink="/tabs/user/medidas">
             <ion-card-content class="ion-text-center">
-              <ion-icon name="body" class="card-icon"></ion-icon>
+              <ion-icon name="body" class="card-icon" color="tertiary"></ion-icon>
               <p>Medidas</p>
             </ion-card-content>
           </ion-card>
@@ -63,7 +63,7 @@
         <ion-col size="4">
           <ion-card mode="ios" class="small-card" routerLink="/tabs/diet/supplementation">
             <ion-card-content class="ion-text-center">
-              <ion-icon name="medkit-outline" class="card-icon"></ion-icon>
+              <ion-icon name="medkit-outline" class="card-icon" color="danger"></ion-icon>
               <p><small>Suplementacion</small></p>
             </ion-card-content>
           </ion-card>
@@ -71,4 +71,52 @@
       </ion-row>
     </ion-grid>
   </app-layout>
+
+  <!-- Modal Peso y Pasos -->
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeRegistroModal()" class="registro-modal">
+    <ng-template>
+      <div class="modal-body">
+        <div class="modal-icons">
+          <div class="icon-circle">
+            <ion-icon name="scale-outline"></ion-icon>
+          </div>
+          <div class="icon-circle">
+            <ion-icon name="footsteps-outline"></ion-icon>
+          </div>
+        </div>
+
+        <h2 class="modal-title">PESO Y PASOS</h2>
+        <p class="modal-subtitle">Introduce los pasos de ayer y peso de hoy.</p>
+
+        <div class="modal-form">
+          <ion-item lines="none" class="registro-input">
+            <ion-label position="stacked">Fecha</ion-label>
+            <ion-input type="date" [(ngModel)]="registroFecha" mode="ios" fill="outline"></ion-input>
+          </ion-item>
+
+          <ion-item lines="none" class="registro-input">
+            <ion-label position="stacked">Pasos</ion-label>
+            <ion-input type="number" placeholder="12000" [(ngModel)]="registroPasos" mode="ios"
+              fill="outline"></ion-input>
+          </ion-item>
+
+          <ion-item lines="none" class="registro-input">
+            <ion-label position="stacked">Peso (kg)</ion-label>
+            <ion-input type="number" placeholder="80" [(ngModel)]="registroPeso" mode="ios" fill="outline"></ion-input>
+          </ion-item>
+
+          <ion-button expand="block" color="primary" class="guardar-btn" (click)="guardarRegistro()">
+            Guardar
+          </ion-button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  <!-- FAB para registro -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="secondary" (click)="openRegistroModal()">
+      <ion-icon name="scale-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

@@ -1,6 +1,5 @@
 import { Component, OnInit, signal, computed, WritableSignal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+
 import {
   IonContent,
   IonItem,
@@ -18,7 +17,9 @@ import { HeaderComponent } from 'src/app/components/header/header.component';
 import { addIcons } from 'ionicons';
 import { barbell, logoYoutube } from 'ionicons/icons';
 import { LayoutComponent } from 'src/app/components/layout/layout.component';
-import { EquipmentType, MuscleGroup, Ejercicio } from 'src/app/common/interfaces';
+import { EquipmentType, MuscleGroup, Ejercicio, MovementType } from 'src/app/common/workoutInterface';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-exercise-library',
@@ -52,6 +53,7 @@ export class ExerciseLibraryPage implements OnInit {
     {
       _id: '1',
       name: 'abdominales en v',
+      movementTypes: [MovementType.LEG, MovementType.PUSH, MovementType.PULL],
       categories: [MuscleGroup.CORE],
       equipment: EquipmentType.LIBRE,
       description: 'acostado, eleva el tronco llevando las manos hacia los pies. mantén tensión constante en la zona superior del abdomen.',
@@ -61,6 +63,7 @@ export class ExerciseLibraryPage implements OnInit {
     {
       _id: '2',
       name: 'abdominales tipo crunch en máquina',
+      movementTypes: [MovementType.PUSH, MovementType.LEG, MovementType.PULL],
       categories: [MuscleGroup.CORE],
       equipment: EquipmentType.MAQUINA,
       description: 'realiza la flexión del tronco utilizando la resistencia de la máquina de crunch abdominal.',
@@ -70,6 +73,7 @@ export class ExerciseLibraryPage implements OnInit {
     {
       _id: '3',
       name: 'abdominales tipo crunch en paralelas',
+      movementTypes: [MovementType.PUSH, MovementType.LEG, MovementType.PULL],
       categories: [MuscleGroup.CORE],
       equipment: EquipmentType.LIBRE,
       description: 'realiza la flexión del tronco en las barras paralelas elevando las piernas o el torso.',
@@ -79,6 +83,7 @@ export class ExerciseLibraryPage implements OnInit {
     {
       _id: '4',
       name: 'aducción horizontal con poleas en pie',
+      movementTypes: [MovementType.PUSH],
       categories: [MuscleGroup.PECTORAL],
       equipment: EquipmentType.POLEA,
       description: 'tracción de las poleas hacia el centro del pecho manteniendo la posición de pie.',

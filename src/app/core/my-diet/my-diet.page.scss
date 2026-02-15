@@ -1,3 +1,78 @@
+// ========================
+// Dashboard semanal
+// ========================
+.weekly-card {
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(var(--ion-color-dark-rgb), 0.15);
+    margin: 16px;
+    background: var(--ion-color-light);
+
+    .weekly-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        ion-card-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .weekly-target {
+            font-size: 12px;
+            color: var(--ion-color-medium);
+            font-weight: 500;
+        }
+    }
+
+    .progress-thick {
+        height: 12px;
+        border-radius: 6px;
+    }
+
+    .weekly-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 16px;
+        gap: 8px;
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            ion-icon {
+                font-size: 20px;
+            }
+
+            .stat-data {
+                display: flex;
+                flex-direction: column;
+                line-height: 1.2;
+
+                strong {
+                    font-size: 16px;
+                    font-weight: 700;
+                }
+
+                small {
+                    font-size: 10px;
+                    color: var(--ion-color-medium);
+                }
+
+                .danger-text {
+                    color: var(--ion-color-danger);
+                }
+            }
+
+            &.exceeded {
+                background: rgba(var(--ion-color-danger-rgb), 0.08);
+                border-radius: 10px;
+                padding: 6px 10px;
+            }
+        }
+    }
+}
+
 .macros-card {
     border-radius: 16px;
     box-shadow: 0 4px 16px rgba(var(--ion-color-dark-rgb), 0.25);
@@ -224,7 +299,9 @@
 }
 
 .excess-warning {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     background: rgba(var(--ion-color-danger-rgb), 0.1);
     color: var(--ion-color-danger);
     font-size: 0.75rem;
@@ -233,6 +310,10 @@
     margin-left: 8px;
     vertical-align: middle;
     font-weight: 700;
+
+    ion-icon {
+        font-size: 14px;
+    }
 }
 
 .meal-card {

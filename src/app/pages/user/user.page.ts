@@ -9,7 +9,7 @@ import { HeaderComponent } from "src/app/components/header/header.component";
 import { addIcons } from 'ionicons';
 import {
   barbell, restaurant, analyticsOutline, logOutOutline,
-  chevronBackOutline, notificationsOutline
+  chevronBackOutline, notificationsOutline, cog
 } from 'ionicons/icons';
 import { Router, RouterLink } from '@angular/router';
 import { LayoutComponent } from "src/app/components/layout/layout.component";
@@ -34,14 +34,7 @@ export class UserPage implements OnInit {
   userName = signal('USER');
 
   constructor() {
-    addIcons({
-      barbell,
-      restaurant,
-      analyticsOutline,
-      logOutOutline,
-      chevronBackOutline,
-      notificationsOutline
-    });
+    addIcons({ restaurant, cog, logOutOutline, barbell, analyticsOutline, chevronBackOutline, notificationsOutline });
   }
 
   ngOnInit() {

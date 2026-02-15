@@ -62,7 +62,12 @@ export const routes: Routes = [
           {
             path: 'medidas',
             loadComponent: () => import('./core/medidas/medidas.page').then(m => m.MedidasPage)
-          }
+          },
+          {
+            path: 'settings-user',
+            loadComponent: () => import('./core/settings-user/settings-user.page').then(m => m.SettingsUserPage)
+          },
+
 
         ]
       },
@@ -87,6 +92,7 @@ export const routes: Routes = [
     redirectTo: 'login',
     pathMatch: 'full',
   },
+
 
 
 

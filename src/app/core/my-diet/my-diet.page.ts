@@ -1,12 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonCheckbox, IonList, IonNote, IonFooter, IonText } from '@ionic/angular/standalone';
+import { IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonCheckbox, IonList, IonNote, IonFooter, IonText, IonFab, IonFabButton, IonProgressBar } from '@ionic/angular/standalone';
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { LayoutComponent } from "src/app/components/layout/layout.component";
 import { Chart, DoughnutController, ArcElement, Legend, Tooltip, PieController } from 'chart.js';
 import { addIcons } from 'ionicons';
-import { add, search, barbell, timeOutline, flame, checkmarkCircle, closeCircle, close } from 'ionicons/icons';
+import { add, search, barbell, timeOutline, flame, checkmarkCircle, closeCircle, close, saveOutline, alertCircle, closeOutline } from 'ionicons/icons';
 import { ViewChild, ElementRef } from '@angular/core';
 import { ToastService } from 'src/app/services/toast-service';
 
@@ -18,7 +18,7 @@ Chart.register(DoughnutController, PieController, ArcElement, Legend, Tooltip);
   styleUrls: ['./my-diet.page.scss'],
   standalone: true,
   imports: [IonText, IonFooter, IonNote, IonContent, CommonModule, FormsModule, HeaderComponent, LayoutComponent,
-    IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonList, IonCheckbox]
+    IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonList, IonCheckbox, IonFab, IonFabButton, IonProgressBar]
 })
 export class MyDietPage implements OnInit {
   @ViewChild('macrosChart') macrosChartCanvas!: ElementRef;
@@ -38,46 +38,76 @@ export class MyDietPage implements OnInit {
   };
 
   caloriesConsumed = 0;
+
+  // Progreso semanal de calorías
+  weeklyCaloriesTarget = 9849; // 1407 * 7
+  weeklyCaloriesConsumed = 7200; // ejemplo: calorías ya consumidas esta semana
+
+  get weeklyProgress(): number {
+    return this.weeklyCaloriesTarget > 0 ? Math.min(this.weeklyCaloriesConsumed / this.weeklyCaloriesTarget, 1) : 0;
+  }
+
+  get weeklyExceeded(): boolean {
+    return this.weeklyCaloriesConsumed > this.weeklyCaloriesTarget;
+  }
+
+  get weeklyExcessCalories(): number {
+    return this.weeklyCaloriesConsumed - this.weeklyCaloriesTarget;
+  }
   // Datos de Comidas
   meals = [
     {
       name: 'Desayuno',
-      time: 'desayuno',
-      calories: 387,
-      macros: { protein: 35, carbs: 45, fat: 12 },
+      completed: false,
+      // Totales de la comida (calculados sumando los alimentos)
+      totalKcal: 387,
+      totalMacros: { carbs: 45, protein: 35, fat: 12 },
       foods: [
-        { name: 'YOGUR + PROTEINAS', amount: '200 g', kcal: 104 },
-        { name: 'MANZANA', amount: '200 g', kcal: 104 },
-        { name: 'NUECES', amount: '25 g', kcal: 179 }
-      ],
-      completed: false
+        {
+          name: 'YOGUR + PROTEINAS',
+          quantity: 200, // Número puro para cálculos
+          kcal: 104,
+          // Macros base por cada 100g (Carbs, Protein, Fat)
+          baseMacros: { carbs: 4, protein: 9, fat: 0 }
+        },
+        {
+          name: 'MANZANA',
+          quantity: 200,
+          kcal: 104,
+          baseMacros: { carbs: 13, protein: 0.3, fat: 0.2 }
+        },
+        {
+          name: 'NUECES',
+          quantity: 25,
+          kcal: 179,
+          baseMacros: { carbs: 13.7, protein: 15.2, fat: 65.2 }
+        }
+      ]
     },
     {
       name: 'Comida',
-      time: 'comida',
-      calories: 484,
-      macros: { protein: 45, carbs: 55, fat: 15 },
+      completed: false,
+      totalKcal: 484,
+      totalMacros: { carbs: 55, protein: 45, fat: 15 },
       foods: [
-        { name: 'VERDURAS AL GUSTO', amount: '100 g', kcal: 50 },
-        { name: 'PLATANO', amount: '100 g', kcal: 89 },
-        { name: 'HUEVOS', amount: '50 g', kcal: 73.5 },
-        { name: 'ARROZ', amount: '30 g', kcal: 106.5 },
-        { name: 'FILETE DE PECHUGA DE POLLO', amount: '150 g', kcal: 165 }
-      ],
-      completed: false
+        { name: 'VERDURAS AL GUSTO', quantity: 100, kcal: 50, baseMacros: { carbs: 10, protein: 2, fat: 0.2 } },
+        { name: 'PLATANO', quantity: 100, kcal: 89, baseMacros: { carbs: 22.8, protein: 1.1, fat: 0.3 } },
+        { name: 'HUEVOS', quantity: 50, kcal: 73.5, baseMacros: { carbs: 1.1, protein: 13, fat: 11 } },
+        { name: 'ARROZ', quantity: 30, kcal: 106.5, baseMacros: { carbs: 78, protein: 7, fat: 0.6 } },
+        { name: 'FILETE DE PECHUGA DE POLLO', quantity: 150, kcal: 165, baseMacros: { carbs: 0, protein: 23, fat: 1.2 } }
+      ]
     },
     {
       name: 'Cena',
-      time: 'cena',
-      calories: 536,
-      macros: { protein: 40, carbs: 40, fat: 20 },
+      completed: false,
+      totalKcal: 536,
+      totalMacros: { carbs: 40, protein: 40, fat: 20 },
       foods: [
-        { name: 'SALMON', amount: '100 g', kcal: 224 },
-        { name: 'AGUACATE/GUACAMOLE', amount: '100 g', kcal: 160 },
-        { name: 'PATATA', amount: '150 g', kcal: 102 },
-        { name: 'VERDURAS AL GUSTO', amount: '100 g', kcal: 50 },
-      ],
-      completed: false
+        { name: 'SALMON', quantity: 100, kcal: 224, baseMacros: { carbs: 0, protein: 20, fat: 13 } },
+        { name: 'AGUACATE/GUACAMOLE', quantity: 100, kcal: 160, baseMacros: { carbs: 8.5, protein: 2, fat: 14.7 } },
+        { name: 'PATATA', quantity: 150, kcal: 102, baseMacros: { carbs: 17, protein: 2, fat: 0.1 } },
+        { name: 'VERDURAS AL GUSTO', quantity: 100, kcal: 50, baseMacros: { carbs: 10, protein: 2, fat: 0.2 } }
+      ]
     }
   ];
 
@@ -95,7 +125,7 @@ export class MyDietPage implements OnInit {
 
 
   constructor() {
-    addIcons({ checkmarkCircle, timeOutline, flame, close, search, closeCircle, add, barbell });
+    addIcons({ flame, alertCircle, closeOutline, checkmarkCircle, close, search, saveOutline, timeOutline, add, barbell });
   }
 
   ngOnInit() {
@@ -112,7 +142,7 @@ export class MyDietPage implements OnInit {
     const wasGoalReached = this.caloriesConsumed >= this.caloriesTarget;
 
     const mealsCalories = this.meals.reduce((total, meal) => {
-      return meal.completed ? total + meal.calories : total;
+      return meal.completed ? total + meal.totalKcal : total;
     }, 0);
 
     const extrasCalories = this.extras.reduce((total, extra) => {
@@ -126,7 +156,7 @@ export class MyDietPage implements OnInit {
     const isGoalReached = this.caloriesConsumed >= this.caloriesTarget;
 
     if (!wasGoalReached && isGoalReached) {
-      this.toastService.cargarToast('¡Has alcanzado las Kcal del día!', 2000, 'success');
+      this.toastService.success('¡Has alcanzado las Kcal del día!');
     }
   }
 
@@ -134,10 +164,10 @@ export class MyDietPage implements OnInit {
     let p = 0, c = 0, f = 0;
 
     this.meals.forEach(m => {
-      if (m.completed && m.macros) {
-        p += m.macros.protein;
-        c += m.macros.carbs;
-        f += m.macros.fat;
+      if (m.completed && m.totalMacros) {
+        p += m.totalMacros.protein;
+        c += m.totalMacros.carbs;
+        f += m.totalMacros.fat;
       }
     });
 
@@ -158,10 +188,10 @@ export class MyDietPage implements OnInit {
     // Calculate TOTAL planned macros from meals to be the 100% reference
     let totalPlanMacros = { protein: 0, carbs: 0, fat: 0 };
     this.meals.forEach(m => {
-      if (m.macros) {
-        totalPlanMacros.protein += m.macros.protein;
-        totalPlanMacros.carbs += m.macros.carbs;
-        totalPlanMacros.fat += m.macros.fat;
+      if (m.totalMacros) {
+        totalPlanMacros.protein += m.totalMacros.protein;
+        totalPlanMacros.carbs += m.totalMacros.carbs;
+        totalPlanMacros.fat += m.totalMacros.fat;
       }
     });
 
@@ -237,13 +267,13 @@ export class MyDietPage implements OnInit {
   addExtra() {
     // Validación de campos obligatorios
     if (!this.extraName || this.extraAmount === null || this.extraKcal === null || this.extraProtein === null || this.extraCarbs === null || this.extraFat === null) {
-      this.toastService.cargarToast('Todos los campos son obligatorios', 2000, 'danger');
+      this.toastService.error('Todos los campos son obligatorios');
       return;
     }
 
     // Validación de valores negativos
     if (this.extraAmount < 0 || this.extraKcal < 0 || this.extraProtein < 0 || this.extraCarbs < 0 || this.extraFat < 0) {
-      this.toastService.cargarToast('Los valores no pueden ser negativos', 2000, 'danger');
+      this.toastService.error('Los valores no pueden ser negativos');
       return;
     }
 
@@ -269,12 +299,18 @@ export class MyDietPage implements OnInit {
     this.extraCarbs = null;
     this.extraFat = null;
 
-    this.toastService.cargarToast('Extra añadido correctamente', 2000, 'success');
+    this.toastService.success('Extra añadido correctamente');
   }
 
   removeExtra(index: number) {
     this.extras.splice(index, 1);
     this.calculateTotalCalories();
+  }
+
+  // Guardar resumen de dieta
+  saveDiet() {
+    this.weeklyCaloriesConsumed += this.caloriesConsumed;
+    this.toastService.success('Resumen de dieta guardado correctamente');
   }
 
 }

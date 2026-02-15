@@ -2,67 +2,33 @@ ion-content {
     background: var(--ion-color-light);
 }
 
-// Selector de Día
-.day-selector-container {
-    background: var(--ion-color-light);
+// Título del día de la semana
+.day-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--ion-text-color);
+    margin: 12px 0 4px;
+}
 
-    swiper-container {
-        padding: 0 16px;
-        margin: 0;
-        width: 100%;
-        --swiper-navigation-size: 24px;
-        --swiper-navigation-color: var(--ion-color-primary);
+ion-datetime-button {
+    --background: transparent;
+}
 
-    }
+// Título de rutina con botón de observaciones
+.routine-title {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
 
-    swiper-slide {
-        width: auto;
-    }
+.obs-toggle-btn {
+    --padding-start: 2px;
+    --padding-end: 2px;
+    margin: 0;
+    height: 28px;
 
-    .day-card {
-        width: 2.5rem;
-        height: 3.8rem;
-        border-radius: .8rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid var(--ion-color-step-100);
-        transition: all 0.3s ease-in-out;
-        position: relative;
-
-        .day-name {
-            font-size: 12px;
-            color: var(--ion-color-medium);
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .day-number {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--ion-text-color);
-            margin-top: 4px;
-        }
-
-        &.active {
-            background: var(--ion-color-primary);
-            border-color: var(--ion-color-primary);
-            transform: scale(1.1);
-
-            .day-name,
-            .day-number {
-                color: white;
-            }
-        }
-
-        .dot {
-            width: 4px;
-            height: 4px;
-            background: white;
-            border-radius: 50%;
-            margin-top: 4px;
-        }
+    ion-icon {
+        font-size: 20px;
     }
 }
 
@@ -70,6 +36,7 @@ ion-content {
 ion-accordion-group {
     background: var(--ion-color-light);
     margin-bottom: 80px; // Espacio para el footer fijo
+    border-radius: 12px;
 }
 
 ion-accordion {
@@ -82,6 +49,7 @@ ion-accordion {
     }
 }
 
+// Icono del ejercicio en la cabecera
 .thumbnail-icon {
     background: var(--ion-color-light);
     width: 100%;
@@ -89,62 +57,190 @@ ion-accordion {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: 12px;
 
     ion-icon {
         font-size: 24px;
     }
 }
 
+// Cabecera del ejercicio con nombre y badge
+.exercise-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
 .exercise-name {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
-    margin-bottom: 4px;
+    margin: 0;
 }
 
 .exercise-target {
     font-size: 12px;
-    color: var(--ion-color-medium);
-    margin: 0;
 }
 
-
-.add-btn {
-    --border-radius: .8rem;
-    font-weight: 600;
-}
-
-
-.set-header {
+// Fila de info (descanso + tempo) debajo del nombre
+.exercise-info {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 12px;
+    margin-top: 2px;
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 12px;
+        color: var(--ion-color-medium);
+
+        ion-icon {
+            font-size: 14px;
+        }
+    }
+}
+
+
+
+// Badges con colores según tipo de ejecución
+ion-chip.badge-superset {
+    --background: rgb(var(--ion-color-tertiary-rgb), 0.2);
+    --color: var(--ion-color-tertiary);
+    height: 24px;
     font-weight: 600;
 }
 
-.card {
+ion-chip.badge-restpause {
+    --background: rgb(var(--ion-color-warning-rgb), 0.2);
+    --color: var(--ion-color-warning-shade);
+    height: 24px;
+    font-weight: 600;
+}
+
+ion-chip.badge-dropset {
+    --background: rgb(var(--ion-color-danger-rgb), 0.15);
+    --color: var(--ion-color-danger-shade);
+    height: 24px;
+    font-weight: 600;
+}
+
+// Contenedor de observaciones del ejercicio
+.observations-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
     background: var(--ion-color-light);
-    border: 1px solid var(--ion-color-light-shade);
-    border-radius: 12px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-    height: 7rem;
+    border-radius: 10px;
+    font-style: italic;
+    font-size: 13px;
+
+    ion-icon {
+        font-size: 16px;
+        color: var(--ion-color-medium);
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+}
+
+// Etiqueta de la serie ("Serie 1")
+.set-label {
+    font-weight: 600;
+    color: var(--ion-color-medium);
+    font-size: 11px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+// Fila de serie - Diseño minimalista (todo en una fila)
+.set-row {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 6px;
+    background: var(--ion-color-light);
+    border: 1px solid var(--ion-color-step-100);
+    border-radius: 12px;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
 
-    &__icon {
-        font-size: 24px;
+// Grupo de input con label externo encima
+.input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+}
+
+.input-header {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ion-color-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+// Contenedor de inputs (Rp, Kg, Rir)
+.set-inputs {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+
+    ion-input {
+        min-height: 30px !important;
+        --padding-block: 2px;
+        --border-radius: 8px;
+        border: 1px solid var(--ion-color-light-shade);
+        border-radius: 8px;
+        font-size: 13px;
+        text-align: center;
     }
 
     ion-input.ion-valid.ion-touched,
     ion-input.ion-valid.ion-dirty {
         --highlight-color-valid: var(--ion-color-primary);
     }
+}
 
-    ion-input {
-        min-height: 40px !important;
-        --padding-block: 5px;
-        --border-radius: .8rem;
+// Botones de acción (timer y eliminar) con más separación
+.set-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+
+    ion-button {
+        --padding-start: 4px;
+        --padding-end: 4px;
+        margin: 0;
+        height: 28px;
+
+        ion-icon {
+            font-size: 18px;
+        }
+    }
+}
+
+// Botón de añadir serie
+.add-btn {
+    --border-radius: 12px;
+    font-weight: 600;
+}
+
+ion-modal {
+    --border-radius: 12px;
+}
+
+ion-datetime-button {
+    &::part(native) {
+        background: transparent;
+        padding: .1rem;
+        color: var(--ion-color-primary);
+        box-shadow: 0px 2px 4px 1px rgba(var(--ion-color-primary-rgb), 0.2);
     }
 }

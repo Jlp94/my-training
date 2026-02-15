@@ -34,10 +34,10 @@ export class LoginPage implements OnInit {
 
   async onLogin() {
     if (this.email() === 'test@test.com' && this.password() === '123456') {
-      this.toastService.cargarToast('¡Bienvenido de nuevo!', 2000, 'success');
+      this.toastService.success('¡Bienvenido de nuevo!');
       this.router.navigate(['/tabs/home']);
     } else {
-      this.toastService.cargarToast('Credenciales inválidas. Prueba con test@test.com / 123456', 3000, 'danger');
+      this.toastService.error('Credenciales inválidas. Prueba con test@test.com / 123456');
     }
   }
 

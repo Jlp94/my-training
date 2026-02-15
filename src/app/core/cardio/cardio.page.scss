@@ -3,149 +3,239 @@ ion-content {
 }
 
 ion-card {
-    box-shadow: 0 4px 16px rgba(var(--ion-color-medium-rgb), 0.3);
+    box-shadow: 0 4px 16px rgba(var(--ion-color-medium-rgb), 0.15);
     border-radius: 16px;
     margin-bottom: 20px;
 }
 
-.card-top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-
-    ion-card-title {
-        font-size: 14px;
-        font-weight: 700;
-    }
-}
-
-.date-range {
-    font-size: 12px;
-    color: var(--ion-color-medium);
-}
-
-.stats-text {
-    font-size: 12px;
-    color: var(--ion-color-medium);
-    margin-top: 8px;
-    margin-bottom: 0;
-}
-
-.extra-text {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--ion-color-tertiary-tint);
-    margin-top: 4px;
-}
-
-ion-progress-bar {
-    height: 8px;
-    border-radius: 4px;
-    --progress-background: var(--ion-color-primary);
-}
-
-// Detalles de la Tarjeta de Actividad
-.activity-card {
-    .goal-stats {
-        text-align: right;
+// ========================
+// Dashboard de Progreso
+// ========================
+.dashboard-card {
+    .dashboard-header {
         display: flex;
-        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
 
-        .goal-time {
-            font-size: 14px;
+        ion-card-title {
+            font-size: 16px;
             font-weight: 700;
-            color: var(--ion-text-color);
         }
 
-        .goal-kcal {
+        .date-range {
             font-size: 12px;
             color: var(--ion-color-medium);
+            font-weight: 500;
         }
     }
 
-    ion-card-subtitle {
-        font-size: 12px;
-        text-transform: none;
-        color: var(--ion-color-medium);
-        margin-bottom: 12px;
+    .progress-thick {
+        height: 12px;
+        border-radius: 6px;
+        --progress-background: var(--ion-color-primary);
     }
 
-    .input-actions-row {
+    .dashboard-stats {
         display: flex;
-        align-items: center;
-        gap: 12px;
+        justify-content: space-between;
         margin-top: 16px;
-        flex-wrap: wrap;
+        gap: 8px;
 
-        .input-wrapper {
-            flex: 0 0 80px;
-
-            ion-input {
-                --padding-start: 12px;
-                --padding-end: 12px;
-                border: 1px solid var(--ion-color-light-shade);
-                border-radius: 8px;
-                text-align: center;
-                font-weight: 600;
-                --placeholder-color: var(--ion-color-medium);
-                --placeholder-opacity: 0.5;
-                min-height: 40px;
-            }
-
-            .speed-label {
-                display: block;
-                font-size: 10px;
-                color: var(--ion-color-medium);
-                margin-top: 4px;
-                text-align: center;
-            }
-        }
-
-        .action-btn {
-            flex: 1;
-            margin: 0;
-            height: 40px;
-            font-weight: 600;
-            --border-radius: 8px;
-            text-transform: none;
-            font-size: 13px;
-        }
-
-        .register-btn {
-            --background: var(--ion-color-primary);
-        }
-
-        .complete-btn {
-            --color: var(--ion-color-primary);
-            --border-color: 1px solid var(--ion-color-primary);
-        }
-
-        .completed-check {
+        .stat-item {
             display: flex;
             align-items: center;
-            justify-content: space-evenly;
-            gap: 8px;
-            margin-left: auto;
-            padding: 0 8px;
+            gap: 6px;
 
-            span {
-                font-size: 10px;
-                font-weight: 700;
-                text-transform: uppercase;
-                color: var(--ion-color-medium);
+            ion-icon {
+                font-size: 20px;
             }
 
-            &.active {
-                span {
-                    color: var(--ion-color-success);
+            .stat-data {
+                display: flex;
+                flex-direction: column;
+                line-height: 1.2;
+
+                strong {
+                    font-size: 16px;
+                    font-weight: 700;
                 }
 
-                ion-checkbox {
-                    --checkbox-background-checked: var(--ion-color-success);
-                    --border-color-checked: var(--ion-color-success-shade);
+                small {
+                    font-size: 10px;
+                    color: var(--ion-color-medium);
                 }
             }
         }
+    }
+
+    .extra-text {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--ion-color-tertiary);
+        margin-top: 12px;
+        margin-bottom: 0;
+    }
+
+    .completed-check {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 12px;
+
+        span {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--ion-color-medium);
+        }
+
+        &.active span {
+            color: var(--ion-color-success);
+        }
+
+        &.active ion-checkbox {
+            --checkbox-background-checked: var(--ion-color-success);
+            --border-color-checked: var(--ion-color-success-shade);
+        }
+    }
+}
+
+// ========================
+// Tarjeta de Actividad
+// ========================
+.activity-card {
+    ion-card-title {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    // Selector de cardio
+    .select-cardio {
+        --background: var(--ion-color-light);
+        --border-radius: 12px;
+        margin-bottom: 16px;
+        --padding-start: 12px;
+
+        ion-icon {
+            font-size: 22px;
+            margin-right: 8px;
+        }
+    }
+
+    // Indicaciones del entrenador (solo lectura)
+    .trainer-instructions {
+        margin-bottom: 16px;
+
+        .instructions-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--ion-color-medium);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .instructions-grid {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .instruction-chip {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--ion-color-light);
+            border-radius: 12px;
+            padding: 8px 16px;
+            flex: 1;
+            min-width: 80px;
+
+            .inst-label {
+                font-size: 10px;
+                color: var(--ion-color-medium);
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+            }
+
+            .inst-value {
+                font-size: 14px;
+                font-weight: 700;
+                color: var(--ion-color-primary);
+                margin-top: 2px;
+            }
+        }
+    }
+
+    // Inputs del cliente
+    .client-inputs {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+
+        .input-group {
+            flex: 1;
+
+            .input-header {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--ion-color-dark);
+                margin-bottom: 6px;
+
+                ion-icon {
+                    font-size: 16px;
+                    color: var(--ion-color-primary);
+                }
+            }
+
+            ion-input {
+                --background: var(--ion-color-light);
+                --border-radius: 10px;
+                --padding-start: 12px;
+                --padding-end: 12px;
+                font-weight: 600;
+                text-align: center;
+                min-height: 44px;
+            }
+        }
+    }
+
+    // Estimación de Kcal
+    .kcal-estimation {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(var(--ion-color-danger-rgb), 0.08);
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-bottom: 16px;
+
+        ion-icon {
+            font-size: 20px;
+        }
+
+        span {
+            font-size: 13px;
+            color: var(--ion-color-dark);
+
+            strong {
+                color: var(--ion-color-danger);
+            }
+        }
+    }
+
+    // Botón registrar
+    .register-btn {
+        --border-radius: 12px;
+        font-weight: 600;
+        text-transform: none;
+        font-size: 14px;
+        height: 48px;
+        margin-top: 4px;
     }
 }

@@ -2,8 +2,6 @@ ion-content {
     --background: var(--ion-color-light);
 }
 
-
-
 .segment-container {
     padding: 16px;
 
@@ -25,43 +23,17 @@ ion-content {
     }
 }
 
-.shopping-list {
-    padding: 0 16px 100px;
+ion-list {
+    padding-bottom: 100px;
     background: var(--ion-color-light);
-
-    .shopping-item {
-        --background: var(--ion-color-light-shade);
-        --border-radius: 12px;
-        // border: 1px solid var(--ion-color-primary);
-        // border-radius: 12px;
-        margin-bottom: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-
-        h3 {
-            font-weight: 600;
-            color: var(--ion-color-dark);
-            margin-bottom: 4px;
-            font-size: 0.95rem;
-        }
-
-        p {
-            color: var(--ion-color-medium);
-            font-size: 0.9rem;
-        }
-
-        ion-checkbox {
-            --size: 24px;
-            --checkbox-background-checked: var(--ion-color-primary);
-            --border-color-checked: var(--ion-color-primary);
-        }
-    }
+    border-radius: 8px;
 }
 
 ion-footer {
     background: var(--ion-color-light);
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
 
-    .footer-toolbar {
+    ion-toolbar {
         --background: transparent;
         padding: 8px 16px;
     }

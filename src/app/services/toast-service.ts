@@ -12,18 +12,18 @@ export class ToastService {
       message,
       duration,
       color,
-      position: 'bottom'
+      position: 'bottom',
+      mode: 'ios'
     });
     await toast.present();
   }
 
-  async listToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 1500,
-      color: 'success'
-    });
-    await toast.present();
+  async success(message: string) {
+    await this.cargarToast(message, 1500, 'success');
+  }
+
+  async error(message: string) {
+    await this.cargarToast(message, 3000, 'danger');
   }
 
 }
