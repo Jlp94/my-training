@@ -16,10 +16,15 @@
       </ion-segment>
     </div>
 
+    @if (shoppingListService.shoppingList().length === 0) {
+    <div class="spinner-container">
+      <ion-spinner name="circles" color="tertiary"></ion-spinner>
+    </div>
+    } @else {
     <ion-list lines="inset">
-      @for (item of shoppingList; track item.name) {
-      <ion-item button (click)="toggleItem(item)">
-        <ion-checkbox slot="start" [(ngModel)]="item.selected" (ionChange)="saveChecks()"
+      @for (item of shoppingListService.shoppingList(); track item.name) {
+      <ion-item button (click)="shoppingListService.toggleItem(item)">
+        <ion-checkbox slot="start" [(ngModel)]="item.selected" (ionChange)="shoppingListService.saveChecks()"
           (click)="$event.stopPropagation()" color="primary"></ion-checkbox>
         <ion-label>
           <h3>{{ item.name }}</h3>
@@ -28,17 +33,18 @@
       </ion-item>
       }
     </ion-list>
+    }
   </app-layout>
 </ion-content>
 
 <ion-footer class="ion-no-border">
   <ion-toolbar>
     <div class="footer-buttons">
-      <ion-button expand="block" color="primary" class="action-btn" (click)="toggleSelectAll(true)">
+      <ion-button expand="block" class="action-btn" (click)="shoppingListService.toggleSelectAll(true)">
         <ion-icon name="checkbox-outline" slot="start"></ion-icon>
         Marcar todo
       </ion-button>
-      <ion-button expand="block" color="light" class="action-btn" (click)="toggleSelectAll(false)">
+      <ion-button expand="block" color="light" class="action-btn" (click)="shoppingListService.toggleSelectAll(false)">
         <ion-icon name="square-outline" slot="start"></ion-icon>
         Desmarcar todo
       </ion-button>

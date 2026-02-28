@@ -2,6 +2,13 @@ ion-content {
     background: var(--ion-color-light);
 }
 
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+}
+
 // Título del día de la semana
 .day-title {
     font-size: 1.4rem;
@@ -155,19 +162,6 @@ ion-chip.badge-dropset {
     white-space: nowrap;
 }
 
-// Fila de serie - Diseño minimalista (todo en una fila)
-.set-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--ion-color-light);
-    border: 1px solid var(--ion-color-step-100);
-    border-radius: 12px;
-    padding: 6px 10px;
-    margin-bottom: 8px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
-}
-
 // Grupo de input con label externo encima
 .input-group {
     flex: 1;
@@ -192,12 +186,12 @@ ion-chip.badge-dropset {
     flex: 1;
 
     ion-input {
-        min-height: 30px !important;
-        --padding-block: 2px;
+        min-height: 38px !important;
+        --padding-block: 4px;
         --border-radius: 8px;
         border: 1px solid var(--ion-color-light-shade);
         border-radius: 8px;
-        font-size: 13px;
+        font-size: 14px;
         text-align: center;
     }
 
@@ -205,31 +199,6 @@ ion-chip.badge-dropset {
     ion-input.ion-valid.ion-dirty {
         --highlight-color-valid: var(--ion-color-primary);
     }
-}
-
-// Botones de acción (timer y eliminar) con más separación
-.set-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex-shrink: 0;
-
-    ion-button {
-        --padding-start: 4px;
-        --padding-end: 4px;
-        margin: 0;
-        height: 28px;
-
-        ion-icon {
-            font-size: 18px;
-        }
-    }
-}
-
-// Botón de añadir serie
-.add-btn {
-    --border-radius: 12px;
-    font-weight: 600;
 }
 
 ion-modal {

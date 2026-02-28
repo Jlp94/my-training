@@ -122,7 +122,7 @@
     <div class="extras-section ion-padding">
       <div class="extras-header">
         <h3>Extras del día</h3>
-        <ion-button fill="outline" color="dark" size="small" (click)="setOpen(true)">Añadir extra</ion-button>
+        <ion-button fill="solid" color="danger" size="small" (click)="setOpen(true)">Añadir extra</ion-button>
       </div>
 
       @if (extras.length === 0) {
@@ -164,11 +164,32 @@
           <div class="modal-search">
             <ion-item lines="none" class="search-item">
               <ion-input placeholder="Nombre (ej. McFlurry)" [(ngModel)]="extraName"></ion-input>
-              <ion-button slot="end" fill="clear" color="primary">
-                <ion-icon name="search"></ion-icon>
-              </ion-button>
             </ion-item>
+            <ion-button expand="block" fill="solid" color="primary" class="search-btn" (click)="searchFood()">
+              <ion-icon name="search" slot="start"></ion-icon>
+              Buscar alimento
+            </ion-button>
           </div>
+
+          <!-- Resultados de búsqueda Edamam -->
+          @if (searching) {
+          <div class="search-loading">
+            <ion-spinner name="dots" color="primary"></ion-spinner>
+          </div>
+          } @else if (searchResults.length > 0) {
+          <div class="search-results">
+            <ion-list lines="inset" class="results-list">
+              @for (food of searchResults; track food.name) {
+              <ion-item button (click)="selectFood(food)" class="result-item">
+                <ion-label>
+                  <h3>{{ food.name }}</h3>
+                  <p>{{ food.kcal }} kcal · P: {{ food.protein }}g · C: {{ food.carbs }}g · G: {{ food.fat }}g</p>
+                </ion-label>
+              </ion-item>
+              }
+            </ion-list>
+          </div>
+          }
 
           <div class="modal-form">
             <ion-label>Cantidad (g/ml)</ion-label>

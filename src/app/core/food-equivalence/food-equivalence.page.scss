@@ -1,0 +1,185 @@
+ion-content {
+  --background: var(--ion-color-light);
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
+// Tarjeta de categoría
+.category-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(var(--ion-color-dark-rgb), 0.1);
+  margin: 16px;
+
+  ion-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .category-select {
+    width: 100%;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    border: 1px solid var(--ion-color-light-shade);
+    border-radius: 8px;
+    margin-top: 4px;
+  }
+}
+
+// Grid de alimentos
+.foods-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(var(--ion-color-dark-rgb), 0.1);
+  margin: 16px;
+
+  ion-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .foods-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+
+    .food-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 8px;
+      border-radius: 12px;
+      border: 2px solid var(--ion-color-light-shade);
+      background: var(--ion-color-light);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      min-height: 60px;
+
+      .food-chip-name {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        line-height: 1.2;
+      }
+
+      .food-chip-kcal {
+        font-size: 0.7rem;
+        color: var(--ion-color-medium);
+        margin-top: 4px;
+      }
+
+      &.selected {
+        border-color: var(--ion-color-primary);
+        background: rgba(var(--ion-color-primary-rgb), 0.08);
+
+        .food-chip-name {
+          color: var(--ion-color-primary);
+        }
+      }
+
+      &:active {
+        transform: scale(0.96);
+      }
+    }
+  }
+}
+
+// Input de cantidad
+.quantity-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(var(--ion-color-dark-rgb), 0.1);
+  margin: 16px;
+
+  .quantity-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .quantity-item {
+    --background: var(--ion-color-light);
+    border: 1px solid var(--ion-color-light-shade);
+    border-radius: 8px;
+    --padding-start: 12px;
+
+    ion-note {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+// Equivalencias
+.equivalences-section {
+  padding: 0 16px 100px;
+
+  .equivalences-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 16px 0 4px;
+    color: var(--ion-color-dark);
+
+    ion-icon {
+      font-size: 1.2rem;
+      color: var(--ion-color-primary);
+    }
+  }
+
+  .equivalences-subtitle {
+    font-size: 0.85rem;
+    color: var(--ion-color-medium);
+    margin: 0 0 12px;
+
+    strong {
+      color: var(--ion-color-dark);
+    }
+  }
+
+  .equivalences-list {
+    background: transparent;
+    padding: 0;
+
+    .equivalence-item {
+      --background: var(--ion-color-light);
+      --padding-start: 16px;
+      --inner-padding-end: 12px;
+      margin-bottom: 8px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(var(--ion-color-dark-rgb), 0.08);
+
+      h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        margin: 0;
+      }
+
+      p {
+        font-size: 0.85rem;
+        color: var(--ion-color-medium);
+        margin: 2px 0 0;
+      }
+
+      ion-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        --padding-start: 8px;
+        --padding-end: 8px;
+        --padding-top: 4px;
+        --padding-bottom: 4px;
+        border-radius: 8px;
+      }
+    }
+  }
+}

@@ -3,6 +3,12 @@
 <ion-content class="ion-padding">
   <app-layout>
 
+    @if (cardioList().length === 0) {
+    <div class="spinner-container">
+      <ion-spinner name="circles" color="tertiary"></ion-spinner>
+    </div>
+    } @else {
+
     <!-- Dashboard de Progreso Semanal -->
     <ion-card class="dashboard-card" mode="ios">
       <ion-card-header>
@@ -60,19 +66,20 @@
         <!-- Selector de tipo de cardio -->
         <ion-item lines="none" class="select-cardio">
           <ion-icon [name]="cardioIcon()" slot="start" color="primary"></ion-icon>
-          <ion-select interface="popover" [value]="tipoCardio()" (ionChange)="cambiarTipoCardio($event)"
+          <ion-select interface="action-sheet" [value]="selectedCardioId()" (ionChange)="cambiarTipoCardio($event)"
             label="Actividad" label-placement="floating" mode="ios">
-            <ion-select-option value="cinta">Cinta de correr</ion-select-option>
-            <ion-select-option value="eliptica">Elíptica</ion-select-option>
-            <ion-select-option value="bici">Bicicleta</ion-select-option>
+            @for (config of cardioList(); track config._id) {
+            <ion-select-option [value]="config._id">{{ config.label }}</ion-select-option>
+            }
           </ion-select>
         </ion-item>
 
         <!-- Instrucciones del entrenador (solo lectura) -->
+        @if (configActual()) {
         <div class="trainer-instructions">
           <small class="instructions-label">Indicaciones del entrenador</small>
           <div class="instructions-grid">
-            @for (inst of configActual().instrucciones; track inst.label) {
+            @for (inst of configActual()!.instrucciones; track inst.label) {
             <div class="instruction-chip">
               <span class="inst-label">{{ inst.label }}</span>
               <strong class="inst-value">{{ inst.valor }}</strong>
@@ -80,6 +87,7 @@
             }
           </div>
         </div>
+        }
 
         <!-- Inputs del cliente: solo Tiempo + Pulsaciones -->
         <div class="client-inputs">
@@ -101,11 +109,13 @@
         }
 
         <!-- Botón registrar -->
-        <ion-button expand="block" color="primary" class="register-btn" (click)="registrarSesion()">
+        <ion-button expand="block" color="secondary" class="register-btn" (click)="registrarSesion()">
           Registrar sesión
         </ion-button>
       </ion-card-content>
     </ion-card>
+
+    }
 
   </app-layout>
 </ion-content>

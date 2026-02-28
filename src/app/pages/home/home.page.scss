@@ -188,6 +188,19 @@ canvas {
     .modal-form {
       text-align: left;
 
+      .fecha-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        margin-bottom: 8px;
+      }
+
+      .fecha-btn {
+        display: block;
+        margin-bottom: 12px;
+      }
+
       .registro-input {
         --background: transparent;
         --padding-start: 0;

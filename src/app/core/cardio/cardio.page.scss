@@ -2,6 +2,13 @@ ion-content {
     --background: var(--ion-color-light);
 }
 
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
 ion-card {
     box-shadow: 0 4px 16px rgba(var(--ion-color-medium-rgb), 0.15);
     border-radius: 16px;

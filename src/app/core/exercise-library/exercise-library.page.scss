@@ -2,6 +2,13 @@ ion-content {
     --background: var(--ion-color-light);
 }
 
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
 ion-searchbar {
     --border-radius: 12px;
     --box-shadow: 0 2px 8px rgba(var(--ion-color-dark-rgb), 0.3);

@@ -1,55 +1,65 @@
-export interface UserApiResponse {
-    status: number;
-    message: string;
-    error: string | null;
-    data: User;
-}
-
+// Interfaz principal del usuario (sincronizada con API)
 export interface User {
-    _id: string
-    profile: UserProfile
-    auth: AuthResponse
+    _id: string;
+    email: string;
+    role: 'admin' | 'user';
+    isActive: boolean;
+    profile: UserProfile;
 }
 
+// Perfil del usuario
 export interface UserProfile {
-    _id: string;
     name: string;
+    lastName: string;
+    year?: number;
     avatarUrl?: string;
-    height: number;
+    height?: number;
+    weight?: number;
     notifications: boolean;
-    macros: UserMacros;
-    neatLog: UserNeat[];
+    macros?: UserMacros;
+    neatLogs: UserNeat[];
     currentRoutineId?: string;
     currentDietId?: string;
+    cardioKcalGoal?: number;
+    dietLogs?: DietLog[];
     favoriteFoods?: string[];
-    auth: AuthResponse;
+    workoutLogs: WorkoutLog[];
 }
 
-// Los objetivos marcados por el entrenador
+// Los objetivos marcados por el entrenador (en gramos absolutos)
 export interface UserMacros {
     targetKcal: number;
-    // Distribución en porcentajes (deben sumar 100)
-    pCarbs: number; // Porcentajes para calcular automaticamente en la dieta
-    pProtein: number; // Porcentajes para calcular automaticamente en la dieta
-    pFat: number; // Porcentajes para calcular automaticamente en la dieta
+    protein: number;
+    carbs: number;
+    fat: number;
 }
 
-// Seguimiento del progreso (para tus gráficos de peso/pasos)
+// Seguimiento del progreso (peso/pasos)
 export interface UserNeat {
-    date: string; // ISO String
+    date: string;
     weight?: number;
     steps?: number;
 }
 
-export interface LoginCredentials {
-    email: string;
-    password: string;
+// Log de dieta
+export interface DietLog {
+    startDate: string;
+    macros?: UserMacros;
+    notes?: string;
 }
 
-export interface AuthResponse {
-    token: string;         // El JWT que te da Node.js
-    user: UserProfile;    // Los datos que ya definimos (sin password)
-    role: 'admin' | 'user';
+// Log de ejercicio dentro de un workout
+export interface ExerciseLog {
+    exerciseId: string;
+    name: string;
+    target: string[];
+    sets: { kg: number; reps: number; rir: number }[];
 }
 
-
+// Log de entrenamiento
+export interface WorkoutLog {
+    doneAt: string;
+    routineId: string;
+    notes?: string;
+    exerciseLogs: ExerciseLog[];
+}

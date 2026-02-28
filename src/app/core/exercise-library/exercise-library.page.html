@@ -2,6 +2,13 @@
 
 <ion-content class="ion-padding">
   <app-layout>
+
+    @if (exercises().length === 0) {
+    <div class="spinner-container">
+      <ion-spinner name="circles" color="tertiary"></ion-spinner>
+    </div>
+    } @else {
+
     <ion-searchbar placeholder="Buscar por nombre, grupo o etiqueta..." (ionInput)="onSearch($event)" [debounce]="300"
       mode="ios"></ion-searchbar>
 
@@ -36,5 +43,8 @@
       </ion-accordion>
       }
     </ion-accordion-group>
+
+    }
+
   </app-layout>
 </ion-content>

@@ -45,17 +45,17 @@
           </ion-card>
         </ion-col>
         <ion-col size="4">
-          <ion-card mode="ios" class="small-card progress-card" routerLink="/tabs/training/cardio">
+        <ion-card mode="ios" class="small-card progress-card" routerLink="/tabs/training/cardio">
             <ion-card-content class="ion-text-center">
               <div class="progress-container">
                 <canvas #progressChart></canvas>
                 <div class="progress-text">
-                  <strong>95%</strong>
+                  <strong>{{ stepsProgress }}%</strong>
                 </div>
               </div>
               <div class="progress-details">
-                <span>100.002 /</span>
-                <span>105.000</span>
+                <span>{{ weeklyStepsTotal | number }} /</span>
+                <span>{{ weeklyStepsGoal | number }}</span>
               </div>
             </ion-card-content>
           </ion-card>
@@ -88,27 +88,35 @@
         <h2 class="modal-title">PESO Y PASOS</h2>
         <p class="modal-subtitle">Introduce los pasos de ayer y peso de hoy.</p>
 
-        <div class="modal-form">
-          <ion-item lines="none" class="registro-input">
-            <ion-label position="stacked">Fecha</ion-label>
-            <ion-input type="date" [(ngModel)]="registroFecha" mode="ios" fill="outline"></ion-input>
-          </ion-item>
+        <form [formGroup]="registroForm" (ngSubmit)="guardarRegistro()">
+          <div class="modal-form">
+            <ion-label class="fecha-label">Fecha</ion-label>
+            <ion-datetime-button datetime="fechaPicker" class="fecha-btn"></ion-datetime-button>
+            <ion-modal [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime id="fechaPicker" presentation="date" mode="ios"
+                  [value]="fecha?.value" (ionChange)="onDateChange($event)"
+                  locale="es-ES" [max]="maxDate">
+                </ion-datetime>
+              </ng-template>
+            </ion-modal>
 
-          <ion-item lines="none" class="registro-input">
-            <ion-label position="stacked">Pasos</ion-label>
-            <ion-input type="number" placeholder="12000" [(ngModel)]="registroPasos" mode="ios"
-              fill="outline"></ion-input>
-          </ion-item>
+            <ion-item lines="none" class="registro-input">
+              <ion-label position="stacked">Pasos</ion-label>
+              <ion-input type="number" placeholder="12000" formControlName="pasos" mode="ios"
+                fill="outline"></ion-input>
+            </ion-item>
 
-          <ion-item lines="none" class="registro-input">
-            <ion-label position="stacked">Peso (kg)</ion-label>
-            <ion-input type="number" placeholder="80" [(ngModel)]="registroPeso" mode="ios" fill="outline"></ion-input>
-          </ion-item>
+            <ion-item lines="none" class="registro-input">
+              <ion-label position="stacked">Peso (kg)</ion-label>
+              <ion-input type="number" placeholder="80" formControlName="peso" mode="ios" fill="outline"></ion-input>
+            </ion-item>
 
-          <ion-button expand="block" color="primary" class="guardar-btn" (click)="guardarRegistro()">
-            Guardar
-          </ion-button>
-        </div>
+            <ion-button expand="block" color="primary" class="guardar-btn" type="submit">
+              Guardar
+            </ion-button>
+          </div>
+        </form>
       </div>
     </ng-template>
   </ion-modal>

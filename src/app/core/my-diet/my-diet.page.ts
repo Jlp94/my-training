@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonCheckbox, IonList, IonNote, IonFooter, IonText, IonFab, IonFabButton, IonProgressBar } from '@ionic/angular/standalone';
+import { IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonCheckbox, IonList, IonNote, IonFooter, IonText, IonFab, IonFabButton, IonProgressBar, IonSpinner } from '@ionic/angular/standalone';
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { LayoutComponent } from "src/app/components/layout/layout.component";
 import { Chart, DoughnutController, ArcElement, Legend, Tooltip, PieController } from 'chart.js';
@@ -9,6 +9,10 @@ import { addIcons } from 'ionicons';
 import { add, search, barbell, timeOutline, flame, checkmarkCircle, closeCircle, close, saveOutline, alertCircle, closeOutline } from 'ionicons/icons';
 import { ViewChild, ElementRef } from '@angular/core';
 import { ToastService } from 'src/app/services/toast-service';
+import { DietService } from 'src/app/services/diet-service';
+import { EdamamService } from 'src/app/services/edamam-service';
+import { Alimento, MealFoodView, MealView, EdamamFood } from 'src/app/common/diet-interface';
+import { UserMacros } from 'src/app/common/userInterface';
 
 Chart.register(DoughnutController, PieController, ArcElement, Legend, Tooltip);
 
@@ -18,30 +22,26 @@ Chart.register(DoughnutController, PieController, ArcElement, Legend, Tooltip);
   styleUrls: ['./my-diet.page.scss'],
   standalone: true,
   imports: [IonText, IonFooter, IonNote, IonContent, CommonModule, FormsModule, HeaderComponent, LayoutComponent,
-    IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonList, IonCheckbox, IonFab, IonFabButton, IonProgressBar]
+    IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonList, IonCheckbox, IonFab, IonFabButton, IonProgressBar, IonSpinner]
 })
 export class MyDietPage implements OnInit {
   @ViewChild('macrosChart') macrosChartCanvas!: ElementRef;
-  @ViewChild('caloriesChart') caloriesChartCanvas!: ElementRef;
 
   private readonly toastService: ToastService = inject(ToastService);
+  private readonly dietService: DietService = inject(DietService);
+  private readonly edamamService: EdamamService = inject(EdamamService);
 
   macrosChart: any;
-  caloriesChart: any;
-  caloriesTarget: number = 1407;
 
-  // Datos de Prueba
-  macros = {
-    protein: 150, // Rojo (Proteínas)
-    carbs: 200,   // Amarillo (Carbohidratos)
-    fats: 60      // Azul (Grasas)
-  };
+  // Macros objetivo del usuario (viene del perfil)
+  macros: UserMacros = { targetKcal: 0, protein: 0, carbs: 0, fat: 0 };
+  caloriesTarget: number = 0;
 
   caloriesConsumed = 0;
 
   // Progreso semanal de calorías
-  weeklyCaloriesTarget = 9849; // 1407 * 7
-  weeklyCaloriesConsumed = 7200; // ejemplo: calorías ya consumidas esta semana
+  weeklyCaloriesTarget = 0;
+  weeklyCaloriesConsumed = 0;
 
   get weeklyProgress(): number {
     return this.weeklyCaloriesTarget > 0 ? Math.min(this.weeklyCaloriesConsumed / this.weeklyCaloriesTarget, 1) : 0;
@@ -54,62 +54,9 @@ export class MyDietPage implements OnInit {
   get weeklyExcessCalories(): number {
     return this.weeklyCaloriesConsumed - this.weeklyCaloriesTarget;
   }
-  // Datos de Comidas
-  meals = [
-    {
-      name: 'Desayuno',
-      completed: false,
-      // Totales de la comida (calculados sumando los alimentos)
-      totalKcal: 387,
-      totalMacros: { carbs: 45, protein: 35, fat: 12 },
-      foods: [
-        {
-          name: 'YOGUR + PROTEINAS',
-          quantity: 200, // Número puro para cálculos
-          kcal: 104,
-          // Macros base por cada 100g (Carbs, Protein, Fat)
-          baseMacros: { carbs: 4, protein: 9, fat: 0 }
-        },
-        {
-          name: 'MANZANA',
-          quantity: 200,
-          kcal: 104,
-          baseMacros: { carbs: 13, protein: 0.3, fat: 0.2 }
-        },
-        {
-          name: 'NUECES',
-          quantity: 25,
-          kcal: 179,
-          baseMacros: { carbs: 13.7, protein: 15.2, fat: 65.2 }
-        }
-      ]
-    },
-    {
-      name: 'Comida',
-      completed: false,
-      totalKcal: 484,
-      totalMacros: { carbs: 55, protein: 45, fat: 15 },
-      foods: [
-        { name: 'VERDURAS AL GUSTO', quantity: 100, kcal: 50, baseMacros: { carbs: 10, protein: 2, fat: 0.2 } },
-        { name: 'PLATANO', quantity: 100, kcal: 89, baseMacros: { carbs: 22.8, protein: 1.1, fat: 0.3 } },
-        { name: 'HUEVOS', quantity: 50, kcal: 73.5, baseMacros: { carbs: 1.1, protein: 13, fat: 11 } },
-        { name: 'ARROZ', quantity: 30, kcal: 106.5, baseMacros: { carbs: 78, protein: 7, fat: 0.6 } },
-        { name: 'FILETE DE PECHUGA DE POLLO', quantity: 150, kcal: 165, baseMacros: { carbs: 0, protein: 23, fat: 1.2 } }
-      ]
-    },
-    {
-      name: 'Cena',
-      completed: false,
-      totalKcal: 536,
-      totalMacros: { carbs: 40, protein: 40, fat: 20 },
-      foods: [
-        { name: 'SALMON', quantity: 100, kcal: 224, baseMacros: { carbs: 0, protein: 20, fat: 13 } },
-        { name: 'AGUACATE/GUACAMOLE', quantity: 100, kcal: 160, baseMacros: { carbs: 8.5, protein: 2, fat: 14.7 } },
-        { name: 'PATATA', quantity: 150, kcal: 102, baseMacros: { carbs: 17, protein: 2, fat: 0.1 } },
-        { name: 'VERDURAS AL GUSTO', quantity: 100, kcal: 50, baseMacros: { carbs: 10, protein: 2, fat: 0.2 } }
-      ]
-    }
-  ];
+
+  // Comidas enriquecidas con datos reales
+  meals: MealView[] = [];
 
   // Datos de Extras
   extras: any[] = [];
@@ -123,19 +70,75 @@ export class MyDietPage implements OnInit {
   extraCarbs: number | null = null;
   extraFat: number | null = null;
 
+  // Búsqueda Edamam
+  searchResults: EdamamFood[] = [];
+  searching = false;
 
   constructor() {
     addIcons({ flame, alertCircle, closeOutline, checkmarkCircle, close, search, saveOutline, timeOutline, add, barbell });
   }
 
   ngOnInit() {
-    this.calculateTotalCalories();
+    this.loadDiet();
   }
 
   ngAfterViewInit() {
     this.createMacrosChart();
-    // Force update
     setTimeout(() => this.updateChartData(), 100);
+  }
+
+  loadDiet() {
+    this.dietService.getMyDiet().subscribe({
+      next: ({ profile, diet, foods }) => {
+        // Macros objetivo del perfil
+        this.macros = profile.macros || { targetKcal: 0, protein: 0, carbs: 0, fat: 0 };
+        this.caloriesTarget = this.macros.targetKcal;
+        this.weeklyCaloriesTarget = this.caloriesTarget * 7;
+
+        // Mapa foodId → alimento completo
+        const foodMap = new Map<string, Alimento>(foods.map(food => [food._id, food]));
+
+        // Enriquecer cada comida
+        this.meals = diet.meals.map(meal => {
+          const enrichedFoods: MealFoodView[] = meal.foods.map(mf => {
+            const food = foodMap.get(mf.foodId);
+            const factor = mf.quantity / 100;
+
+            return {
+              name: food?.name || 'Alimento desconocido',
+              quantity: mf.quantity,
+              kcal: Math.round((food?.kcal || 0) * factor),
+              baseMacros: {
+                carbs: food?.carbs || 0,
+                protein: food?.protein || 0,
+                fat: food?.fat || 0
+              }
+            };
+          });
+
+          const totalKcal = enrichedFoods.reduce((sum, f) => sum + f.kcal, 0);
+          const totalMacros = enrichedFoods.reduce((acc, f) => {
+            const factor = f.quantity / 100;
+            return {
+              carbs: acc.carbs + Math.round(f.baseMacros.carbs * factor),
+              protein: acc.protein + Math.round(f.baseMacros.protein * factor),
+              fat: acc.fat + Math.round(f.baseMacros.fat * factor)
+            };
+          }, { carbs: 0, protein: 0, fat: 0 });
+
+          return { name: meal.name, completed: false, totalKcal, totalMacros, foods: enrichedFoods };
+        });
+
+        this.calculateTotalCalories();
+      },
+      error: (err) => {
+        if (err.message === 'NO_DIET') {
+          console.log('El usuario no tiene dieta asignada');
+        } else {
+          console.error('Error cargando dieta:', err);
+        }
+      }
+    });
   }
 
   calculateTotalCalories() {
@@ -155,7 +158,7 @@ export class MyDietPage implements OnInit {
 
     const isGoalReached = this.caloriesConsumed >= this.caloriesTarget;
 
-    if (!wasGoalReached && isGoalReached) {
+    if (!wasGoalReached && isGoalReached && this.caloriesTarget > 0) {
       this.toastService.success('¡Has alcanzado las Kcal del día!');
     }
   }
@@ -185,26 +188,16 @@ export class MyDietPage implements OnInit {
 
     const consumed = this.getConsumedMacros();
 
-    // Calculate TOTAL planned macros from meals to be the 100% reference
-    let totalPlanMacros = { protein: 0, carbs: 0, fat: 0 };
-    this.meals.forEach(m => {
-      if (m.totalMacros) {
-        totalPlanMacros.protein += m.totalMacros.protein;
-        totalPlanMacros.carbs += m.totalMacros.carbs;
-        totalPlanMacros.fat += m.totalMacros.fat;
-      }
-    });
+    // Usar macros objetivo del perfil como referencia 100%
+    const pPct = this.macros.protein > 0 ? Math.min(100, (consumed.protein / this.macros.protein) * 100) : 0;
+    const cPct = this.macros.carbs > 0 ? Math.min(100, (consumed.carbs / this.macros.carbs) * 100) : 0;
+    const fPct = this.macros.fat > 0 ? Math.min(100, (consumed.fat / this.macros.fat) * 100) : 0;
 
-    // Use totalPlanMacros as the denominator so chart fills when meals are done
-    const pPct = Math.min(100, (consumed.protein / totalPlanMacros.protein) * 100);
-    const cPct = Math.min(100, (consumed.carbs / totalPlanMacros.carbs) * 100);
-    const fPct = Math.min(100, (consumed.fat / totalPlanMacros.fat) * 100);
-
-    // Dataset 0: Protein
-    this.macrosChart.data.datasets[0].data = [pPct, 100 - pPct];
-    // Dataset 1: Carbs
-    this.macrosChart.data.datasets[1].data = [cPct, 100 - cPct];
-    // Dataset 2: Fats
+    // Dataset 0: Carbs (Yellow)
+    this.macrosChart.data.datasets[0].data = [cPct, 100 - cPct];
+    // Dataset 1: Protein (Red)
+    this.macrosChart.data.datasets[1].data = [pPct, 100 - pPct];
+    // Dataset 2: Fats (Blue)
     this.macrosChart.data.datasets[2].data = [fPct, 100 - fPct];
 
     this.macrosChart.update();
@@ -220,7 +213,7 @@ export class MyDietPage implements OnInit {
             // Middle Ring - Carbs
             {
               data: [0, 100],
-              backgroundColor: ['#ffc409', '#f4f5f8'], // Yellow
+              backgroundColor: ['#ffc409', '#f4f5f8'],
               borderWidth: 2,
               circumference: 360,
               weight: 5
@@ -228,7 +221,7 @@ export class MyDietPage implements OnInit {
             // Outer Ring - Protein
             {
               data: [0, 100],
-              backgroundColor: ['#eb445a', '#f4f5f8'], // Red
+              backgroundColor: ['#eb445a', '#f4f5f8'],
               borderWidth: 2,
               circumference: 360,
               weight: 5
@@ -236,7 +229,7 @@ export class MyDietPage implements OnInit {
             // Inner Ring - Fats
             {
               data: [0, 100],
-              backgroundColor: ['#3880ff', '#f4f5f8'], // Blue
+              backgroundColor: ['#3880ff', '#f4f5f8'],
               borderWidth: 2,
               circumference: 360,
               weight: 5
@@ -262,16 +255,45 @@ export class MyDietPage implements OnInit {
 
   setOpen(isOpen: boolean) {
     this.isModalOpen = isOpen;
+    if (!isOpen) {
+      this.searchResults = [];
+      this.searching = false;
+    }
+  }
+
+  // Buscar alimentos en Edamam
+  searchFood() {
+    if (!this.extraName || this.extraName.length < 2) return;
+    this.searching = true;
+    this.edamamService.searchFood(this.extraName).subscribe({
+      next: (results) => {
+        this.searchResults = results;
+        this.searching = false;
+      },
+      error: () => {
+        this.searchResults = [];
+        this.searching = false;
+        this.toastService.error('Error buscando alimentos');
+      }
+    });
+  }
+
+  // Seleccionar alimento de los resultados
+  selectFood(food: EdamamFood) {
+    this.extraName = food.name;
+    this.extraKcal = food.kcal;
+    this.extraProtein = food.protein;
+    this.extraCarbs = food.carbs;
+    this.extraFat = food.fat;
+    this.searchResults = [];
   }
 
   addExtra() {
-    // Validación de campos obligatorios
     if (!this.extraName || this.extraAmount === null || this.extraKcal === null || this.extraProtein === null || this.extraCarbs === null || this.extraFat === null) {
       this.toastService.error('Todos los campos son obligatorios');
       return;
     }
 
-    // Validación de valores negativos
     if (this.extraAmount < 0 || this.extraKcal < 0 || this.extraProtein < 0 || this.extraCarbs < 0 || this.extraFat < 0) {
       this.toastService.error('Los valores no pueden ser negativos');
       return;
@@ -291,7 +313,6 @@ export class MyDietPage implements OnInit {
 
     this.setOpen(false);
 
-    // Reiniciar campos
     this.extraName = '';
     this.extraAmount = null;
     this.extraKcal = null;

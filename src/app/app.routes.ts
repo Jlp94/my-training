@@ -43,12 +43,16 @@ export const routes: Routes = [
             loadComponent: () => import('./core/my-diet/my-diet.page').then(m => m.MyDietPage)
           },
           {
-            path: 'list-cart-food',
-            loadComponent: () => import('./core/list-cart-food/list-cart-food.page').then(m => m.ListCartFoodPage)
+            path: 'shopping-list',
+            loadComponent: () => import('./core/shopping-list/shopping-list.page').then(m => m.ShoppingListPage)
           },
           {
             path: 'supplementation',
             loadComponent: () => import('./core/supplementation/supplementation.page').then(m => m.SupplementationPage)
+          },
+          {
+            path: 'food-equivalence',
+            loadComponent: () => import('./core/food-equivalence/food-equivalence.page').then(m => m.FoodEquivalencePage)
           },
         ]
       },
@@ -80,7 +84,7 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    loadComponent: () => import('./core/login/login.page').then(m => m.LoginPage)
+    loadComponent: () => import('./auth/login/login.page').then(m => m.LoginPage)
   },
   {
     path: '',

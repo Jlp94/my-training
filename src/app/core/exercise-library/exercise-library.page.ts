@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, WritableSignal } from '@angular/core';
+import { Component, OnInit, signal, computed, WritableSignal, inject } from '@angular/core';
 
 import {
   IonContent,
@@ -11,13 +11,15 @@ import {
   IonSearchbar,
   IonBadge,
   IonText,
-  IonButton
+  IonButton,
+  IonSpinner
 } from '@ionic/angular/standalone';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { addIcons } from 'ionicons';
 import { barbell, logoYoutube } from 'ionicons/icons';
 import { LayoutComponent } from 'src/app/components/layout/layout.component';
-import { EquipmentType, MuscleGroup, Ejercicio, MovementType } from 'src/app/common/workoutInterface';
+import { Ejercicio } from 'src/app/common/exercises-interface';
+import { ExercisesService } from 'src/app/services/exercises-service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -41,71 +43,42 @@ import { FormsModule } from '@angular/forms';
     CommonModule,
     FormsModule,
     HeaderComponent,
-    LayoutComponent
+    LayoutComponent,
+    IonSpinner
   ]
 })
 export class ExerciseLibraryPage implements OnInit {
+  private readonly exercisesService: ExercisesService = inject(ExercisesService);
 
   searchTerm: WritableSignal<string> = signal<string>('');
 
-  // Datos de ejemplo (se reemplazarán por datos del servicio)
-  exercises: Ejercicio[] = [
-    {
-      _id: '1',
-      name: 'abdominales en v',
-      movementTypes: [MovementType.LEG, MovementType.PUSH, MovementType.PULL],
-      categories: [MuscleGroup.CORE],
-      equipment: EquipmentType.LIBRE,
-      description: 'acostado, eleva el tronco llevando las manos hacia los pies. mantén tensión constante en la zona superior del abdomen.',
-      tags: ['abdominales', 'tumbado'],
-      videoUrl: 'https://www.youtube.com/watch?v=xUsHyWZGm0w'
-    },
-    {
-      _id: '2',
-      name: 'abdominales tipo crunch en máquina',
-      movementTypes: [MovementType.PUSH, MovementType.LEG, MovementType.PULL],
-      categories: [MuscleGroup.CORE],
-      equipment: EquipmentType.MAQUINA,
-      description: 'realiza la flexión del tronco utilizando la resistencia de la máquina de crunch abdominal.',
-      tags: ['abdominales', 'maquina'],
-      videoUrl: 'https://www.youtube.com/watch?v=2'
-    },
-    {
-      _id: '3',
-      name: 'abdominales tipo crunch en paralelas',
-      movementTypes: [MovementType.PUSH, MovementType.LEG, MovementType.PULL],
-      categories: [MuscleGroup.CORE],
-      equipment: EquipmentType.LIBRE,
-      description: 'realiza la flexión del tronco en las barras paralelas elevando las piernas o el torso.',
-      tags: ['abdominales', 'paralelas'],
-      videoUrl: 'https://www.youtube.com/watch?v=3'
-    },
-    {
-      _id: '4',
-      name: 'aducción horizontal con poleas en pie',
-      movementTypes: [MovementType.PUSH],
-      categories: [MuscleGroup.PECTORAL],
-      equipment: EquipmentType.POLEA,
-      description: 'tracción de las poleas hacia el centro del pecho manteniendo la posición de pie.',
-      tags: ['pectoral', 'polea'],
-      videoUrl: 'https://www.youtube.com/watch?v=4'
-    }
-  ];
+  // Ejercicios cargados desde la API
+  exercises:WritableSignal<Ejercicio[]> = signal<Ejercicio[]>([]);
 
   constructor() {
     addIcons({ barbell, logoYoutube });
   }
 
+  // Carga los ejercicios de la API al iniciar
   ngOnInit() {
+    this.exercisesService.findAll().subscribe({
+      next: (ejercicios) => {
+        this.exercises.set(ejercicios);
+      },
+      error: (err) => {
+        console.error('Error cargando ejercicios:', err);
+      }
+    });
   }
 
   // Signal computada que filtra ejercicios por nombre, categoría, equipamiento o etiquetas
   filteredExercises = computed(() => {
     const termino = this.searchTerm().toLowerCase().trim();
+    const lista = this.exercises();
 
-    if (!termino) return this.exercises;
+    if (!termino) return lista;
 
-    return this.exercises.filter(ejercicio =>
+    return lista.filter(ejercicio =>
       ejercicio.name.toLowerCase().includes(termino) ||
       ejercicio.categories.some(categoria => categoria.toLowerCase().includes(termino)) ||
       ejercicio.equipment.toLowerCase().includes(termino) ||

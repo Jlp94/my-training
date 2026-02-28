@@ -9,7 +9,8 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalo
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { provideServiceWorker } from '@angular/service-worker';
-import { provideHttpClient, withFetch } from "@angular/common/http";
+import { provideHttpClient, withFetch, withInterceptors } from "@angular/common/http";
+import { authInterceptor } from './app/services/auth-interceptor';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -22,6 +23,6 @@ bootstrapApplication(AppComponent, {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
     }),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
   ],
 });

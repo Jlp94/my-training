@@ -1,14 +1,16 @@
 import { ToastService } from 'src/app/services/toast-service';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonIcon, IonButton, IonAccordionGroup, IonAccordion, IonItem, IonLabel, IonInput, IonThumbnail, IonChip, IonText, IonFab, IonFabButton, IonModal, IonDatetime, IonDatetimeButton } from '@ionic/angular/standalone';
+import { IonContent, IonIcon, IonButton, IonAccordionGroup, IonAccordion, IonItem, IonLabel, IonInput, IonThumbnail, IonChip, IonText, IonFab, IonFabButton, IonModal, IonDatetime, IonDatetimeButton, IonSpinner, IonRow, IonCol, IonGrid } from '@ionic/angular/standalone';
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { addIcons } from 'ionicons';
-import { barbell, alarmOutline, trashOutline, addCircleOutline, saveOutline, timerOutline, chatbubbleEllipsesOutline, informationCircleOutline } from 'ionicons/icons';
+import { barbell, alarmOutline, trashOutline, addCircleOutline, saveOutline, timerOutline, chatbubbleEllipsesOutline, informationCircleOutline, checkmarkCircle, ellipseOutline } from 'ionicons/icons';
 import { LayoutComponent } from "src/app/components/layout/layout.component";
-import { ExecutionMode } from 'src/app/common/workoutInterface';
+import { RoutinesService } from 'src/app/services/routines-service';
+import { UserService } from 'src/app/services/user-service';
+import { ExecutionMode, SesionRutina } from 'src/app/common/routine-interface';
 
 @Component({
   selector: 'app-my-routine',
@@ -36,17 +38,29 @@ import { ExecutionMode } from 'src/app/common/workoutInterface';
     IonDatetime,
     IonDatetimeButton,
     LayoutComponent,
-    FormsModule
-  ]
+    FormsModule,
+    IonSpinner,
+    IonCol,
+    IonRow,
+    IonGrid
+]
 })
 export class MyRoutinePage implements OnInit {
 
   private readonly formBuilder: FormBuilder = inject(FormBuilder);
   private readonly toastService: ToastService = inject(ToastService);
+  private readonly routinesService: RoutinesService = inject(RoutinesService);
+  private readonly userService: UserService = inject(UserService);
 
   routineForm: FormGroup = this.formBuilder.group({
     exercises: this.formBuilder.array([])
   });
+
+  // Estado de carga
+  loading = signal(true);
+
+  // ID de la rutina actual del usuario
+  currentRoutineId: string = '';
 
   // Fecha seleccionada y día de la semana
   selectedDate: string = new Date().toISOString().split('T')[0];
@@ -61,8 +75,8 @@ export class MyRoutinePage implements OnInit {
     0: 'Domingo', 1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado'
   };
 
-  // Día de la semana asignado a esta rutina (viene de la BBDD)
-  routineDayOfWeek: string = ''; // L, M, X, J, V, S, D
+  // Día de la semana asignado a esta rutina
+  routineDayOfWeek: string = '';
   hasRoutineForDay: boolean = false;
 
   routineType: string = '';
@@ -71,12 +85,23 @@ export class MyRoutinePage implements OnInit {
   showObservations: boolean = false;
 
   constructor() {
-    addIcons({ barbell, timerOutline, alarmOutline, trashOutline, addCircleOutline, saveOutline, chatbubbleEllipsesOutline, informationCircleOutline });
+    addIcons({ barbell, timerOutline, alarmOutline, trashOutline, addCircleOutline, saveOutline, chatbubbleEllipsesOutline, informationCircleOutline, checkmarkCircle, ellipseOutline });
   }
 
   ngOnInit() {
     this.updateDayOfWeek();
-    this.loadRoutine();
+
+    // Obtener currentRoutineId del perfil del usuario
+    this.userService.getProfile().subscribe({
+      next: (profile) => {
+        this.currentRoutineId = profile.currentRoutineId || '';
+        this.loadRoutine();
+      },
+      error: (err) => {
+        console.error('Error cargando perfil:', err);
+        this.loading.set(false);
+      }
+    });
   }
 
   // Actualizar día de la semana a partir de la fecha seleccionada
@@ -107,113 +132,56 @@ export class MyRoutinePage implements OnInit {
   }
 
 
-
   loadRoutine() {
-    const EjExercises = { // Ejemplo de rutina desde API
-      _id: 'mongo_id_123',
-      routineType: 'FullBody', // Tipo de rutina
-      category: '1', // Categoría (String)
-      routineDayOfWeek: 'X', // Esta rutina es de Miércoles
-      observations: 'lo que sea de la rutina de ese dia',
-      exercises: [
-        {
-          _id: 'ex_1',
-          name: 'Dominadas Asistidas',
-          target: 'Espalda',
-          rest: 120,
-          executionType: ExecutionMode.NORMAL,
-          restPauseSeconds: null,
-          idExSuperSet: null,
-          sets: [
-            { kg: 40, reps: 10, rir: 2, tempo: { eccentric: 2, isometric: 1, concentric: 0 } },
-            { kg: 40, reps: 8, rir: 1, tempo: { eccentric: 2, isometric: 1, concentric: 0 } },
-            { kg: 40, reps: 8, rir: 0, tempo: { eccentric: 2, isometric: 1, concentric: 0 } }
-          ]
-        },
-        {
-          _id: 'ex_2',
-          name: 'Press Banca',
-          target: 'Pectoral',
-          rest: 90,
-          executionType: ExecutionMode.SUPER_SET,
-          restPauseSeconds: null,
-          idExSuperSet: 'ex_3',
-          sets: [
-            { kg: 60, reps: 10, rir: 2, tempo: { eccentric: 3, isometric: 0, concentric: 1 } },
-          ]
-        },
-        {
-          _id: 'ex_3',
-          name: 'Remo con Barra',
-          target: 'Espalda',
-          rest: 90,
-          executionType: ExecutionMode.SUPER_SET,
-          restPauseSeconds: null,
-          idExSuperSet: 'ex_2',
-          sets: [
-            { kg: 50, reps: 10, rir: 2, tempo: { eccentric: 3, isometric: 0, concentric: 1 } },
-          ]
-        },
-        {
-          _id: 'ex_4',
-          name: 'Elevaciones Laterales',
-          target: 'Hombro',
-          rest: 60,
-          executionType: ExecutionMode.REST_PAUSE,
-          restPauseSeconds: 20,
-          idExSuperSet: null,
-          sets: [
-            { kg: 10, reps: 15, rir: 0, tempo: { eccentric: 2, isometric: 0, concentric: 1 } },
-            { kg: 10, reps: 5, rir: 0, tempo: { eccentric: 2, isometric: 0, concentric: 1 } }, // Mini set
-          ]
-        },
-        {
-          _id: 'ex_5',
-          name: 'Extensiones de Tríceps',
-          target: 'Tríceps',
-          rest: 60,
-          executionType: ExecutionMode.DROP_SET,
-          restPauseSeconds: null,
-          idExSuperSet: null,
-          sets: [
-            { kg: 0, reps: 0, rir: 0, tempo: { eccentric: 2, isometric: 0, concentric: 1 } },
-            { kg: 0, reps: 0, rir: 0, tempo: { eccentric: 2, isometric: 0, concentric: 1 } }, // Drop
-          ]
-        }
-      ]
-    };
-
-    // Comprobar si el día seleccionado coincide con el día de la rutina
-    this.routineDayOfWeek = EjExercises.routineDayOfWeek || '';
-    this.hasRoutineForDay = this.dayOfWeekLabel === this.routineDayOfWeek;
-
     // Limpiar ejercicios previos
     this.exercises.clear();
+    this.hasRoutineForDay = false;
+    this.routineType = '';
+    this.routineCategory = '';
+    this.routineObservations = '';
 
-    if (!this.hasRoutineForDay) {
-      this.routineType = '';
-      this.routineCategory = '';
-      this.routineObservations = '';
+    if (!this.currentRoutineId) {
+      this.loading.set(false);
       return;
     }
 
-    if (EjExercises) {
-      this.routineType = EjExercises.routineType;
-      this.routineCategory = EjExercises.category;
-      this.routineObservations = EjExercises.observations || '';
-    }
+    // Obtener el número del día (0=dom, 1=lun...)
+    const date = new Date(this.selectedDate + 'T12:00:00');
+    const dayNum = date.getDay();
 
-    EjExercises.exercises.forEach(ex => {
-      // Extraer tempo del primer set (es el mismo para todas las series)
-      const primerTempo = ex.sets[0]?.tempo;
-      const tempoStr = primerTempo
-        ? `${primerTempo.eccentric}-${primerTempo.isometric}-${primerTempo.concentric}`
+    this.loading.set(true);
+    this.routinesService.findSession(this.currentRoutineId, dayNum).subscribe({
+      next: (session: SesionRutina) => {
+        this.hasRoutineForDay = true;
+        this.routineDayOfWeek = this.dayLabels[dayNum];
+        this.routineType = session.routineType;
+        this.routineCategory = session.category;
+        this.routineObservations = session.observations || '';
+
+        this.buildFormFromSession(session);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        // 404 = no hay sesión para ese día (normal)
+        console.log('No hay sesión para este día:', err.status === 404 ? 'Sin rutina' : err);
+        this.hasRoutineForDay = false;
+        this.loading.set(false);
+      }
+    });
+  }
+
+  // Construir el FormArray a partir de la sesión de la API
+  private buildFormFromSession(session: SesionRutina) {
+    session.exercises.forEach(ex => {
+      // Construir string de tempo
+      const tempoStr = ex.tempo
+        ? `${ex.tempo.eccentric}-${ex.tempo.isometric}-${ex.tempo.concentric}`
         : '2-1-0';
 
       const exerciseGroup = this.formBuilder.group({
-        _id: [ex._id],
-        name: [ex.name],
-        target: [ex.target],
+        exerciseId: [ex.exerciseId],
+        name: [ex.name || 'Sin nombre'],
+        target: [ex.target || []],
         rest: [ex.rest],
         tempo: [tempoStr],
         executionType: [ex.executionType],
@@ -231,7 +199,7 @@ export class MyRoutinePage implements OnInit {
     });
   }
 
-  createSetGroup(kg: number = 0, reps: number = 0, rir: number = 0) { // Crear Grupo de Series
+  createSetGroup(kg: number = 0, reps: number = 0, rir: number = 0) {
     return this.formBuilder.group({
       kg: [kg, Validators.required],
       reps: [reps, Validators.required],
@@ -239,18 +207,25 @@ export class MyRoutinePage implements OnInit {
     });
   }
 
-  addSet(exerciseIndex: number) { // Añadir Serie
+  addSet(exerciseIndex: number) {
     this.getSets(exerciseIndex).push(this.createSetGroup());
   }
 
-  removeSet(exerciseIndex: number, setIndex: number) { // Eliminar Serie
+  removeSet(exerciseIndex: number, setIndex: number) {
     this.getSets(exerciseIndex).removeAt(setIndex);
+  }
+
+  removeLastSet(exerciseIndex: number) {
+    const sets = this.getSets(exerciseIndex);
+    if (sets.length > 1) {
+      sets.removeAt(sets.length - 1);
+    }
   }
 
 
   startTimer(exerciseIndex: number, setIndex: number) {
     const ejercicio = this.exercises.at(exerciseIndex).value;
-    const tiempoDescanso = ejercicio.rest || 120; // Segundos
+    const tiempoDescanso = ejercicio.rest || 120;
 
     this.toastService.cargarToast(`Descanso: ${tiempoDescanso}s`, 2000, 'primary');
 
@@ -258,13 +233,6 @@ export class MyRoutinePage implements OnInit {
       this.toastService.success('¡A darle!');
     }, tiempoDescanso * 1000);
   }
-
-  // playSound() { // Función de sonido de alarma
-  //   const audio = new Audio();
-  //   audio.src = 'assets/sounds/timer-beep.mp3'; // Asegúrate de tener este archivo o usa una URL externa
-  //   audio.load();
-  //   audio.play().catch(e => console.error('Error al reproducir sonido:', e));
-  // }
 
 
   //TODO: Implementar lógica de guardado
@@ -278,7 +246,5 @@ export class MyRoutinePage implements OnInit {
       this.toastService.error('Formulario inválido');
     }
   }
-
-
 
 }

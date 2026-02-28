@@ -1,24 +1,25 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonCard, IonCardHeader, IonCardTitle,
   IonCardContent, IonProgressBar, IonInput, IonButton, IonCheckbox,
-  IonIcon, IonSelect, IonSelectOption, IonItem,
-} from '@ionic/angular/standalone';
+  IonIcon, IonSelect, IonSelectOption, IonItem, IonSpinner } from '@ionic/angular/standalone';
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { addIcons } from 'ionicons';
 import { timeOutline, flameOutline, heartOutline, speedometerOutline, saveOutline, bicycleOutline, walkOutline, trendingUpOutline } from 'ionicons/icons';
 import { LayoutComponent } from "src/app/components/layout/layout.component";
 import { ToastService } from 'src/app/services/toast-service';
-import { TipoCardio, CardioConfig } from 'src/app/common/workoutInterface';
+import { CardioService } from 'src/app/services/cardio-service';
+import { UserService } from 'src/app/services/user-service';
+import { Cardio } from 'src/app/common/cardio-interface';
 
 @Component({
   selector: 'app-cardio',
   templateUrl: './cardio.page.html',
   styleUrls: ['./cardio.page.scss'],
   standalone: true,
-  imports: [
+  imports: [IonSpinner, 
     IonContent, CommonModule, FormsModule, HeaderComponent, LayoutComponent,
     IonCard, IonCardHeader, IonCardTitle, IonCardContent,
     IonProgressBar, IonInput, IonButton, IonCheckbox, IonIcon,
@@ -27,64 +28,36 @@ import { TipoCardio, CardioConfig } from 'src/app/common/workoutInterface';
 })
 export class CardioPage implements OnInit {
   private readonly toastService: ToastService = inject(ToastService);
+  private readonly cardioService: CardioService = inject(CardioService);
+  private readonly userService: UserService = inject(UserService);
+  
+  constructor() {
+    addIcons({ timeOutline, flameOutline, heartOutline, speedometerOutline, saveOutline, bicycleOutline, walkOutline, trendingUpOutline });
+  }
 
-  // TODO: Esto vendrá de la API (CardioApiResponse). Mock por ahora.
-  readonly cardioConfigs: CardioConfig[] = [
-    {
-      _id: '1',
-      type: 'cinta',
-      label: 'Cinta de correr',
-      kcalMin: 7.84,
-      instrucciones: [
-        { label: 'Velocidad', valor: '4,5 km/h' },
-        { label: 'Inclinación', valor: 'Máxima' },
-        { label: 'Pulsaciones', valor: '120-130 bpm' }
-      ]
-    },
-    {
-      _id: '2',
-      type: 'eliptica',
-      label: 'Elíptica',
-      kcalMin: 6.5,
-      instrucciones: [
-        { label: 'Resistencia', valor: 'Nivel 8' },
-        { label: 'RPM', valor: '60-70' },
-        { label: 'Pulsaciones', valor: '110-120 bpm' }
-      ]
-    },
-    {
-      _id: '3',
-      type: 'bici',
-      label: 'Bicicleta',
-      kcalMin: 5.2,
-      instrucciones: [
-        { label: 'Nivel', valor: '6' },
-        { label: 'RPM', valor: '70-80' },
-        { label: 'Pulsaciones', valor: '100-115 bpm' }
-      ]
-    }
-  ];
+  private readonly STORAGE_KEY = 'cardio_weekly_kcal';
 
-  // Señales — Objetivo semanal en KCAL (lo fija el entrenador)
-  weeklyKcalTarget = signal(940); // kcal totales a quemar en la semana
+  cardioList: WritableSignal<Cardio[]> = signal<Cardio[]>([]);
+  weeklyKcalTarget = signal(0);
 
   // Señales — Acumuladores de la semana
-  currentKcal = signal(0);       // kcal quemadas hasta ahora
+  currentKcal = signal(0);
 
   // Señales — Registro (solo lo que introduce el cliente)
-  tipoCardio = signal<TipoCardio>('cinta');
+  selectedCardioId = signal<string>('');
   duracion = signal<number | null>(null);
 
-  // Computed — Config actual según tipo seleccionado
+  // Computed — Config actual según ID seleccionado
   configActual = computed(() =>
-    this.cardioConfigs.find(c => c.type === this.tipoCardio())!
+    this.cardioList().find(cardio => cardio._id === this.selectedCardioId())!
   );
 
   // Computed — Icono según tipo (cinta → walk, bici → bicycle, resto → speedometer)
   cardioIcon = computed(() => {
-    const tipo = this.tipoCardio();
-    return tipo === 'cinta' ? 'walk-outline'
-      : tipo === 'bici' ? 'bicycle-outline'
+    const config = this.configActual();
+    if (!config) return 'speedometer-outline';
+    return config.type === 'cinta' ? 'walk-outline'
+      : config.type === 'bici' ? 'bicycle-outline'
         : 'speedometer-outline';
   });
 
@@ -103,34 +76,65 @@ export class CardioPage implements OnInit {
 
   // Computed — Minutos objetivo estimados según el tipo de cardio actual
   targetMinutes = computed(() => {
+    const config = this.configActual();
+    if (!config) return 0;
     const kcalRestantes = Math.max(this.weeklyKcalTarget() - this.currentKcal(), 0);
-    return Math.ceil(kcalRestantes / this.configActual().kcalMin);
+    return Math.ceil(kcalRestantes / config.kcalMin);
   });
 
   // Computed — Minutos equivalentes realizados según el tipo actual
   currentMinutes = computed(() => {
-    return Math.round(this.currentKcal() / this.configActual().kcalMin);
+    const config = this.configActual();
+    if (!config) return 0;
+    return Math.round(this.currentKcal() / config.kcalMin);
   });
 
   // Computed — Estimación kcal de la sesión que va a registrar
   kcalEstimadas = computed(() => {
     const min = this.duracion() || 0;
-    return Math.round(min * this.configActual().kcalMin);
+    const config = this.configActual();
+    if (!config) return 0;
+    return Math.round(min * config.kcalMin);
   });
 
-  constructor() {
-    addIcons({ timeOutline, flameOutline, heartOutline, speedometerOutline, saveOutline, bicycleOutline, walkOutline, trendingUpOutline });
-  }
 
-  ngOnInit() { }
+  // Carga las configuraciones de cardio y el objetivo del usuario
+  ngOnInit() {
+    // Cargar kcal de localStorage (con control de semana)
+    this.loadWeeklyKcal();
+
+    // Cargar cardios de la API
+    this.cardioService.findAll().subscribe({
+      next: (cardios) => {
+        this.cardioList.set(cardios);
+        if (cardios.length > 0) {
+          this.selectedCardioId.set(cardios[0]._id);
+        }
+      },
+      error: (err) => {
+        console.error('Error cargando cardio:', err);
+      }
+    });
+
+    // Cargar objetivo semanal de kcal del perfil del usuario
+    this.userService.getProfile().subscribe({
+      next: (profile) => {
+        const goal = profile.cardioKcalGoal || 0;
+        this.weeklyKcalTarget.set(goal);
+      },
+      error: (err) => {
+        console.error('Error cargando perfil:', err);
+      }
+    });
+  }
 
   // Cambiar tipo de cardio
   cambiarTipoCardio(event: any) {
-    this.tipoCardio.set(event.detail.value);
+    this.selectedCardioId.set(event.detail.value);
     this.duracion.set(null);
   }
 
-  // Registrar sesión — suma kcal y minutos al progreso semanal
+  // Registrar sesión — suma kcal y guarda en localStorage
   registrarSesion() {
     const min = this.duracion();
     if (!min || min <= 0) {
@@ -140,9 +144,37 @@ export class CardioPage implements OnInit {
 
     const kcal = Math.round(min * this.configActual().kcalMin);
     this.currentKcal.update(current => current + kcal);
+    this.saveWeeklyKcal();
     this.toastService.success(`${min} min de ${this.configActual().label} → ${kcal} kcal`);
 
     // Resetear input
     this.duracion.set(null);
+  }
+
+  // Nº de semana del año (lunes = inicio de semana)
+  private getWeekNumber(): number {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 1);
+    const diff = now.getTime() - start.getTime();
+    return Math.ceil((diff / 86400000 + start.getDay()) / 7);
+  }
+
+  // Carga kcal del localStorage si es la misma semana, si no resetea
+  private loadWeeklyKcal() {
+    const raw = localStorage.getItem(this.STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      if (data.week === this.getWeekNumber()) {
+        this.currentKcal.set(data.kcal || 0);
+      } else {
+        localStorage.removeItem(this.STORAGE_KEY);
+      }
+    }
+  }
+
+  // Guarda kcal actual + semana en localStorage
+  private saveWeeklyKcal() {
+    const data = { week: this.getWeekNumber(), kcal: this.currentKcal() };
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
   }
 }

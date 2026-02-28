@@ -13,6 +13,7 @@ import {
 } from 'ionicons/icons';
 import { Router, RouterLink } from '@angular/router';
 import { LayoutComponent } from "src/app/components/layout/layout.component";
+import { AuthService } from 'src/app/services/auth-service';
 
 @Component({
   selector: 'app-user',
@@ -29,6 +30,8 @@ import { LayoutComponent } from "src/app/components/layout/layout.component";
 })
 export class UserPage implements OnInit {
   private readonly router: Router = inject(Router);
+  private readonly authService: AuthService = inject(AuthService);
+  
 
 
   userName = signal('USER');
@@ -41,8 +44,8 @@ export class UserPage implements OnInit {
   }
 
   logout() {
-    console.log('Cerrar sesión');
-    this.router.navigate(['/login']);
+   this.authService.logout();
+   this.router.navigate(['/login']);
   }
 
 }

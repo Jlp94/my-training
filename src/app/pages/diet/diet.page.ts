@@ -19,8 +19,8 @@ export class DietPage implements OnInit {
 
   options = [
     { title: "Dieta", img: "restaurant", url: "/tabs/diet/my-diet" },
-    { title: "Lista de compra", img: "cart", url: "/tabs/diet/list-cart-food" },
-    // { title: "Convalidaciones", img: "sync", url: "/tabs/diet" },
+    { title: "Lista de compra", img: "cart", url: "/tabs/diet/shopping-list" },
+    { title: "Convalidaciones", img: "sync", url: "/tabs/diet/food-equivalence" },
     { title: "Suplementación", img: "battery-charging", url: "/tabs/diet/supplementation" },
   ];
 

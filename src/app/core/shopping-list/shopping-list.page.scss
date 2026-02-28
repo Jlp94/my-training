@@ -2,10 +2,18 @@ ion-content {
     --background: var(--ion-color-light);
 }
 
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+}
+
 .segment-container {
-    padding: 16px;
+    padding: 10px 0;
 
     ion-segment {
+        border-radius: 20px;
         ion-segment-button::part(indicator-background) {
             background: var(--ion-color-primary);
         }
@@ -15,10 +23,14 @@ ion-content {
             --background-checked: var(--ion-color-primary);
             color: var(--ion-color-primary);
             --border-radius: 20px;
+            ion-label {
+                padding-top: 10px;
+                font-size: 18px;
+            }
         }
 
         .segment-button-checked.ios::part(native) {
-            color: #fff;
+            color: var(--ion-color-light);
         }
     }
 }

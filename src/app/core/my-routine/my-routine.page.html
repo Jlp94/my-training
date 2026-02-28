@@ -3,9 +3,11 @@
 <ion-content class="ion-padding-bottom">
   <app-layout>
 
-    <h2 class="day-title ion-padding-horizontal">{{ dayOfWeekFull }}</h2>
-
-    @if (hasRoutineForDay) {
+    @if (loading()) {
+    <div class="spinner-container">
+      <ion-spinner name="circles" color="tertiary"></ion-spinner>
+    </div>
+    } @else if (hasRoutineForDay) {
     <div class="ion-padding-horizontal">
       <h6 class="ion-display-flex ion-justify-content-between ion-align-items-center">
         <div class="routine-title">
@@ -64,14 +66,22 @@
               </ion-label>
             </ion-item>
 
-            <div class="ion-padding" slot="content">
+            <ion-grid class="ion-padding" slot="content">
               <ng-container formArrayName="sets">
                 @for (set of getSets(i).controls; track j; let j = $index) {
-                <div class="set-row" [formGroupName]="j">
-                  <small class="set-label">Serie {{j+1}}</small>
-                  <div class="set-inputs">
+                <ion-grid  [formGroupName]="j">
+                  <ion-row class="ion-justify-content-between">
+                    <small >Serie {{j+1}}</small>
+                    @if (set.get('kg')?.value > 0 || set.get('reps')?.value > 0) {
+                    <ion-icon name="checkmark-circle" size="small" color="success"></ion-icon>
+                    } @else {
+                    <ion-icon name="ellipse-outline" size="small" color="light"></ion-icon>
+                    }
+                  </ion-row>
+                  
+                  <ion-row class="set-inputs">
                     <div class="input-group">
-                      <label class="input-header">Rp</label>
+                      <label class="input-header">Reps</label>
                       <ion-input fill="solid" type="number" formControlName="reps" placeholder="10"></ion-input>
                     </div>
                     <div class="input-group">
@@ -82,24 +92,32 @@
                       <label class="input-header">Rir</label>
                       <ion-input fill="solid" type="number" formControlName="rir" placeholder="2"></ion-input>
                     </div>
-                  </div>
-                  <div class="set-actions">
-                    <ion-button fill="clear" size="small" color="warning" (click)="startTimer(i, j)">
-                      <ion-icon name="alarm-outline" slot="icon-only"></ion-icon>
+                    <ion-button fill="clear"  color="warning" (click)="startTimer(i, j)">
+                      <ion-icon name="alarm-outline" size="large" slot="icon-only"></ion-icon>
                     </ion-button>
-                    <ion-button fill="clear" size="small" color="danger" (click)="removeSet(i, j)">
-                      <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-                    </ion-button>
-                  </div>
-                </div>
+                  </ion-row>
+                    
+                </ion-grid>
                 }
               </ng-container>
 
-              <ion-button expand="block" fill="outline" class="ion-margin-top add-btn" (click)="addSet(i)">
-                <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-                Añadir serie
-              </ion-button>
-            </div>
+              <ion-row>
+                <ion-col>
+                  <ion-button  fill="outline"  (click)="addSet(i)">
+                    <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+                    Añadir serie
+                  </ion-button>
+                </ion-col>
+                <ion-col>
+                  @if (getSets(i).length > 1) {
+                  <ion-button  fill="solid" color="danger"  (click)="removeLastSet(i)">
+                    <ion-icon name="trash-outline" slot="start"></ion-icon>
+                    Eliminar serie
+                  </ion-button>
+                  }
+                </ion-col>
+              </ion-row>
+            </ion-grid>
           </ion-accordion>
           }
         </ng-container>
@@ -125,7 +143,7 @@
   </app-layout>
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button color="primary" (click)="saveRoutine()">
+    <ion-fab-button color="secondary" (click)="saveRoutine()">
       <ion-icon name="save-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>

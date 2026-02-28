@@ -1,16 +1,63 @@
 // This file can be replaced during build by using the `fileReplacements` array.
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
-};
+  production: false,
 
-/*
- * For easier debugging in development mode, you can import the following file
- * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
- * This import should be commented out in production mode because it will have a negative impact
- * on performance if an error is thrown.
- */
-// import 'zone.js/plugins/zone-error';  // Included with Angular CLI.
+  // ─── Base URL ───
+  apiUrl: 'http://localhost:3000/my-training/v1',
+
+  // ─── Auth ───
+  auth: {
+    login:   '/auth/login',
+    profile: '/auth/profile',
+  },
+
+  // ─── Users ───
+  users: {
+    base:             '/users',
+    me:               '/users/me',
+    createAdmin:      '/users/admin',
+    byId:             '/users/:id',
+    macros:           '/users/:id/macros',
+    dietLogs:         '/users/:id/diet-logs',
+    neatLogs:         '/users/:id/neat-logs',
+    neatLogByDate:    '/users/:id/neat-logs/:date',
+    workoutLogs:      '/users/:id/workout-logs',
+    workoutLogByDate: '/users/:id/workout-logs/:date',
+    exerciseLog:      '/users/:id/exercise-log/:exerciseId',
+  },
+
+  // ─── Exercises ───
+  exercises: {
+    base: '/exercises',       // GET ?name= &category=
+    byId: '/exercises/:id',
+  },
+
+  // ─── Foods ───
+  foods: {
+    base: '/foods',           // GET ?name=
+    byId: '/foods/:id',
+  },
+
+  // ─── Cardio ───
+  cardio: {
+    base: '/cardio',
+    byId: '/cardio/:id',
+  },
+
+  // ─── Diets ───
+  diets: {
+    base: '/diets',           // GET ?userId=
+    byId: '/diets/:id',
+  },
+
+  // ─── Routines ───
+  routines: {
+    base:           '/routines',          // GET ?userId=
+    byId:           '/routines/:id',
+    sessionByDay:   '/routines/:id/sessions/:day',
+    addExercise:    '/routines/:id/sessions/:day/exercises',
+    removeExercise: '/routines/:id/sessions/:day/exercises/:exerciseId',
+  },
+};
