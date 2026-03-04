@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonCard, IonCardHeader, IonCardTitle,
   IonCardContent, IonProgressBar, IonInput, IonButton, IonCheckbox,
-  IonIcon, IonSelect, IonSelectOption, IonItem, IonSpinner } from '@ionic/angular/standalone';
+  IonIcon, IonSelect, IonSelectOption, IonItem, IonSpinner, IonRow, IonText, IonChip, IonCol } from '@ionic/angular/standalone';
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { addIcons } from 'ionicons';
 import { timeOutline, flameOutline, heartOutline, speedometerOutline, saveOutline, bicycleOutline, walkOutline, trendingUpOutline } from 'ionicons/icons';
@@ -19,7 +19,7 @@ import { Cardio } from 'src/app/common/cardio-interface';
   templateUrl: './cardio.page.html',
   styleUrls: ['./cardio.page.scss'],
   standalone: true,
-  imports: [IonSpinner, 
+  imports: [IonCol, IonChip, IonText, IonRow, IonSpinner, 
     IonContent, CommonModule, FormsModule, HeaderComponent, LayoutComponent,
     IonCard, IonCardHeader, IonCardTitle, IonCardContent,
     IonProgressBar, IonInput, IonButton, IonCheckbox, IonIcon,

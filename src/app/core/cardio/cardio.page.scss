@@ -2,12 +2,7 @@ ion-content {
     --background: var(--ion-color-light);
 }
 
-.spinner-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 200px;
-}
+
 
 ion-card {
     box-shadow: 0 4px 16px rgba(var(--ion-color-medium-rgb), 0.15);
@@ -15,96 +10,57 @@ ion-card {
     margin-bottom: 20px;
 }
 
+.spinner-centered {
+    min-height: 200px;
+}
+
 // ========================
 // Dashboard de Progreso
 // ========================
 .dashboard-card {
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .dashboard-target-text {
+        font-size: 12px;
+        font-weight: 500;
+    }
 
-        ion-card-title {
-            font-size: 16px;
-            font-weight: 700;
+    .stat-col {
+        gap: 6px;
+
+        .stat-icon {
+            font-size: 20px;
         }
 
-        .date-range {
-            font-size: 12px;
-            color: var(--ion-color-medium);
-            font-weight: 500;
+        .stat-text-container {
+            line-height: 1.2;
+
+            .stat-value {
+                font-size: 16px;
+                font-weight: 700;
+            }
+
+            .stat-label {
+                font-size: 10px;
+            }
         }
+    }
+
+    .extra-kcal-text {
+        font-size: 11px;
+        font-weight: 600;
+        margin-top: 12px;
+        display: block;
+    }
+
+    .completed-text {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
     }
 
     .progress-thick {
         height: 12px;
         border-radius: 6px;
         --progress-background: var(--ion-color-primary);
-    }
-
-    .dashboard-stats {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 16px;
-        gap: 8px;
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-
-            ion-icon {
-                font-size: 20px;
-            }
-
-            .stat-data {
-                display: flex;
-                flex-direction: column;
-                line-height: 1.2;
-
-                strong {
-                    font-size: 16px;
-                    font-weight: 700;
-                }
-
-                small {
-                    font-size: 10px;
-                    color: var(--ion-color-medium);
-                }
-            }
-        }
-    }
-
-    .extra-text {
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--ion-color-tertiary);
-        margin-top: 12px;
-        margin-bottom: 0;
-    }
-
-    .completed-check {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 8px;
-        margin-top: 12px;
-
-        span {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--ion-color-medium);
-        }
-
-        &.active span {
-            color: var(--ion-color-success);
-        }
-
-        &.active ion-checkbox {
-            --checkbox-background-checked: var(--ion-color-success);
-            --border-color-checked: var(--ion-color-success-shade);
-        }
     }
 }
 
@@ -130,109 +86,49 @@ ion-card {
         }
     }
 
-    // Indicaciones del entrenador (solo lectura)
-    .trainer-instructions {
-        margin-bottom: 16px;
+    // Instrucciones
+    .instructions-title {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+    }
 
-        .instructions-label {
-            display: block;
-            font-size: 11px;
+    .instruction-chip {
+        height: 28px;
+        font-size: 12px;
+        margin: 0;
+
+        .inst-label {
             font-weight: 600;
-            text-transform: uppercase;
-            color: var(--ion-color-medium);
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
         }
 
-        .instructions-grid {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .instruction-chip {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: var(--ion-color-light);
-            border-radius: 12px;
-            padding: 8px 16px;
-            flex: 1;
-            min-width: 80px;
-
-            .inst-label {
-                font-size: 10px;
-                color: var(--ion-color-medium);
-                text-transform: uppercase;
-                letter-spacing: 0.3px;
-            }
-
-            .inst-value {
-                font-size: 14px;
-                font-weight: 700;
-                color: var(--ion-color-primary);
-                margin-top: 2px;
-            }
+        .inst-value {
+            font-weight: 700;
         }
     }
 
-    // Inputs del cliente
-    .client-inputs {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 16px;
-
-        .input-group {
-            flex: 1;
-
-            .input-header {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                font-size: 12px;
-                font-weight: 600;
-                color: var(--ion-color-dark);
-                margin-bottom: 6px;
-
-                ion-icon {
-                    font-size: 16px;
-                    color: var(--ion-color-primary);
-                }
-            }
-
-            ion-input {
-                --background: var(--ion-color-light);
-                --border-radius: 10px;
-                --padding-start: 12px;
-                --padding-end: 12px;
-                font-weight: 600;
-                text-align: center;
-                min-height: 44px;
-            }
-        }
+    // Inputs cliente
+    .time-input-header {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ion-color-medium);
     }
 
-    // Estimación de Kcal
-    .kcal-estimation {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(var(--ion-color-danger-rgb), 0.08);
-        border-radius: 10px;
-        padding: 10px 14px;
-        margin-bottom: 16px;
+    // Estimación Kcal
+    .kcal-estimation-box {
+        gap: 6px;
+        background: rgb(var(--ion-color-danger-rgb), 0.1);
+        border-radius: 12px;
 
-        ion-icon {
-            font-size: 20px;
+        .kcal-icon {
+            font-size: 18px;
         }
 
-        span {
+        .kcal-text {
             font-size: 13px;
-            color: var(--ion-color-dark);
-
-            strong {
-                color: var(--ion-color-danger);
-            }
+            font-weight: 500;
         }
     }
 

@@ -58,4 +58,22 @@ export class UserService {
     const url = `${this.apiUrl}${environment.users.workoutLogs.replace(':id', userId)}`;
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));
   }
+
+  // Obtener log de entrenamiento por fecha
+  getWorkoutLogByDate(userId: string, date: string): Observable<WorkoutLog> {
+    const url = `${this.apiUrl}${environment.users.workoutLogs.replace(':id', userId)}/${date}`;
+    return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));
+  }
+
+  // Añadir log de entrenamiento (POST /users/:id/workout-logs)
+  addWorkoutLog(userId: string, log: WorkoutLog): Observable<User> {
+    const url = `${this.apiUrl}${environment.users.workoutLogs.replace(':id', userId)}`;
+    return this.http.post<MessageApiResponse>(url, log).pipe(map(res => res.data));
+  }
+
+  // Actualizar log de entrenamiento (PATCH /users/:id/workout-logs/:date)
+  updateWorkoutLog(userId: string, date: string, log: WorkoutLog): Observable<User> {
+    const url = `${this.apiUrl}${environment.users.workoutLogs.replace(':id', userId)}/${date}`;
+    return this.http.patch<MessageApiResponse>(url, log).pipe(map(res => res.data));
+  }
 }

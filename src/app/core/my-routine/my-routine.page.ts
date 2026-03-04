@@ -1,16 +1,19 @@
 import { ToastService } from 'src/app/services/toast-service';
-import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core';
+import { Component, OnInit, WritableSignal, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonIcon, IonButton, IonAccordionGroup, IonAccordion, IonItem, IonLabel, IonInput, IonThumbnail, IonChip, IonText, IonFab, IonFabButton, IonModal, IonDatetime, IonDatetimeButton, IonSpinner, IonRow, IonCol, IonGrid } from '@ionic/angular/standalone';
+import { IonContent, IonIcon, IonButton, IonAccordionGroup, IonAccordion, IonItem, IonLabel, IonInput, IonThumbnail, IonText, IonFab, IonFabButton, IonModal, IonDatetime, IonDatetimeButton, IonSpinner, IonRow, IonCol, IonGrid, IonBadge } from '@ionic/angular/standalone';
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { addIcons } from 'ionicons';
 import { barbell, alarmOutline, trashOutline, addCircleOutline, saveOutline, timerOutline, chatbubbleEllipsesOutline, informationCircleOutline, checkmarkCircle, ellipseOutline } from 'ionicons/icons';
 import { LayoutComponent } from "src/app/components/layout/layout.component";
+
 import { RoutinesService } from 'src/app/services/routines-service';
 import { UserService } from 'src/app/services/user-service';
 import { ExecutionMode, SesionRutina } from 'src/app/common/routine-interface';
+import { ExerciseLog, WorkoutLog } from 'src/app/common/userInterface';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-my-routine',
@@ -30,7 +33,6 @@ import { ExecutionMode, SesionRutina } from 'src/app/common/routine-interface';
     IonLabel,
     IonInput,
     IonThumbnail,
-    IonChip,
     IonText,
     IonFab,
     IonFabButton,
@@ -42,82 +44,42 @@ import { ExecutionMode, SesionRutina } from 'src/app/common/routine-interface';
     IonSpinner,
     IonCol,
     IonRow,
-    IonGrid
+    IonGrid,
+    IonBadge
 ]
 })
 export class MyRoutinePage implements OnInit {
-
+// Injecciones
   private readonly formBuilder: FormBuilder = inject(FormBuilder);
   private readonly toastService: ToastService = inject(ToastService);
   private readonly routinesService: RoutinesService = inject(RoutinesService);
   private readonly userService: UserService = inject(UserService);
 
+  // Formulario
   routineForm: FormGroup = this.formBuilder.group({
     exercises: this.formBuilder.array([])
   });
 
-  // Estado de carga
-  loading = signal(true);
-
-  // ID de la rutina actual del usuario
-  currentRoutineId: string = '';
-
-  // Fecha seleccionada y día de la semana
-  selectedDate: string = new Date().toISOString().split('T')[0];
-  dayOfWeekLabel: string = '';
-  dayOfWeekFull: string = '';
-
-  // Mapa de días de la semana: número JS (0=dom) -> etiqueta corta
-  private readonly dayLabels: Record<number, string> = {
-    0: 'D', 1: 'L', 2: 'M', 3: 'X', 4: 'J', 5: 'V', 6: 'S'
-  };
-  private readonly dayFullNames: Record<number, string> = {
-    0: 'Domingo', 1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado'
-  };
-
-  // Día de la semana asignado a esta rutina
-  routineDayOfWeek: string = '';
-  hasRoutineForDay: boolean = false;
-
-  routineType: string = '';
-  routineCategory: string = '';
-  routineObservations: string = '';
-  showObservations: boolean = false;
+  // Variables 
+  currentRoutineId:WritableSignal<string> = signal<string>('');
+  currentSession:WritableSignal<SesionRutina | null> = signal<SesionRutina | null>(null);
+  selectedDate:WritableSignal<string> = signal<string>(new Date().toISOString().split('T')[0]);
+  hasRoutineForDay:WritableSignal<boolean | null> = signal<boolean | null>(null);
+  showObservations:WritableSignal<boolean> = signal<boolean>(false);
 
   constructor() {
     addIcons({ barbell, timerOutline, alarmOutline, trashOutline, addCircleOutline, saveOutline, chatbubbleEllipsesOutline, informationCircleOutline, checkmarkCircle, ellipseOutline });
   }
 
   ngOnInit() {
-    this.updateDayOfWeek();
-
-    // Obtener currentRoutineId del perfil del usuario
-    this.userService.getProfile().subscribe({
-      next: (profile) => {
-        this.currentRoutineId = profile.currentRoutineId || '';
-        this.loadRoutine();
-      },
-      error: (err) => {
-        console.error('Error cargando perfil:', err);
-        this.loading.set(false);
-      }
-    });
-  }
-
-  // Actualizar día de la semana a partir de la fecha seleccionada
-  updateDayOfWeek() {
-    const date = new Date(this.selectedDate + 'T12:00:00');
-    const dayNum = date.getDay();
-    this.dayOfWeekLabel = this.dayLabels[dayNum];
-    this.dayOfWeekFull = this.dayFullNames[dayNum];
+    this.loadRoutine();
   }
 
   // Cuando el usuario cambia la fecha
   onDateChange(event: any) {
     const val = event?.detail?.value || event;
     if (typeof val === 'string') {
-      this.selectedDate = val.split('T')[0];
-      this.updateDayOfWeek();
+      this.selectedDate.set(val.split('T')[0]);
       this.loadRoutine();
     }
   }
@@ -132,56 +94,54 @@ export class MyRoutinePage implements OnInit {
   }
 
 
-  loadRoutine() {
-    // Limpiar ejercicios previos
+  async loadRoutine() {
+    // Limpiar estado previo
     this.exercises.clear();
-    this.hasRoutineForDay = false;
-    this.routineType = '';
-    this.routineCategory = '';
-    this.routineObservations = '';
-
-    if (!this.currentRoutineId) {
-      this.loading.set(false);
-      return;
-    }
+    this.hasRoutineForDay.set(null); // null = cargando
+    this.currentSession.set(null);
+    this.showObservations.set(false);
 
     // Obtener el número del día (0=dom, 1=lun...)
-    const date = new Date(this.selectedDate + 'T12:00:00');
+    const date = new Date(this.selectedDate() + 'T12:00:00');
     const dayNum = date.getDay();
 
-    this.loading.set(true);
-    this.routinesService.findSession(this.currentRoutineId, dayNum).subscribe({
-      next: (session: SesionRutina) => {
-        this.hasRoutineForDay = true;
-        this.routineDayOfWeek = this.dayLabels[dayNum];
-        this.routineType = session.routineType;
-        this.routineCategory = session.category;
-        this.routineObservations = session.observations || '';
+    const userString = localStorage.getItem('user');
+    if (!userString) return;
+    const userId = JSON.parse(userString)._id;
 
-        this.buildFormFromSession(session);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        // 404 = no hay sesión para ese día (normal)
-        console.log('No hay sesión para este día:', err.status === 404 ? 'Sin rutina' : err);
-        this.hasRoutineForDay = false;
-        this.loading.set(false);
+    try {
+      // 1. Obtención de Plantilla Base
+      const data = await firstValueFrom(this.routinesService.getMyRoutineSession(dayNum));
+      
+      this.currentRoutineId.set(data.profile.currentRoutineId || '');
+      this.currentSession.set(data.session);
+      this.hasRoutineForDay.set(true);
+
+      // 2. Obtención de Workout previo para hoy
+      let existingLog: WorkoutLog | undefined = undefined;
+      const dateStr = date.toISOString().split('T')[0];
+      try {
+        existingLog = await firstValueFrom(this.userService.getWorkoutLogByDate(userId, dateStr));
+      } catch (e) {
+        // Si no existe, usamos el Log vacío
       }
-    });
+
+      this.buildFormFromSession(data.session, existingLog);
+
+    } catch (err) {
+      console.log('Sin datos para este día');
+      this.hasRoutineForDay.set(false); // false = día sin rutina
+    }
   }
 
   // Construir el FormArray a partir de la sesión de la API
-  private buildFormFromSession(session: SesionRutina) {
+  private buildFormFromSession(session: SesionRutina, logPrevio?: WorkoutLog) {
     session.exercises.forEach(ex => {
-      // Construir string de tempo
-      const tempoStr = ex.tempo
-        ? `${ex.tempo.eccentric}-${ex.tempo.isometric}-${ex.tempo.concentric}`
-        : '2-1-0';
-
+      const tempoStr = `${ex.tempo.eccentric}-${ex.tempo.isometric}-${ex.tempo.concentric}`; // Para mostrar el tempo
       const exerciseGroup = this.formBuilder.group({
         exerciseId: [ex.exerciseId],
-        name: [ex.name || 'Sin nombre'],
-        target: [ex.target || []],
+        name: [ex.name],
+        target: [ex.target],
         rest: [ex.rest],
         tempo: [tempoStr],
         executionType: [ex.executionType],
@@ -191,19 +151,29 @@ export class MyRoutinePage implements OnInit {
       });
 
       const setsArray = exerciseGroup.get('sets') as FormArray;
-      ex.sets.forEach(s => {
-        setsArray.push(this.createSetGroup(s.kg, s.reps, s.rir));
+      
+      // Intentamos localizar este ejercicio en el Log del backend
+      const savedExLog = logPrevio?.exerciseLogs?.find(l => l.exerciseId === ex.exerciseId);
+
+      ex.sets.forEach((s, idx) => {
+        // Miramos si teníamos valores guardados para la serie 'idx' concreta
+        const savedSet = savedExLog?.sets?.[idx];
+        if (savedSet) {
+          setsArray.push(this.createSetGroup(savedSet.kg, savedSet.reps, savedSet.rir));
+        } else {
+          setsArray.push(this.createSetGroup(null, null, null));
+        }
       });
 
       this.exercises.push(exerciseGroup);
     });
   }
 
-  createSetGroup(kg: number = 0, reps: number = 0, rir: number = 0) {
+  createSetGroup(kg: number | null = null, reps: number | null = null, rir: number | null = null) {
     return this.formBuilder.group({
-      kg: [kg, Validators.required],
-      reps: [reps, Validators.required],
-      rir: [rir, Validators.required],
+      kg: [kg, Validators.min(0)],
+      reps: [reps, Validators.min(0)],
+      rir: [rir, Validators.min(0)],
     });
   }
 
@@ -235,15 +205,89 @@ export class MyRoutinePage implements OnInit {
   }
 
 
-  //TODO: Implementar lógica de guardado
-  saveRoutine() {
-    if (this.routineForm.valid) {
-      console.log('Routine Data:', this.routineForm.value);
-      // Implementar Lógica
-      this.toastService.success('Rutina guardada correctamente');
-    } else {
-      console.log('Form is invalid');
-      this.toastService.error('Formulario inválido');
+  // ==========================================
+  // Lógica de Guardado (WorkoutLogs)
+  // ==========================================
+  async saveRoutine() {
+    if (!this.hasRoutineForDay() || !this.currentSession()) {
+      this.toastService.error('No hay rutina que guardar para hoy');
+      return;
+    }
+
+    const formValue = this.routineForm.value;
+    const validExerciseLogs: ExerciseLog[] = [];
+
+    // 1. Filtrar series vacías y mapear a ExerciseLog
+    formValue.exercises.forEach((ex: any) => {
+      // Filtrar las series que tengan (kg > 0 o reps > 0)
+      const validSets = ex.sets.filter((s: any) => 
+        (s.kg !== null && s.kg > 0) || (s.reps !== null && s.reps > 0)
+      );
+
+      // Si el ejercicio tiene al menos una serie válida, lo agregamos
+      if (validSets.length > 0) {
+        validExerciseLogs.push({
+          exerciseId: ex.exerciseId,
+          name: ex.name,
+          target: Array.isArray(ex.target) ? ex.target : [ex.target],
+          sets: validSets.map((vs: any) => ({
+            kg: Number(vs.kg) || 0,
+            reps: Number(vs.reps) || 0,
+            rir: Number(vs.rir) || 0
+          }))
+        });
+      }
+    });
+
+    if (validExerciseLogs.length === 0) {
+      this.toastService.cargarToast('Completa al menos una serie para guardar el entreno', 3000, 'warning');
+      return;
+    }
+
+    // 2. Construir el objeto WorkoutLog
+    const dateObj = new Date(this.selectedDate());
+    const dateStr = dateObj.toISOString().split('T')[0];
+
+    const userString = localStorage.getItem('user');
+    if (!userString) {
+      this.toastService.error('Usuario no encontrado. Inicie sesión.');
+      return;
+    }
+    const userId = JSON.parse(userString)._id;
+
+    const currentSess = this.currentSession()!;
+    // Manejo de id dependiendo de la forma del objeto SesionRutina
+    const rId = (currentSess as any)._id || (currentSess as any).id || 'unknown';
+
+    const newLog: WorkoutLog = {
+      doneAt: dateStr,
+      routineId: rId,
+      notes: currentSess.observations || undefined,
+      exerciseLogs: validExerciseLogs
+    };
+
+    // 3. Revisar en la API NestJS si el log ya existe (GET /users/:id/workout-logs/:date)
+    // Para simplificar la lectura, utilizamos async/await con firstValueFrom de RxJS
+    try {
+      this.toastService.cargarToast('Guardando sesión...', 2000, 'secondary');
+
+      let exists = true;
+      try {
+        await firstValueFrom(this.userService.getWorkoutLogByDate(userId, dateStr));
+      } catch (err: any) {
+        exists = false; 
+      }
+
+      const request$ = exists 
+        ? this.userService.updateWorkoutLog(userId, dateStr, newLog)
+        : this.userService.addWorkoutLog(userId, newLog);
+
+      await firstValueFrom(request$);
+      this.toastService.success('¡Rutina guardada con éxito! 💪');
+
+    } catch (error) {
+      console.error('Error procesando el log de rutina:', error);
+      this.toastService.error('Hubo un error al guardar tu entrenamiento');
     }
   }
 
