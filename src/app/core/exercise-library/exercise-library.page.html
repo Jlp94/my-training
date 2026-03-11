@@ -3,10 +3,18 @@
 <ion-content class="ion-padding">
   <app-layout>
 
-    @if (exercises().length === 0) {
+    @if (isLoading()) {
     <div class="spinner-container">
       <ion-spinner name="circles" color="tertiary"></ion-spinner>
     </div>
+    } @else if (exercises().length === 0) {
+    <ion-card mode="ios">
+      <ion-card-content class="ion-text-center ion-padding">
+        <ion-icon name="barbell" style="font-size: 48px; color: var(--ion-color-medium);"></ion-icon>
+        <h3>Sin ejercicios</h3>
+        <p>No hay ejercicios disponibles en este momento.</p>
+      </ion-card-content>
+    </ion-card>
     } @else {
 
     <ion-searchbar placeholder="Buscar por nombre, grupo o etiqueta..." (ionInput)="onSearch($event)" [debounce]="300"

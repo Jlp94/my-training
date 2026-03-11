@@ -50,7 +50,7 @@
       <ion-card-content>
         <ion-label class="quantity-label">Cantidad del alimento base</ion-label>
         <ion-item lines="none" class="quantity-item">
-          <ion-input type="number" [(ngModel)]="baseQuantity" (ionInput)="onQuantityChange()"
+          <ion-input type="text" inputmode="decimal" [(ngModel)]="baseQuantity" (ionInput)="onQuantityChange()"
             placeholder="100" class="quantity-input"></ion-input>
           <ion-note slot="end">g</ion-note>
         </ion-item>

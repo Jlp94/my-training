@@ -12,6 +12,7 @@ export class ShoppingListService {
 
   private foodList: WritableSignal<ShoppingItem[]> = signal<ShoppingItem[]>([]);
   shoppingList = this.foodList.asReadonly();
+  isLoaded = signal(false);
 
   loadShoppingList() {
     this.foodList.set([]);
@@ -37,6 +38,7 @@ export class ShoppingListService {
             }))
             .sort((a, b) => a.name.localeCompare(b.name))
         );
+        this.isLoaded.set(true);
       },
       error: (err) => {
         if (err.message === 'NO_DIET') {
@@ -45,6 +47,7 @@ export class ShoppingListService {
           console.error('Error cargando lista de la compra:', err);
         }
         this.foodList.set([]);
+        this.isLoaded.set(true);
       }
     });
   }

@@ -116,6 +116,12 @@ ion-card {
         color: var(--ion-color-medium);
     }
 
+    // Borde y centrado del input de tiempo
+    ion-input {
+        width: 30%;
+        
+    }
+
     // Estimación Kcal
     .kcal-estimation-box {
         gap: 6px;

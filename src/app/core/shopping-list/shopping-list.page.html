@@ -1,9 +1,18 @@
-<app-header titulo="Lista de la compra" url="/tabs/diet" [showBack]="true"></app-header>
+<app-header
+  titulo="Lista de la compra"
+  url="/tabs/diet"
+  [showBack]="true"
+></app-header>
 
 <ion-content>
   <app-layout>
     <div class="segment-container">
-      <ion-segment [value]="selectedPeriod" (ionChange)="segmentChanged($event)" mode="ios" color="primary">
+      <ion-segment
+        [value]="selectedPeriod"
+        (ionChange)="segmentChanged($event)"
+        mode="ios"
+        color="primary"
+      >
         <ion-segment-button value="semanal">
           <ion-label>Semanal</ion-label>
         </ion-segment-button>
@@ -16,16 +25,29 @@
       </ion-segment>
     </div>
 
-    @if (shoppingListService.shoppingList().length === 0) {
+    @if (!shoppingListService.isLoaded()) {
     <div class="spinner-container">
       <ion-spinner name="circles" color="tertiary"></ion-spinner>
     </div>
+    } @else if (shoppingListService.shoppingList().length === 0) {
+    <ion-card mode="ios">
+      <ion-card-content class="ion-text-center ion-padding">
+        <ion-icon name="cart-outline" style="font-size: 48px; color: var(--ion-color-medium);"></ion-icon>
+        <h3>Lista vacía</h3>
+        <p>No hay alimentos en tu dieta asignada o aún no tienes dieta.</p>
+      </ion-card-content>
+    </ion-card>
     } @else {
     <ion-list lines="inset">
       @for (item of shoppingListService.shoppingList(); track item.name) {
       <ion-item button (click)="shoppingListService.toggleItem(item)">
-        <ion-checkbox slot="start" [(ngModel)]="item.selected" (ionChange)="shoppingListService.saveChecks()"
-          (click)="$event.stopPropagation()" color="primary"></ion-checkbox>
+        <ion-checkbox
+          slot="start"
+          [(ngModel)]="item.selected"
+          (ionChange)="shoppingListService.saveChecks()"
+          (click)="$event.stopPropagation()"
+          color="primary"
+        ></ion-checkbox>
         <ion-label>
           <h3>{{ item.name }}</h3>
           <p>{{ item.quantity * multiplier }} g</p>
@@ -34,20 +56,28 @@
       }
     </ion-list>
     }
+    <ion-footer class="ion-no-border">
+      <ion-toolbar>
+        <div class="footer-buttons">
+          <ion-button
+            expand="block"
+            class="action-btn"
+            (click)="shoppingListService.toggleSelectAll(true)"
+          >
+            <ion-icon name="checkbox-outline" slot="start"></ion-icon>
+            Marcar todo
+          </ion-button>
+          <ion-button
+            expand="block"
+            color="light"
+            class="action-btn"
+            (click)="shoppingListService.toggleSelectAll(false)"
+          >
+            <ion-icon name="square-outline" slot="start"></ion-icon>
+            Desmarcar todo
+          </ion-button>
+        </div>
+      </ion-toolbar>
+    </ion-footer>
   </app-layout>
 </ion-content>
-
-<ion-footer class="ion-no-border">
-  <ion-toolbar>
-    <div class="footer-buttons">
-      <ion-button expand="block" class="action-btn" (click)="shoppingListService.toggleSelectAll(true)">
-        <ion-icon name="checkbox-outline" slot="start"></ion-icon>
-        Marcar todo
-      </ion-button>
-      <ion-button expand="block" color="light" class="action-btn" (click)="shoppingListService.toggleSelectAll(false)">
-        <ion-icon name="square-outline" slot="start"></ion-icon>
-        Desmarcar todo
-      </ion-button>
-    </div>
-  </ion-toolbar>
-</ion-footer>

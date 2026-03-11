@@ -2,6 +2,47 @@ ion-content {
     background: var(--ion-color-light);
 }
 
+// Timer flotante
+.floating-timer {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px 8px 20px;
+    background: var(--ion-color-success-shade);
+    color: white;
+
+    &__info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        animation: pulse 1s infinite;
+
+        ion-icon {
+            font-size: 1.4rem;
+        }
+    }
+
+    &__close {
+        --color: white;
+        font-size: 1.2rem;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+// Texto capitalizado (sustituye style inline)
+.capitalize {
+    text-transform: capitalize;
+}
+
 
 
 // Título del día de la semana
@@ -134,7 +175,6 @@ ion-accordion {
 }
 
 ion-input {
-        min-height: 38px !important;
         --padding-block: 4px;
         --border-radius: 8px;
         border: 1px solid var(--ion-color-light-shade);

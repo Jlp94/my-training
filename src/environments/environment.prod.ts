@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
 
-  // ─── Base URL (cambiar por la URL de producción) ───
-  apiUrl: 'https://TU-DOMINIO.com/my-training/v1',
+  // ─── Base URL (Render) ───
+  apiUrl: 'https://api-my-training.onrender.com/my-training/v1',
 
   // ─── Auth ───
   auth: {
@@ -13,6 +13,7 @@ export const environment = {
   // ─── Users ───
   users: {
     base:             '/users',
+    me:               '/users/me',
     createAdmin:      '/users/admin',
     byId:             '/users/:id',
     macros:           '/users/:id/macros',

@@ -3,6 +3,21 @@
 <ion-content>
   <app-layout>
 
+    <!-- Cargando -->
+    @if (isLoading) {
+    <ion-row class="ion-justify-content-center ion-align-items-center" style="height: 60vh;">
+      <ion-spinner name="circles" color="primary"></ion-spinner>
+    </ion-row>
+    } @else if (noDiet) {
+    <!-- Sin dieta asignada -->
+    <ion-card mode="ios" class="empty-state-card">
+      <ion-card-content class="ion-text-center ion-padding">
+        <ion-icon name="restaurant-outline" style="font-size: 48px; color: var(--ion-color-medium);"></ion-icon>
+        <h3>Sin dieta asignada</h3>
+        <p>Tu entrenador aún no te ha asignado una dieta. Cuando la tengas disponible aparecerá aquí.</p>
+      </ion-card-content>
+    </ion-card>
+    } @else {
     <!-- Dashboard Progreso Semanal de Calorías -->
     <ion-card class="weekly-card" mode="ios">
       <ion-card-header>
@@ -194,7 +209,7 @@
           <div class="modal-form">
             <ion-label>Cantidad (g/ml)</ion-label>
             <ion-item lines="none" class="input-item">
-              <ion-input type="number" [(ngModel)]="extraAmount" placeholder="100"></ion-input>
+              <ion-input type="text" inputmode="decimal" [(ngModel)]="extraAmount" placeholder="100"></ion-input>
             </ion-item>
 
             <ion-grid class="macros-inputs">
@@ -202,13 +217,13 @@
                 <ion-col>
                   <ion-label>Kcal</ion-label>
                   <ion-item lines="none" class="input-item small">
-                    <ion-input type="number" [(ngModel)]="extraKcal" placeholder="0"></ion-input>
+                    <ion-input type="text" inputmode="decimal" [(ngModel)]="extraKcal" placeholder="0"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col>
                   <ion-label>Prote</ion-label>
                   <ion-item lines="none" class="input-item small">
-                    <ion-input type="number" [(ngModel)]="extraProtein" placeholder="0"></ion-input>
+                    <ion-input type="text" inputmode="decimal" [(ngModel)]="extraProtein" placeholder="0"></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -216,13 +231,13 @@
                 <ion-col>
                   <ion-label>Carbos</ion-label>
                   <ion-item lines="none" class="input-item small">
-                    <ion-input type="number" [(ngModel)]="extraCarbs" placeholder="0"></ion-input>
+                    <ion-input type="text" inputmode="decimal" [(ngModel)]="extraCarbs" placeholder="0"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col>
                   <ion-label>Grasa</ion-label>
                   <ion-item lines="none" class="input-item small">
-                    <ion-input type="number" [(ngModel)]="extraFat" placeholder="0"></ion-input>
+                    <ion-input type="text" inputmode="decimal" [(ngModel)]="extraFat" placeholder="0"></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -237,6 +252,8 @@
         </div>
       </ng-template>
     </ion-modal>
+
+    } <!-- end @else (tiene dieta) -->
 
   </app-layout>
 

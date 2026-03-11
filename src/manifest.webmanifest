@@ -1,6 +1,6 @@
 {
-  "name": "app",
-  "short_name": "app",
+  "name": "My Training",
+  "short_name": "My Training",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

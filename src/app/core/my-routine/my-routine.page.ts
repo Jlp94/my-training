@@ -1,17 +1,17 @@
 import { ToastService } from 'src/app/services/toast-service';
-import { Component, OnInit, WritableSignal, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonIcon, IonButton, IonAccordionGroup, IonAccordion, IonItem, IonLabel, IonInput, IonThumbnail, IonText, IonFab, IonFabButton, IonModal, IonDatetime, IonDatetimeButton, IonSpinner, IonRow, IonCol, IonGrid, IonBadge } from '@ionic/angular/standalone';
+import { IonContent, IonIcon, IonButton, IonAccordionGroup, IonAccordion, IonItem, IonLabel, IonInput, IonThumbnail, IonText, IonFab, IonFabButton, IonModal, IonDatetime, IonDatetimeButton, IonSpinner, IonRow, IonCol, IonGrid, IonBadge, IonTextarea, IonHeader, IonToolbar, IonTitle, IonButtons, IonFooter } from '@ionic/angular/standalone';
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { addIcons } from 'ionicons';
-import { barbell, alarmOutline, trashOutline, addCircleOutline, saveOutline, timerOutline, chatbubbleEllipsesOutline, informationCircleOutline, checkmarkCircle, ellipseOutline } from 'ionicons/icons';
+import { barbell, alarmOutline, trashOutline, addCircleOutline, saveOutline, timerOutline, chatbubbleEllipsesOutline, informationCircleOutline, checkmarkCircle, ellipseOutline, documentTextOutline, chevronUpOutline, closeOutline } from 'ionicons/icons';
 import { LayoutComponent } from "src/app/components/layout/layout.component";
 
 import { RoutinesService } from 'src/app/services/routines-service';
 import { UserService } from 'src/app/services/user-service';
-import { ExecutionMode, SesionRutina } from 'src/app/common/routine-interface';
+import { SesionRutina } from 'src/app/common/routine-interface';
 import { ExerciseLog, WorkoutLog } from 'src/app/common/userInterface';
 import { firstValueFrom } from 'rxjs';
 
@@ -45,10 +45,16 @@ import { firstValueFrom } from 'rxjs';
     IonCol,
     IonRow,
     IonGrid,
-    IonBadge
+    IonBadge,
+    IonTextarea,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonFooter
 ]
 })
-export class MyRoutinePage implements OnInit {
+export class MyRoutinePage implements OnInit, OnDestroy {
 // Injecciones
   private readonly formBuilder: FormBuilder = inject(FormBuilder);
   private readonly toastService: ToastService = inject(ToastService);
@@ -61,14 +67,16 @@ export class MyRoutinePage implements OnInit {
   });
 
   // Variables 
-  currentRoutineId:WritableSignal<string> = signal<string>('');
-  currentSession:WritableSignal<SesionRutina | null> = signal<SesionRutina | null>(null);
-  selectedDate:WritableSignal<string> = signal<string>(new Date().toISOString().split('T')[0]);
-  hasRoutineForDay:WritableSignal<boolean | null> = signal<boolean | null>(null);
-  showObservations:WritableSignal<boolean> = signal<boolean>(false);
+  currentRoutineId = signal<string>('');
+  currentSession = signal<SesionRutina | null>(null);
+  selectedDate = signal<string>((() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })());
+  hasRoutineForDay = signal<boolean | null>(null);
+  showObservations = signal<boolean>(false);
+  workoutNotes = signal('');
+  showNotesModal = signal(false);
 
   constructor() {
-    addIcons({ barbell, timerOutline, alarmOutline, trashOutline, addCircleOutline, saveOutline, chatbubbleEllipsesOutline, informationCircleOutline, checkmarkCircle, ellipseOutline });
+    addIcons({ barbell, timerOutline, alarmOutline, trashOutline, addCircleOutline, saveOutline, chatbubbleEllipsesOutline, informationCircleOutline, checkmarkCircle, ellipseOutline, documentTextOutline, chevronUpOutline, closeOutline });
   }
 
   ngOnInit() {
@@ -105,13 +113,18 @@ export class MyRoutinePage implements OnInit {
     const date = new Date(this.selectedDate() + 'T12:00:00');
     const dayNum = date.getDay();
 
-    const userString = localStorage.getItem('user');
-    if (!userString) return;
-    const userId = JSON.parse(userString)._id;
+    let userId: string;
+    try {
+      const user = await firstValueFrom(this.userService.getUser());
+      userId = user._id;
+    } catch {
+      return;
+    }
 
     try {
       // 1. Obtención de Plantilla Base
       const data = await firstValueFrom(this.routinesService.getMyRoutineSession(dayNum));
+    console.log('Sesion:', data.session);
       
       this.currentRoutineId.set(data.profile.currentRoutineId || '');
       this.currentSession.set(data.session);
@@ -119,9 +132,10 @@ export class MyRoutinePage implements OnInit {
 
       // 2. Obtención de Workout previo para hoy
       let existingLog: WorkoutLog | undefined = undefined;
-      const dateStr = date.toISOString().split('T')[0];
+    const dateStr = this.selectedDate(); // Ya es YYYY-MM-DD local
       try {
         existingLog = await firstValueFrom(this.userService.getWorkoutLogByDate(userId, dateStr));
+      console.log('Log previo:', existingLog);
       } catch (e) {
         // Si no existe, usamos el Log vacío
       }
@@ -136,28 +150,28 @@ export class MyRoutinePage implements OnInit {
 
   // Construir el FormArray a partir de la sesión de la API
   private buildFormFromSession(session: SesionRutina, logPrevio?: WorkoutLog) {
-    session.exercises.forEach(ex => {
-      const tempoStr = `${ex.tempo.eccentric}-${ex.tempo.isometric}-${ex.tempo.concentric}`; // Para mostrar el tempo
+    session.exercises.forEach(exercise => {
+      const tempoStr = `${exercise.tempo.eccentric}-${exercise.tempo.isometric}-${exercise.tempo.concentric}`; // Para mostrar el tempo
       const exerciseGroup = this.formBuilder.group({
-        exerciseId: [ex.exerciseId],
-        name: [ex.name],
-        target: [ex.target],
-        rest: [ex.rest],
+        exerciseId: [exercise.exerciseId],
+        name: [exercise.name],
+        target: [exercise.target],
+        rest: [exercise.rest],
         tempo: [tempoStr],
-        executionType: [ex.executionType],
-        idExSuperSet: [ex.idExSuperSet || null],
-        restPauseSeconds: [ex.restPauseSeconds || null],
+        executionType: [exercise.executionType],
+        idExSuperSet: [exercise.idExSuperSet || null],
+        restPauseSeconds: [exercise.restPauseSeconds || null],
         sets: this.formBuilder.array([])
       });
 
       const setsArray = exerciseGroup.get('sets') as FormArray;
       
       // Intentamos localizar este ejercicio en el Log del backend
-      const savedExLog = logPrevio?.exerciseLogs?.find(l => l.exerciseId === ex.exerciseId);
+      const savedExLog = logPrevio?.exerciseLogs?.find(log => log.exerciseId === exercise.exerciseId);
 
-      ex.sets.forEach((s, idx) => {
-        // Miramos si teníamos valores guardados para la serie 'idx' concreta
-        const savedSet = savedExLog?.sets?.[idx];
+      exercise.sets.forEach((set, setIndex) => {
+        // Miramos si teníamos valores guardados para la serie 'setIndex' concreta
+        const savedSet = savedExLog?.sets?.[setIndex];
         if (savedSet) {
           setsArray.push(this.createSetGroup(savedSet.kg, savedSet.reps, savedSet.rir));
         } else {
@@ -192,17 +206,69 @@ export class MyRoutinePage implements OnInit {
     }
   }
 
+  isSetCompleted(exerciseIndex: number, setIndex: number): boolean {
+    const set = this.getSets(exerciseIndex).at(setIndex);
+    const kg = set.get('kg')?.value;
+    const reps = set.get('reps')?.value;
+    const rir = set.get('rir')?.value;
+    return (kg != null && kg > 0) && (reps != null && reps > 0) && (rir != null && rir > 0);
+  }
+
+
+  // ==========================================
+  // Timer y Alarma
+  // ==========================================
+  private alarmAudio = new Audio('assets/sounds/campana-de-box.mp3');
+  private restTimer: any = null;
+  timerSeconds = signal(0);
+  timerRunning = signal(false);
 
   startTimer(exerciseIndex: number, setIndex: number) {
+    // Si ya hay un timer activo, lo cancelamos
+    if (this.restTimer) {
+      clearInterval(this.restTimer);
+    }
+
     const ejercicio = this.exercises.at(exerciseIndex).value;
     const tiempoDescanso = ejercicio.rest || 120;
 
+    this.timerSeconds.set(tiempoDescanso);
+    this.timerRunning.set(true);
     this.toastService.cargarToast(`Descanso: ${tiempoDescanso}s`, 2000, 'primary');
 
-    setTimeout(() => {
-      this.toastService.success('¡A darle!');
-    }, tiempoDescanso * 1000);
+    this.restTimer = setInterval(() => {
+      const current = this.timerSeconds();
+      if (current <= 1) {
+        clearInterval(this.restTimer);
+        this.restTimer = null;
+        this.timerSeconds.set(0);
+        this.timerRunning.set(false);
+
+        // Reproducir alarma
+        this.alarmAudio.currentTime = 0;
+        this.alarmAudio.play().catch(() => {});
+
+        this.toastService.success('¡A darle! 🔔');
+      } else {
+        this.timerSeconds.set(current - 1);
+      }
+    }, 1000);
   }
+
+  stopTimer() {
+    if (this.restTimer) {
+      clearInterval(this.restTimer);
+      this.restTimer = null;
+      this.toastService.error('Alarma cancelada');
+    }
+    this.timerSeconds.set(0);
+    this.timerRunning.set(false);
+  }
+
+  ngOnDestroy() {
+    this.stopTimer();
+  }
+
 
 
   // ==========================================
@@ -218,22 +284,22 @@ export class MyRoutinePage implements OnInit {
     const validExerciseLogs: ExerciseLog[] = [];
 
     // 1. Filtrar series vacías y mapear a ExerciseLog
-    formValue.exercises.forEach((ex: any) => {
+    formValue.exercises.forEach((exercise: any) => {
       // Filtrar las series que tengan (kg > 0 o reps > 0)
-      const validSets = ex.sets.filter((s: any) => 
-        (s.kg !== null && s.kg > 0) || (s.reps !== null && s.reps > 0)
+      const validSets = exercise.sets.filter((set: any) => 
+        (set.kg !== null && set.kg > 0) || (set.reps !== null && set.reps > 0)
       );
 
       // Si el ejercicio tiene al menos una serie válida, lo agregamos
       if (validSets.length > 0) {
         validExerciseLogs.push({
-          exerciseId: ex.exerciseId,
-          name: ex.name,
-          target: Array.isArray(ex.target) ? ex.target : [ex.target],
-          sets: validSets.map((vs: any) => ({
-            kg: Number(vs.kg) || 0,
-            reps: Number(vs.reps) || 0,
-            rir: Number(vs.rir) || 0
+          exerciseId: exercise.exerciseId,
+          name: exercise.name,
+          target: (Array.isArray(exercise.target) ? exercise.target : [exercise.target]).filter((t: any) => t != null),
+          sets: validSets.map((validSet: any) => ({
+            kg: Number(validSet.kg) || 0,
+            reps: Number(validSet.reps) || 0,
+            rir: Number(validSet.rir) || 0
           }))
         });
       }
@@ -244,31 +310,30 @@ export class MyRoutinePage implements OnInit {
       return;
     }
 
-    // 2. Construir el objeto WorkoutLog
-    const dateObj = new Date(this.selectedDate());
-    const dateStr = dateObj.toISOString().split('T')[0];
+    const dateStr = this.selectedDate();
 
-    const userString = localStorage.getItem('user');
-    if (!userString) {
-      this.toastService.error('Usuario no encontrado. Inicie sesión.');
+    let userId: string;
+    try {
+      const user = await firstValueFrom(this.userService.getUser());
+      userId = user._id;
+    } catch {
+      this.toastService.error('Usuario no autenticado o sesión caducada.');
       return;
     }
-    const userId = JSON.parse(userString)._id;
 
-    const currentSess = this.currentSession()!;
-    // Manejo de id dependiendo de la forma del objeto SesionRutina
-    const rId = (currentSess as any)._id || (currentSess as any).id || 'unknown';
+    const rId = this.currentRoutineId() || 'sin-rutina';
 
     const newLog: WorkoutLog = {
       doneAt: dateStr,
       routineId: rId,
-      notes: currentSess.observations || undefined,
+      notes: this.workoutNotes().trim() || undefined,
       exerciseLogs: validExerciseLogs
     };
 
     // 3. Revisar en la API NestJS si el log ya existe (GET /users/:id/workout-logs/:date)
     // Para simplificar la lectura, utilizamos async/await con firstValueFrom de RxJS
     try {
+      console.log('Payload:', JSON.stringify(newLog, null, 2));
       this.toastService.cargarToast('Guardando sesión...', 2000, 'secondary');
 
       let exists = true;
@@ -288,6 +353,36 @@ export class MyRoutinePage implements OnInit {
     } catch (error) {
       console.error('Error procesando el log de rutina:', error);
       this.toastService.error('Hubo un error al guardar tu entrenamiento');
+    }
+  }
+
+  // Guarda solo la nota al workout log existente (PATCH)
+  async saveNote() {
+    const note = this.workoutNotes().trim();
+    if (!note) {
+      this.toastService.error('Escribe algo antes de guardar');
+      return;
+    }
+
+    const dateStr = this.selectedDate();
+    let userId: string;
+    try {
+      const user = await firstValueFrom(this.userService.getUser());
+      userId = user._id;
+    } catch {
+      this.toastService.error('Usuario no autenticado');
+      return;
+    }
+
+    try {
+      // Intentar PATCH si ya existe el log del día
+      await firstValueFrom(this.userService.updateWorkoutLog(userId, dateStr, { notes: note } as any));
+      this.toastService.success('Nota guardada');
+      this.showNotesModal.set(false);
+    } catch {
+      // Si no existe aún, el note se guardará cuando se pulse el FAB guardar
+      this.toastService.cargarToast('La nota se guardará al guardar la sesión', 2500, 'warning');
+      this.showNotesModal.set(false);
     }
   }
 

@@ -29,6 +29,12 @@ export class UserService {
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));
   }
 
+  // Actualizar datos del usuario (PATCH /users/:id)
+  update(userId: string, payload: any): Observable<User> {
+    const url = `${this.apiUrl}${environment.users.byId.replace(':id', userId)}`;
+    return this.http.patch<MessageApiResponse>(url, payload).pipe(map(res => res.data));
+  }
+
   // Obtener macros del usuario
   getMacros(userId: string): Observable<UserMacros> {
     const url = `${this.apiUrl}${environment.users.macros.replace(':id', userId)}`;

@@ -36,18 +36,16 @@ ion-content {
 }
 
 ion-list {
-    padding-bottom: 100px;
     background: var(--ion-color-light);
     border-radius: 8px;
 }
 
 ion-footer {
     background: var(--ion-color-light);
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 -4px 16px rgba(var(--ion-color-dark-rgb), 0.1);
 
     ion-toolbar {
         --background: transparent;
-        padding: 8px 16px;
     }
 
     .footer-buttons {

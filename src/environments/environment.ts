@@ -5,6 +5,8 @@ export const environment = {
   production: false,
 
   // ─── Base URL ───
+  // Para probar contra Render, descomenta la siguiente y comenta la de localhost:
+  // apiUrl: 'https://api-my-training.onrender.com/my-training/v1',
   apiUrl: 'http://localhost:3000/my-training/v1',
 
   // ─── Auth ───

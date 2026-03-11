@@ -1,0 +1,44 @@
+// Estado de carga
+.spinner-centered {
+    height: 50vh;
+}
+
+// Items del formulario
+.settings-item {
+    --background: var(--ion-color-light);
+    --border-radius: 12px;
+    --padding-start: 12px;
+    --inner-padding-end: 12px;
+
+    ion-icon[slot="start"] {
+        font-size: 20px;
+        margin-right: 8px;
+    }
+}
+
+// Contador de favoritos
+.fav-count {
+    display: block;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+// Botón guardar
+.save-btn {
+    --border-radius: 12px;
+    font-weight: 600;
+    text-transform: none;
+    font-size: 14px;
+    height: 48px;
+    margin-top: 8px;
+}
+
+// Modal de alimentos
+.thumb-icon {
+    font-size: 22px;
+    transition: color 0.2s ease;
+}
+
+.food-brand {
+    font-size: 12px;
+}

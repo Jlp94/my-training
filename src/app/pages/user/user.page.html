@@ -7,14 +7,24 @@
             <ion-card-content class="ion-text-center">
                 <div class="avatar-container">
                     <ion-avatar>
-                        <div class="initials"><span class="initials__text">U</span></div>
+                        @if (avatarUrl()) {
+                        <img [src]="avatarUrl()" alt="Avatar">
+                        } @else {
+                        <div class="initials"><span class="initials__text">{{ userInitials() }}</span></div>
+                        }
                     </ion-avatar>
                 </div>
 
                 <h2 class="user-name">{{ userName() }}</h2>
 
                 <div class="notifications-status">
-                    <p>Notificaciones activadas</p>
+                    <p>Notificaciones
+                      @if (notifications()) {
+                      <ion-text color="success">activadas</ion-text>
+                      } @else {
+                      <ion-text color="danger">desactivadas</ion-text>
+                      }
+                    </p>
                 </div>
             </ion-card-content>
         </ion-card>
@@ -38,25 +48,6 @@
                     </ion-card>
                 </ion-col>
             </ion-row>
-
-            <!-- <ion-row>
-                <ion-col size="6">
-                    <ion-card mode="ios" class="option-card ion-text-center" routerLink="/tabs/user/medidas">
-                        <ion-card-content>
-                            <ion-icon src="assets/icon/ruler.svg" color="primary" class="option-icon"></ion-icon>
-                            <p>Medidas</p>
-                        </ion-card-content>
-                    </ion-card>
-                </ion-col>
-                <ion-col size="6">
-                    <ion-card mode="ios" class="option-card ion-text-center">
-                        <ion-card-content>
-                            <ion-icon name="restaurant" color="primary" class="option-icon"></ion-icon>
-                            <p>Alimentos favoritos</p>
-                        </ion-card-content>
-                    </ion-card>
-                </ion-col>
-            </ion-row> -->
         </ion-grid>
     </app-layout>
 

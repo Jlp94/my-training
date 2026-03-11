@@ -38,6 +38,7 @@ export class CardioPage implements OnInit {
   private readonly STORAGE_KEY = 'cardio_weekly_kcal';
 
   cardioList: WritableSignal<Cardio[]> = signal<Cardio[]>([]);
+  isLoading = signal(true);
   weeklyKcalTarget = signal(0);
 
   // Señales — Acumuladores de la semana
@@ -110,9 +111,10 @@ export class CardioPage implements OnInit {
         if (cardios.length > 0) {
           this.selectedCardioId.set(cardios[0]._id);
         }
+        this.isLoading.set(false);
       },
-      error: (err) => {
-        console.error('Error cargando cardio:', err);
+      error: () => {
+        this.isLoading.set(false);
       }
     });
 

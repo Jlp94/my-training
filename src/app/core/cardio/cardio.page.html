@@ -3,10 +3,18 @@
 <ion-content class="ion-padding">
   <app-layout>
 
-    @if (cardioList().length === 0) {
+    @if (isLoading()) {
     <ion-row class="ion-justify-content-center ion-align-items-center spinner-centered">
       <ion-spinner name="circles" color="tertiary"></ion-spinner>
     </ion-row>
+    } @else if (cardioList().length === 0) {
+    <ion-card mode="ios">
+      <ion-card-content class="ion-text-center ion-padding">
+        <ion-icon name="bicycle-outline" style="font-size: 48px; color: var(--ion-color-medium);"></ion-icon>
+        <h3>Sin cardio configurado</h3>
+        <p>Tu entrenador aún no ha configurado opciones de cardio.</p>
+      </ion-card-content>
+    </ion-card>
     } @else {
 
     <!-- Dashboard de Progreso Semanal -->
@@ -90,13 +98,13 @@
         }
 
         <!-- Inputs del cliente: solo Tiempo + Pulsaciones -->
-        <ion-row class="client-inputs">
-            <ion-col class="ion-no-padding">
-              <ion-row class="ion-align-items-center ion-margin-bottom time-input-header">
-                <ion-icon name="time-outline" class="ion-margin-end"></ion-icon> <ion-text>Tiempo (min)</ion-text>
+        <ion-row>
+            <ion-col class="ion-no-padding ion-margin-bottom">
+              <ion-row class="ion-align-items-center  time-input-header">
+                <ion-icon name="time-outline" class="ion-margin-end"></ion-icon> <ion-text class="ion-margin-end">Tiempo (min)</ion-text>
+                <ion-input type="text" inputmode="numeric" placeholder="30" class="ion-text-center" [ngModel]="duracion()"
+                  (ngModelChange)="duracion.set($event)"></ion-input>
               </ion-row>
-              <ion-input type="number" mode="ios" fill="solid" placeholder="30" [ngModel]="duracion()"
-                (ngModelChange)="duracion.set($event)"></ion-input>
             </ion-col>
         </ion-row>
 

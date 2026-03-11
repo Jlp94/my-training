@@ -1,6 +1,20 @@
 <app-header titulo="Mi Rutina" url="/tabs/training" [showBack]="true"></app-header>
 
 <ion-content class="ion-padding-bottom">
+
+  <!-- Timer flotante -->
+  @if (timerRunning()) {
+  <div class="floating-timer">
+    <div class="floating-timer__info">
+      <ion-icon name="alarm-outline"></ion-icon>
+      <span>{{ timerSeconds() }}s</span>
+    </div>
+    <ion-button fill="clear" color="light" size="small" class="floating-timer__close" (click)="stopTimer()">
+      <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+  </div>
+  }
+
   <app-layout>
 
     @if (hasRoutineForDay() === null) {
@@ -9,7 +23,7 @@
     </ion-row>
     } @else if (hasRoutineForDay()) {
     <div class="ion-padding-horizontal">
-      <h2 class="ion-margin-bottom" style="text-transform: capitalize;"><strong>{{ selectedDate() | date:'EEEE' }}</strong></h2>
+      <h2 class="ion-margin-bottom capitalize"><strong>{{ selectedDate() | date:'EEEE' }}</strong></h2>
       <h6 class="ion-display-flex ion-justify-content-between ion-align-items-center">
         <ion-row class="ion-align-items-center">
           @if (currentSession()?.observations) {
@@ -76,31 +90,29 @@
                 @for (set of getSets(i).controls; track j; let j = $index) {
                 <ion-grid  [formGroupName]="j">
                   <ion-row class="ion-justify-content-between">
-                    <ion-text color="primary ion-margin-bottom">Serie {{j+1}}</ion-text>
-                    @if ((set.get('kg')?.value != null && set.get('kg')?.value > 0) && 
-                          (set.get('reps')?.value != null && set.get('reps')?.value > 0) &&
-                          (set.get('rir')?.value != null && set.get('rir')?.value > 0)) {
+                    <ion-text color="primary">Serie {{j+1}}</ion-text>
+                    @if (isSetCompleted(i, j)) {
                     <ion-icon name="checkmark-circle" size="small" color="success"></ion-icon>
                     } @else {
                     <ion-icon name="ellipse-outline" size="small" color="light"></ion-icon>
                     }
                   </ion-row>
                   
-                  <ion-row class="ion-align-items-center ion-margin-top">
-                    <ion-col size="3" class="ion-no-padding ion-margin-end set-input-col">
-                      <ion-label position="stacked" color="medium" class="input-label">Reps</ion-label>
-                      <ion-input fill="solid" type="number" formControlName="reps" placeholder="0" class="ion-text-center"></ion-input>
-                    </ion-col>
-                    <ion-col size="3" class="ion-no-padding ion-margin-end set-input-col">
+                  <ion-row class="ion-align-items-center ion-margin-top ion-justify-content-between ion-margin-bottom">
+                    <ion-col class="ion-no-padding ion-margin-end set-input-col">
                       <ion-label position="stacked" color="medium" class="input-label">Kg</ion-label>
-                      <ion-input fill="solid" type="number" formControlName="kg" placeholder="0" class="ion-text-center"></ion-input>
+                      <ion-input fill="solid" type="text" inputmode="decimal" formControlName="kg" placeholder="0" class="ion-text-center"></ion-input>
                     </ion-col>
-                    <ion-col size="3" class="ion-no-padding ion-margin-end set-input-col">
+                    <ion-col class="ion-no-padding ion-margin-end set-input-col">
+                      <ion-label position="stacked" color="medium" class="input-label">Reps</ion-label>
+                      <ion-input fill="solid" type="text" inputmode="decimal" formControlName="reps" placeholder="0" class="ion-text-center"></ion-input>
+                    </ion-col>
+                    <ion-col class="ion-no-padding ion-margin-end set-input-col">
                       <ion-label position="stacked" color="medium" class="input-label">Rir</ion-label>
-                      <ion-input fill="solid" type="number" formControlName="rir" placeholder="0" class="ion-text-center"></ion-input>
+                      <ion-input fill="solid" type="text" inputmode="decimal" formControlName="rir" placeholder="0" class="ion-text-center"></ion-input>
                     </ion-col>
-                    <ion-col size="2" class="ion-no-padding ion-text-end">
-                      <ion-button fill="clear" color="warning" class="ion-no-margin ion-no-padding" (click)="startTimer(i, j)">
+                    <ion-col class="ion-no-padding ion-text-end">
+                      <ion-button fill="clear" color="warning" class="ion-margin-end ion-margin-top ion-no-padding" (click)="startTimer(i, j)">
                         <ion-icon name="alarm-outline" size="large" slot="icon-only"></ion-icon>
                       </ion-button>
                     </ion-col>
@@ -132,11 +144,13 @@
         </ng-container>
       </ion-accordion-group>
     </form>
+
+
     } @else {
     <ion-row class="ion-padding ion-justify-content-center ion-align-items-center ion-text-center routine-empty-state">
       <ion-datetime-button datetime="routineDatetime"></ion-datetime-button>
       <ion-text color="medium" class="ion-margin-top">
-        <p>No hay rutina asignada para el <strong style="text-transform: capitalize;">{{ selectedDate() | date:'EEEE' }}</strong></p>
+        <p>No hay rutina asignada para el <strong class="capitalize">{{ selectedDate() | date:'EEEE' }}</strong></p>
       </ion-text>
       <ion-text color="medium">
         <small>Día de descanso o sin planificar</small>
@@ -158,4 +172,39 @@
       <ion-icon name="save-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
+  <ion-fab vertical="bottom" horizontal="start" slot="fixed">
+    <ion-fab-button color="tertiary" (click)="showNotesModal.set(true)">
+      <ion-icon name="document-text-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <!-- Modal de notas del entreno -->
+  <ion-modal [isOpen]="showNotesModal()" (didDismiss)="showNotesModal.set(false)" class="ion-padding" style="--height: 50%;">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Notas del entreno</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="showNotesModal.set(false)">
+              <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-textarea fill="outline" label="¿Cómo ha ido la sesión?" label-placement="floating"
+          [autoGrow]="true" [rows]="5"
+          placeholder="Ej: Hoy he subido peso en press banca, me sentía con más energía..."
+          [ngModel]="workoutNotes()" (ngModelChange)="workoutNotes.set($event)">
+        </ion-textarea>
+      </ion-content>
+      <ion-footer class="ion-padding">
+        <ion-button expand="block" color="tertiary" (click)="saveNote()">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          Guardar nota
+        </ion-button>
+      </ion-footer>
+    </ng-template>
+  </ion-modal>
+
 </ion-content>

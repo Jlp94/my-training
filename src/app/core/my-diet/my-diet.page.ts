@@ -33,6 +33,9 @@ export class MyDietPage implements OnInit {
 
   macrosChart: any;
 
+  noDiet = false;
+  isLoading = true;
+
   // Macros objetivo del usuario (viene del perfil)
   macros: UserMacros = { targetKcal: 0, protein: 0, carbs: 0, fat: 0 };
   caloriesTarget: number = 0;
@@ -69,6 +72,12 @@ export class MyDietPage implements OnInit {
   extraProtein: number | null = null;
   extraCarbs: number | null = null;
   extraFat: number | null = null;
+
+  // Rate limiting búsqueda Edamam
+  private searchTimestamps: number[] = []; // últimas búsquedas (ms)
+  private readonly LIMIT_PER_MIN = 10;
+  private readonly LIMIT_PER_DAY = 40;
+  private readonly STORAGE_KEY = 'edamam_daily_count';
 
   // Búsqueda Edamam
   searchResults: EdamamFood[] = [];
@@ -130,12 +139,15 @@ export class MyDietPage implements OnInit {
         });
 
         this.calculateTotalCalories();
+        this.isLoading = false;
+        this.noDiet = false;
       },
       error: (err) => {
+        this.isLoading = false;
         if (err.message === 'NO_DIET') {
-          console.log('El usuario no tiene dieta asignada');
+          this.noDiet = true;
         } else {
-          console.error('Error cargando dieta:', err);
+          this.toastService.error('Error cargando la dieta');
         }
       }
     });
@@ -261,9 +273,60 @@ export class MyDietPage implements OnInit {
     }
   }
 
+  // Comprobar rate limits antes de buscar
+  private checkRateLimit(): { ok: boolean; message?: string } {
+    const now = Date.now();
+
+    // Limpiar timestamps de hace más de 1 minuto
+    this.searchTimestamps = this.searchTimestamps.filter(t => now - t < 60000);
+
+    // Límite por minuto
+    if (this.searchTimestamps.length >= this.LIMIT_PER_MIN) {
+      return { ok: false, message: 'Demasiadas búsquedas seguidas. Espera un momento.' };
+    }
+
+    // Límite por día (localStorage)
+    const stored = localStorage.getItem(this.STORAGE_KEY);
+    const today = new Date().toISOString().split('T')[0];
+    let dailyCount = 0;
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed.date === today) {
+        dailyCount = parsed.count;
+      }
+    }
+
+    if (dailyCount >= this.LIMIT_PER_DAY) {
+      return { ok: false, message: 'Has alcanzado el máximo de búsquedas de hoy (40). Vuelve mañana.' };
+    }
+
+    return { ok: true };
+  }
+
+  private incrementDailyCount() {
+    const today = new Date().toISOString().split('T')[0];
+    const stored = localStorage.getItem(this.STORAGE_KEY);
+    let count = 1;
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      count = parsed.date === today ? parsed.count + 1 : 1;
+    }
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify({ date: today, count }));
+  }
+
   // Buscar alimentos en Edamam
   searchFood() {
     if (!this.extraName || this.extraName.length < 2) return;
+
+    const { ok, message } = this.checkRateLimit();
+    if (!ok) {
+      this.toastService.error(message!);
+      return;
+    }
+
+    this.searchTimestamps.push(Date.now());
+    this.incrementDailyCount();
+
     this.searching = true;
     this.edamamService.searchFood(this.extraName).subscribe({
       next: (results) => {

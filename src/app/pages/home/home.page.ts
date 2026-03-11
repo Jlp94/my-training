@@ -58,7 +58,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   maxDate: string = new Date().toISOString();
 
   registroForm: FormGroup = this.fb.group({
-    fecha: [new Date().toISOString().split('T')[0], [Validators.required]],
+    fecha: [this.todayLocal(), [Validators.required]],
     peso: [null as number | null, [Validators.min(0)]],
     pasos: [null as number | null, [Validators.min(0)]]
   });
@@ -101,6 +101,12 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
     date.setDate(date.getDate() + diff);
     date.setHours(0, 0, 0, 0);
     return date;
+  }
+
+  // Fecha local en formato YYYY-MM-DD (evita desfase UTC)
+  private todayLocal(): string {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
 
   prevWeek() {
@@ -217,7 +223,11 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
     for (let i = 0; i < 7; i++) {
       const day = new Date(this.currentWeekStart);
       day.setDate(day.getDate() + i);
-      const dateStr = day.toISOString().split('T')[0];
+      // Formatear fecha local (sin pasar por UTC para evitar desfase de zona horaria)
+      const y = day.getFullYear();
+      const m = String(day.getMonth() + 1).padStart(2, '0');
+      const d = String(day.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${d}`;
       const log = this.neatLogs.find(l => l.date === dateStr);
       weekData.push(log?.steps || 0);
     }
@@ -290,7 +300,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   closeRegistroModal() {
     this.isModalOpen = false;
     this.registroForm.reset({
-      fecha: new Date().toISOString().split('T')[0],
+      fecha: this.todayLocal(),
       peso: null,
       pasos: null
     });

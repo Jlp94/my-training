@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonList, IonItem, IonLabel, IonCheckbox, IonButton, IonFooter, IonIcon, IonToolbar, IonSegment, IonSegmentButton, IonSpinner } from '@ionic/angular/standalone';
+import { IonContent, IonList, IonItem, IonLabel, IonCheckbox, IonButton, IonFooter, IonIcon, IonToolbar, IonSegment, IonSegmentButton, IonSpinner, IonCard, IonCardContent } from '@ionic/angular/standalone';
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { LayoutComponent } from "src/app/components/layout/layout.component";
 import { addIcons } from 'ionicons';
@@ -16,7 +16,7 @@ import { ShoppingListService } from 'src/app/services/shopping-list-service';
   imports: [
     IonContent, CommonModule, FormsModule, HeaderComponent, LayoutComponent,
     IonList, IonItem, IonLabel, IonCheckbox, IonButton, IonFooter, IonIcon, IonToolbar,
-    IonSegment, IonSegmentButton, IonSpinner
+    IonSegment, IonSegmentButton, IonSpinner, IonCard, IonCardContent
   ]
 })
 export class ShoppingListPage implements OnInit {

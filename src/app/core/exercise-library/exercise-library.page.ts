@@ -12,7 +12,9 @@ import {
   IonBadge,
   IonText,
   IonButton,
-  IonSpinner
+  IonSpinner,
+  IonCard,
+  IonCardContent
 } from '@ionic/angular/standalone';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { addIcons } from 'ionicons';
@@ -44,7 +46,9 @@ import { FormsModule } from '@angular/forms';
     FormsModule,
     HeaderComponent,
     LayoutComponent,
-    IonSpinner
+    IonSpinner,
+    IonCard,
+    IonCardContent
   ]
 })
 export class ExerciseLibraryPage implements OnInit {
@@ -53,7 +57,8 @@ export class ExerciseLibraryPage implements OnInit {
   searchTerm: WritableSignal<string> = signal<string>('');
 
   // Ejercicios cargados desde la API
-  exercises:WritableSignal<Ejercicio[]> = signal<Ejercicio[]>([]);
+  exercises: WritableSignal<Ejercicio[]> = signal<Ejercicio[]>([]);
+  isLoading = signal(true);
 
   constructor() {
     addIcons({ barbell, logoYoutube });
@@ -64,9 +69,10 @@ export class ExerciseLibraryPage implements OnInit {
     this.exercisesService.findAll().subscribe({
       next: (ejercicios) => {
         this.exercises.set(ejercicios);
+        this.isLoading.set(false);
       },
-      error: (err) => {
-        console.error('Error cargando ejercicios:', err);
+      error: () => {
+        this.isLoading.set(false);
       }
     });
   }
