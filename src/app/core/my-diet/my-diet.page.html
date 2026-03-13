@@ -4,15 +4,15 @@
   <app-layout>
 
     <!-- Cargando -->
-    @if (isLoading) {
-    <ion-row class="ion-justify-content-center ion-align-items-center" style="height: 60vh;">
+    @if (isLoading()) {
+    <ion-row class="ion-justify-content-center ion-align-items-center loading-row">
       <ion-spinner name="circles" color="primary"></ion-spinner>
     </ion-row>
-    } @else if (noDiet) {
+    } @else if (noDiet()) {
     <!-- Sin dieta asignada -->
     <ion-card mode="ios" class="empty-state-card">
       <ion-card-content class="ion-text-center ion-padding">
-        <ion-icon name="restaurant-outline" style="font-size: 48px; color: var(--ion-color-medium);"></ion-icon>
+        <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
         <h3>Sin dieta asignada</h3>
         <p>Tu entrenador aún no te ha asignado una dieta. Cuando la tengas disponible aparecerá aquí.</p>
       </ion-card-content>
@@ -23,25 +23,25 @@
       <ion-card-header>
         <div class="weekly-header">
           <ion-card-title>Calorías semanales</ion-card-title>
-          <span class="weekly-target">{{ weeklyCaloriesTarget }} kcal objetivo</span>
+          <span class="weekly-target">{{ weeklyCaloriesTarget() }} kcal objetivo</span>
         </div>
       </ion-card-header>
       <ion-card-content>
-        <ion-progress-bar [value]="weeklyProgress" [color]="weeklyExceeded ? 'danger' : 'primary'"
+        <ion-progress-bar [value]="weeklyProgress()" [color]="weeklyExceeded() ? 'danger' : 'primary'"
           class="progress-thick"></ion-progress-bar>
         <div class="weekly-stats">
           <div class="stat-item">
             <ion-icon name="flame" color="danger"></ion-icon>
             <div class="stat-data">
-              <strong>{{ weeklyCaloriesConsumed }}</strong>
-              <small>/ {{ weeklyCaloriesTarget }} kcal</small>
+              <strong>{{ weeklyCaloriesConsumed() }}</strong>
+              <small>/ {{ weeklyCaloriesTarget() }} kcal</small>
             </div>
           </div>
-          @if (weeklyExceeded) {
+          @if (weeklyExceeded()) {
           <div class="stat-item exceeded">
             <ion-icon name="alert-circle" color="danger"></ion-icon>
             <div class="stat-data">
-              <strong class="danger-text">+{{ weeklyExcessCalories }}</strong>
+              <strong class="danger-text">+{{ weeklyExcessCalories() }}</strong>
               <small>kcal de más</small>
             </div>
           </div>
@@ -50,55 +50,78 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Macros Card with Chart -->
+    <!-- Macros Card -->
     <ion-card class="macros-card" mode="ios">
-      <ion-card-header>
-        <ion-card-title>
-          Macros
-          <span class="excess-warning" *ngIf="caloriesConsumed > caloriesTarget">
-            <ion-icon name="close-outline"></ion-icon>
-            +{{ caloriesConsumed - caloriesTarget }} Kcal
-          </span>
-        </ion-card-title>
-        <div class="subtitle-container">
-          <ion-card-subtitle>Objetivo diario: {{caloriesTarget}} kcal</ion-card-subtitle>
-          <ion-icon name="checkmark-circle" color="success" *ngIf="caloriesConsumed >= caloriesTarget"></ion-icon>
-        </div>
-      </ion-card-header>
-      <ion-card-content class="chart-container">
-        <div class="chart-wrapper concentric">
-          <canvas #macrosChart></canvas>
-          <div class="chart-text">
-            <span class="calories-value">{{caloriesConsumed}}</span>
-            <span class="calories-label">Consumidas</span>
+      <ion-card-content>
+
+        <!-- Fila: info izquierda, chart derecha -->
+        <div class="macros-top">
+          <div class="macros-info">
+            <h3 class="macros-title">Macros</h3>
+            <span class="macros-subtitle">Objetivo: {{ adjustedTarget() }} kcal</span>
+            @if (mealsCalories() >= adjustedTarget() && adjustedTarget() > 0) {
+            <div class="macros-status">
+              @if (mealsCalories() > adjustedTarget()) {
+              <span class="status-badge danger">
+                <ion-icon name="close-outline"></ion-icon>
+              </span>
+              <span class="excess-warning">+{{ mealsCalories() - adjustedTarget() }} kcal</span>
+              } @else {
+              <span class="status-badge success">
+                <ion-icon name="checkmark-outline"></ion-icon>
+              </span>
+              }
+            </div>
+            }
+          </div>
+          <div class="chart-wrapper">
+            <canvas #macrosChart></canvas>
+            <div class="chart-text">
+              <span class="calories-value" [class.exceeded]="mealsCalories() > adjustedTarget() && adjustedTarget() > 0">{{ mealsCalories() }}</span>
+              <span class="calories-label">/ {{ adjustedTarget() }}</span>
+            </div>
           </div>
         </div>
 
-        <!-- Custom Legend logic can go here or within the chart plugins -->
-        <div class="custom-legend ion-margin-top">
-          <ion-grid>
-            <ion-row class="ion-justify-content-center">
-              <ion-col size="auto" class="legend-item">
-                <span class="dot carbs"></span> Carbos
-              </ion-col>
-              <ion-col size="auto" class="legend-item">
-                <span class="dot protein"></span> Prote
-              </ion-col>
-              <ion-col size="auto" class="legend-item">
-                <span class="dot fats"></span> Grasas
-              </ion-col>
-            </ion-row>
-          </ion-grid>
+        <!-- Barras de progreso macros -->
+        <div class="macro-bars">
+          <div class="macro-bar">
+            <div class="macro-bar__header">
+              <span class="macro-bar__label"><span class="dot protein"></span> Proteína</span>
+              <span class="macro-bar__values">{{ consumedMacros().protein }}g / {{ macros().protein }}g</span>
+            </div>
+            <ion-progress-bar [value]="macros().protein > 0 ? consumedMacros().protein / macros().protein : 0"
+              color="danger"></ion-progress-bar>
+          </div>
+
+          <div class="macro-bar">
+            <div class="macro-bar__header">
+              <span class="macro-bar__label"><span class="dot carbs"></span> Carbohidratos</span>
+              <span class="macro-bar__values">{{ consumedMacros().carbs }}g / {{ macros().carbs }}g</span>
+            </div>
+            <ion-progress-bar [value]="macros().carbs > 0 ? consumedMacros().carbs / macros().carbs : 0"
+              color="warning"></ion-progress-bar>
+          </div>
+
+          <div class="macro-bar">
+            <div class="macro-bar__header">
+              <span class="macro-bar__label"><span class="dot fats"></span> Grasas</span>
+              <span class="macro-bar__values">{{ consumedMacros().fat }}g / {{ macros().fat }}g</span>
+            </div>
+            <ion-progress-bar [value]="macros().fat > 0 ? consumedMacros().fat / macros().fat : 0"
+              color="primary"></ion-progress-bar>
+          </div>
         </div>
+
       </ion-card-content>
     </ion-card>
 
     <!-- Meal Cards Loop -->
-    @for (meal of meals; track meal.name) {
+    @for (meal of meals(); track meal.name; let idx = $index) {
     <ion-card class="meal-card" mode="ios">
       <ion-card-header class="ion-display-flex ion-align-items-center">
         <div class="meal-header-top">
-          <ion-checkbox color="primary" [(ngModel)]="meal.completed" (ionChange)="calculateTotalCalories()"
+          <ion-checkbox color="primary" [checked]="meal.completed" (ionChange)="toggleMealCompleted(idx)"
             class="meal-checkbox"></ion-checkbox>
           <ion-card-title>{{ meal.name }}</ion-card-title>
           <div class="ion-display-flex ion-align-center">
@@ -114,7 +137,9 @@
           <ion-item class="food-item">
             <div class="food-info">
               <span class="food-name">{{ food.name }}</span>
-              <span class="food-amount" *ngIf="food.quantity">{{ food.quantity }}</span>
+              @if (food.quantity) {
+              <span class="food-amount">{{ food.quantity }}</span>
+              }
             </div>
             <ion-note slot="end" class="food-kcal">{{ food.kcal }} kcal</ion-note>
           </ion-item>
@@ -122,7 +147,7 @@
         </ion-list>
       </ion-card-content>
 
-      <!-- Meal Footer with Macros -->
+      <!-- Macros de la comida -->
       <ion-footer class="ion-text-center ion-padding-bottom">
         <div class="meal-macros-summary ion-display-flex ion-justify-content-evenly">
           <ion-text color="warning"><span class="macro carbs">C: {{ meal.totalMacros.carbs }}g</span></ion-text>
@@ -140,11 +165,11 @@
         <ion-button fill="solid" color="danger" size="small" (click)="setOpen(true)">Añadir extra</ion-button>
       </div>
 
-      @if (extras.length === 0) {
+      @if (extras().length === 0) {
       <p class="no-extras">Sin extras añadidos.</p>
       } @else {
       <div class="extras-list">
-        @for (extra of extras; track extra.name; let i = $index) {
+        @for (extra of extras(); track extra.name; let i = $index) {
         <ion-card class="extra-card" mode="ios">
           <ion-card-content class="extra-content">
             <div class="extra-info">
@@ -172,7 +197,7 @@
       }
     </div>
 
-    <!-- Add Extra Modal -->
+    <!-- Modal añadir extra -->
     <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpen(false)" class="add-extra-modal">
       <ng-template>
         <div class="modal-content">
@@ -209,7 +234,7 @@
           <div class="modal-form">
             <ion-label>Cantidad (g/ml)</ion-label>
             <ion-item lines="none" class="input-item">
-              <ion-input type="text" inputmode="decimal" [(ngModel)]="extraAmount" placeholder="100"></ion-input>
+              <ion-input type="number" [(ngModel)]="extraAmount" placeholder="100"></ion-input>
             </ion-item>
 
             <ion-grid class="macros-inputs">
@@ -217,13 +242,13 @@
                 <ion-col>
                   <ion-label>Kcal</ion-label>
                   <ion-item lines="none" class="input-item small">
-                    <ion-input type="text" inputmode="decimal" [(ngModel)]="extraKcal" placeholder="0"></ion-input>
+                    <ion-input type="number" [(ngModel)]="extraKcal" placeholder="0"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col>
                   <ion-label>Prote</ion-label>
                   <ion-item lines="none" class="input-item small">
-                    <ion-input type="text" inputmode="decimal" [(ngModel)]="extraProtein" placeholder="0"></ion-input>
+                    <ion-input type="number" [(ngModel)]="extraProtein" placeholder="0"></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -231,13 +256,13 @@
                 <ion-col>
                   <ion-label>Carbos</ion-label>
                   <ion-item lines="none" class="input-item small">
-                    <ion-input type="text" inputmode="decimal" [(ngModel)]="extraCarbs" placeholder="0"></ion-input>
+                    <ion-input type="number" [(ngModel)]="extraCarbs" placeholder="0"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col>
                   <ion-label>Grasa</ion-label>
                   <ion-item lines="none" class="input-item small">
-                    <ion-input type="text" inputmode="decimal" [(ngModel)]="extraFat" placeholder="0"></ion-input>
+                    <ion-input type="number" [(ngModel)]="extraFat" placeholder="0"></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>

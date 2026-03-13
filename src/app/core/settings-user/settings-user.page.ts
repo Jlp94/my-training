@@ -5,7 +5,7 @@ import {
   IonContent, IonItem, IonLabel, IonInput, IonButton,
   IonIcon, IonSpinner, IonRow, IonCol, IonModal,
   IonHeader, IonToolbar, IonTitle, IonButtons, IonList,
-  IonText, IonToggle, AlertController
+  IonText, IonToggle, IonAvatar, AlertController
 } from '@ionic/angular/standalone';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { LayoutComponent } from 'src/app/components/layout/layout.component';
@@ -13,8 +13,9 @@ import { UserService } from 'src/app/services/user-service';
 import { FoodService } from 'src/app/services/food-service';
 import { ToastService } from 'src/app/services/toast-service';
 import { Alimento } from 'src/app/common/diet-interface';
+import { CloudinaryService } from 'src/app/services/cloudinary-service';
 import { addIcons } from 'ionicons';
-import { mailOutline, lockClosedOutline, fastFoodOutline, saveOutline, thumbsUpOutline, closeOutline, notificationsOutline } from 'ionicons/icons';
+import { mailOutline, lockClosedOutline, fastFoodOutline, saveOutline, thumbsUpOutline, closeOutline, notificationsOutline, cameraOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-settings-user',
@@ -25,7 +26,7 @@ import { mailOutline, lockClosedOutline, fastFoodOutline, saveOutline, thumbsUpO
     IonContent, CommonModule, FormsModule, HeaderComponent, LayoutComponent,
     IonItem, IonLabel, IonInput, IonButton, IonIcon, IonSpinner,
     IonRow, IonCol, IonModal, IonHeader, IonToolbar, IonTitle,
-    IonButtons, IonList, IonText, IonToggle
+    IonButtons, IonList, IonText, IonToggle, IonAvatar
   ]
 })
 export class SettingsUserPage implements OnInit {
@@ -34,6 +35,7 @@ export class SettingsUserPage implements OnInit {
   private readonly foodService = inject(FoodService);
   private readonly toastService = inject(ToastService);
   private readonly alertCtrl = inject(AlertController);
+  private readonly cloudinaryService = inject(CloudinaryService);
 
   // Estado
   isLoading = signal(true);
@@ -44,9 +46,12 @@ export class SettingsUserPage implements OnInit {
   allFoods = signal<Alimento[]>([]);
   showFoodsModal = signal(false);
   notifications = signal(true);
+  avatarUrl = signal<string | null>(null);
+  userInitials = signal('U');
+  isUploading = signal(false);
 
   constructor() {
-    addIcons({ mailOutline, lockClosedOutline, fastFoodOutline, saveOutline, thumbsUpOutline, closeOutline, notificationsOutline });
+    addIcons({ mailOutline, lockClosedOutline, fastFoodOutline, saveOutline, thumbsUpOutline, closeOutline, notificationsOutline, cameraOutline });
   }
 
   ngOnInit() {
@@ -61,6 +66,10 @@ export class SettingsUserPage implements OnInit {
         this.email.set(user.email);
         this.favoriteFoodIds.set(user.profile?.favoriteFoods || []);
         this.notifications.set(user.profile?.notifications ?? true);
+        this.avatarUrl.set(user.profile?.avatarUrl || null);
+        const name = user.profile?.name || '';
+        const lastName = user.profile?.lastName || '';
+        this.userInitials.set((name.charAt(0) + lastName.charAt(0)).toUpperCase() || 'U');
         this.isLoading.set(false);
       },
       error: () => {
@@ -88,6 +97,40 @@ export class SettingsUserPage implements OnInit {
   // Comprueba si un alimento es favorito
   isFavorite(foodId: string): boolean {
     return this.favoriteFoodIds().includes(foodId);
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.toastService.error('Solo se permiten imágenes');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.toastService.error('La imagen no puede superar 5MB');
+      return;
+    }
+
+    this.isUploading.set(true);
+    this.cloudinaryService.uploadAvatar(file).subscribe({
+      next: (url) => {
+        this.avatarUrl.set(url);
+        this.isUploading.set(false);
+        this.toastService.success('Foto subida correctamente');
+
+        // Guardar la URL en el perfil del usuario
+        this.userService.update(this.userId(), { avatarUrl: url } as any).subscribe({
+          next: () => {},
+          error: () => this.toastService.error('Error al guardar la foto en el perfil')
+        });
+      },
+      error: () => {
+        this.isUploading.set(false);
+        this.toastService.error('Error al subir la imagen');
+      }
+    });
   }
 
   // Guardar cambios

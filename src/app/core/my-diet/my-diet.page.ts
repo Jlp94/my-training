@@ -1,12 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonCheckbox, IonList, IonNote, IonFooter, IonText, IonFab, IonFabButton, IonProgressBar, IonSpinner } from '@ionic/angular/standalone';
+import { IonContent, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonCheckbox, IonList, IonNote, IonFooter, IonText, IonFab, IonFabButton, IonProgressBar, IonSpinner } from '@ionic/angular/standalone';
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { LayoutComponent } from "src/app/components/layout/layout.component";
 import { Chart, DoughnutController, ArcElement, Legend, Tooltip, PieController } from 'chart.js';
 import { addIcons } from 'ionicons';
-import { add, search, barbell, timeOutline, flame, checkmarkCircle, closeCircle, close, saveOutline, alertCircle, closeOutline } from 'ionicons/icons';
+import { add, search, barbell, timeOutline, flame, checkmarkCircle, closeCircle, close, saveOutline, alertCircle, closeOutline, checkmarkOutline } from 'ionicons/icons';
 import { ViewChild, ElementRef } from '@angular/core';
 import { ToastService } from 'src/app/services/toast-service';
 import { DietService } from 'src/app/services/diet-service';
@@ -22,7 +22,7 @@ Chart.register(DoughnutController, PieController, ArcElement, Legend, Tooltip);
   styleUrls: ['./my-diet.page.scss'],
   standalone: true,
   imports: [IonText, IonFooter, IonNote, IonContent, CommonModule, FormsModule, HeaderComponent, LayoutComponent,
-    IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonList, IonCheckbox, IonFab, IonFabButton, IonProgressBar, IonSpinner]
+    IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonList, IonCheckbox, IonFab, IonFabButton, IonProgressBar, IonSpinner]
 })
 export class MyDietPage implements OnInit {
   @ViewChild('macrosChart') macrosChartCanvas!: ElementRef;
@@ -33,36 +33,113 @@ export class MyDietPage implements OnInit {
 
   macrosChart: any;
 
-  noDiet = false;
-  isLoading = true;
+  // Estado principal con signals
+  noDiet = signal(false);
+  isLoading = signal(true);
 
   // Macros objetivo del usuario (viene del perfil)
-  macros: UserMacros = { targetKcal: 0, protein: 0, carbs: 0, fat: 0 };
-  caloriesTarget: number = 0;
+  macros = signal<UserMacros>({ targetKcal: 0, protein: 0, carbs: 0, fat: 0 });
+  caloriesTarget = signal(0);
 
-  caloriesConsumed = 0;
+  // Calorías de comidas y extras del usuario (signals)
+  mealsCalories = signal(0);
+  extrasCalories = signal(0);
 
-  // Progreso semanal de calorías
-  weeklyCaloriesTarget = 0;
-  weeklyCaloriesConsumed = 0;
+  // extraKcal fijo de la dieta (viene de la API)
+  dietExtraKcal = signal(0);
 
-  get weeklyProgress(): number {
-    return this.weeklyCaloriesTarget > 0 ? Math.min(this.weeklyCaloriesConsumed / this.weeklyCaloriesTarget, 1) : 0;
+  // Derivados con computed
+  adjustedTarget = computed(() => this.caloriesTarget() - this.dietExtraKcal());
+  caloriesConsumed = computed(() => this.mealsCalories() + this.extrasCalories());
+
+  // Progreso semanal
+  weeklyCaloriesTarget = signal(0);
+  weeklyCaloriesConsumed = signal(0);
+
+  weeklyProgress = computed(() =>
+    this.weeklyCaloriesTarget() > 0 ? Math.min(this.weeklyCaloriesConsumed() / this.weeklyCaloriesTarget(), 1) : 0
+  );
+  weeklyExceeded = computed(() => this.weeklyCaloriesConsumed() > this.weeklyCaloriesTarget());
+  weeklyExcessCalories = computed(() => this.weeklyCaloriesConsumed() - this.weeklyCaloriesTarget());
+
+  // Macros consumidos (derivado)
+  consumedMacros = computed(() => {
+    let protein = 0, carbs = 0, fat = 0;
+    this.meals().forEach(meal => {
+      if (meal.completed && meal.totalMacros) {
+        protein += meal.totalMacros.protein;
+        carbs += meal.totalMacros.carbs;
+        fat += meal.totalMacros.fat;
+      }
+    });
+    this.extras().forEach(extra => {
+      protein += (extra.protein || 0);
+      carbs += (extra.carbs || 0);
+      fat += (extra.fat || 0);
+    });
+    return { protein, carbs, fat };
+  });
+
+  // Comidas y extras (signals)
+  meals = signal<MealView[]>([]);
+  extras = signal<any[]>([]);
+
+  // ---------- Helpers localStorage ----------
+  private readonly COMPLETED_KEY = 'diet_completed';
+  private readonly EXTRAS_KEY = 'diet_extras';
+  private readonly WEEKLY_KEY = 'diet_weekly_kcal';
+
+  private getToday(): string {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  get weeklyExceeded(): boolean {
-    return this.weeklyCaloriesConsumed > this.weeklyCaloriesTarget;
+  // Obtiene el lunes de la semana actual (YYYY-MM-DD)
+  private getWeekStart(): string {
+    const d = new Date();
+    const day = d.getDay();
+    const diff = day === 0 ? 6 : day - 1; // lunes = 0
+    d.setDate(d.getDate() - diff);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  get weeklyExcessCalories(): number {
-    return this.weeklyCaloriesConsumed - this.weeklyCaloriesTarget;
+  private loadCompletedMeals(): number[] {
+    const raw = localStorage.getItem(this.COMPLETED_KEY);
+    if (!raw) return [];
+    const data = JSON.parse(raw);
+    return data.date === this.getToday() ? data.indices : [];
   }
 
-  // Comidas enriquecidas con datos reales
-  meals: MealView[] = [];
+  private saveCompletedMeals() {
+    const indices = this.meals().map((meal, idx) => meal.completed ? idx : -1).filter(idx => idx >= 0);
+    localStorage.setItem(this.COMPLETED_KEY, JSON.stringify({ date: this.getToday(), indices }));
+  }
 
-  // Datos de Extras
-  extras: any[] = [];
+  private loadExtras(): any[] {
+    const raw = localStorage.getItem(this.EXTRAS_KEY);
+    if (!raw) return [];
+    const data = JSON.parse(raw);
+    return data.date === this.getToday() ? data.items : [];
+  }
+
+  private saveExtras() {
+    localStorage.setItem(this.EXTRAS_KEY, JSON.stringify({ date: this.getToday(), items: this.extras() }));
+  }
+
+  private loadWeeklyKcal(): number {
+    const raw = localStorage.getItem(this.WEEKLY_KEY);
+    if (!raw) return 0;
+    const data = JSON.parse(raw);
+    // Si la semana cambió (nuevo lunes), reiniciar
+    return data.weekStart === this.getWeekStart() ? data.consumed : 0;
+  }
+
+  private saveWeeklyKcal() {
+    localStorage.setItem(this.WEEKLY_KEY, JSON.stringify({
+      weekStart: this.getWeekStart(),
+      consumed: this.weeklyCaloriesConsumed()
+    }));
+  }
 
   // Datos del Modal de Extras
   isModalOpen = false;
@@ -84,7 +161,7 @@ export class MyDietPage implements OnInit {
   searching = false;
 
   constructor() {
-    addIcons({ flame, alertCircle, closeOutline, checkmarkCircle, close, search, saveOutline, timeOutline, add, barbell });
+    addIcons({ flame, alertCircle, closeOutline, checkmarkOutline, checkmarkCircle, close, search, saveOutline, timeOutline, add, barbell });
   }
 
   ngOnInit() {
@@ -92,23 +169,24 @@ export class MyDietPage implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.createMacrosChart();
-    setTimeout(() => this.updateChartData(), 100);
+    // El chart se crea después de cargar los datos (ver loadDiet)
   }
 
   loadDiet() {
     this.dietService.getMyDiet().subscribe({
       next: ({ profile, diet, foods }) => {
         // Macros objetivo del perfil
-        this.macros = profile.macros || { targetKcal: 0, protein: 0, carbs: 0, fat: 0 };
-        this.caloriesTarget = this.macros.targetKcal;
-        this.weeklyCaloriesTarget = this.caloriesTarget * 7;
+        const profileMacros = profile.macros || { targetKcal: 0, protein: 0, carbs: 0, fat: 0 };
+        this.macros.set(profileMacros);
+        this.caloriesTarget.set(profileMacros.targetKcal);
+        this.weeklyCaloriesTarget.set(profileMacros.targetKcal * 7);
+        this.dietExtraKcal.set(diet.extraKcal || 0);
 
         // Mapa foodId → alimento completo
         const foodMap = new Map<string, Alimento>(foods.map(food => [food._id, food]));
 
         // Enriquecer cada comida
-        this.meals = diet.meals.map(meal => {
+        const enrichedMeals = diet.meals.map(meal => {
           const enrichedFoods: MealFoodView[] = meal.foods.map(mf => {
             const food = foodMap.get(mf.foodId);
             const factor = mf.quantity / 100;
@@ -125,27 +203,45 @@ export class MyDietPage implements OnInit {
             };
           });
 
-          const totalKcal = enrichedFoods.reduce((sum, f) => sum + f.kcal, 0);
-          const totalMacros = enrichedFoods.reduce((acc, f) => {
-            const factor = f.quantity / 100;
+          const totalKcal = enrichedFoods.reduce((sum, foodItem) => sum + foodItem.kcal, 0);
+          const totalMacros = enrichedFoods.reduce((acc, foodItem) => {
+            const factor = foodItem.quantity / 100;
             return {
-              carbs: acc.carbs + Math.round(f.baseMacros.carbs * factor),
-              protein: acc.protein + Math.round(f.baseMacros.protein * factor),
-              fat: acc.fat + Math.round(f.baseMacros.fat * factor)
+              carbs: acc.carbs + Math.round(foodItem.baseMacros.carbs * factor),
+              protein: acc.protein + Math.round(foodItem.baseMacros.protein * factor),
+              fat: acc.fat + Math.round(foodItem.baseMacros.fat * factor)
             };
           }, { carbs: 0, protein: 0, fat: 0 });
 
           return { name: meal.name, completed: false, totalKcal, totalMacros, foods: enrichedFoods };
         });
 
-        this.calculateTotalCalories();
-        this.isLoading = false;
-        this.noDiet = false;
+        // Restaurar estado de localStorage
+        const completedIndices = this.loadCompletedMeals();
+        completedIndices.forEach(idx => {
+          if (enrichedMeals[idx]) enrichedMeals[idx].completed = true;
+        });
+
+        this.meals.set(enrichedMeals);
+        this.extras.set(this.loadExtras());
+        this.weeklyCaloriesConsumed.set(this.loadWeeklyKcal());
+
+        // Recalcular mealsCalories y extrasCalories
+        this.recalculate();
+
+        this.isLoading.set(false);
+        this.noDiet.set(false);
+
+        // Crear chart después de que Angular renderice el canvas
+        setTimeout(() => {
+          this.createMacrosChart();
+          this.updateChartData();
+        }, 100);
       },
       error: (err) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         if (err.message === 'NO_DIET') {
-          this.noDiet = true;
+          this.noDiet.set(true);
         } else {
           this.toastService.error('Error cargando la dieta');
         }
@@ -153,64 +249,33 @@ export class MyDietPage implements OnInit {
     });
   }
 
-  calculateTotalCalories() {
-    const wasGoalReached = this.caloriesConsumed >= this.caloriesTarget;
-
-    const mealsCalories = this.meals.reduce((total, meal) => {
+  // Recalcula las señales de kcal de comidas y extras
+  recalculate() {
+    const mealsCal = this.meals().reduce((total, meal) => {
       return meal.completed ? total + meal.totalKcal : total;
     }, 0);
+    this.mealsCalories.set(mealsCal);
 
-    const extrasCalories = this.extras.reduce((total, extra) => {
+    const extrasCal = this.extras().reduce((total, extra) => {
       return total + (extra.kcal || 0);
     }, 0);
-
-    this.caloriesConsumed = mealsCalories + extrasCalories;
-
-    this.updateChartData();
-
-    const isGoalReached = this.caloriesConsumed >= this.caloriesTarget;
-
-    if (!wasGoalReached && isGoalReached && this.caloriesTarget > 0) {
-      this.toastService.success('¡Has alcanzado las Kcal del día!');
-    }
-  }
-
-  getConsumedMacros() {
-    let p = 0, c = 0, f = 0;
-
-    this.meals.forEach(m => {
-      if (m.completed && m.totalMacros) {
-        p += m.totalMacros.protein;
-        c += m.totalMacros.carbs;
-        f += m.totalMacros.fat;
-      }
-    });
-
-    this.extras.forEach(e => {
-      p += (e.protein || 0);
-      c += (e.carbs || 0);
-      f += (e.fat || 0);
-    });
-
-    return { protein: p, carbs: c, fat: f };
+    this.extrasCalories.set(extrasCal);
   }
 
   updateChartData() {
     if (!this.macrosChart) return;
 
-    const consumed = this.getConsumedMacros();
+    const meals = this.mealsCalories();
+    const target = this.adjustedTarget();
+    const consumed = Math.min(meals, target);
+    const remaining = Math.max(0, target - meals);
+    const exceeded = meals > target;
 
-    // Usar macros objetivo del perfil como referencia 100%
-    const pPct = this.macros.protein > 0 ? Math.min(100, (consumed.protein / this.macros.protein) * 100) : 0;
-    const cPct = this.macros.carbs > 0 ? Math.min(100, (consumed.carbs / this.macros.carbs) * 100) : 0;
-    const fPct = this.macros.fat > 0 ? Math.min(100, (consumed.fat / this.macros.fat) * 100) : 0;
-
-    // Dataset 0: Carbs (Yellow)
-    this.macrosChart.data.datasets[0].data = [cPct, 100 - cPct];
-    // Dataset 1: Protein (Red)
-    this.macrosChart.data.datasets[1].data = [pPct, 100 - pPct];
-    // Dataset 2: Fats (Blue)
-    this.macrosChart.data.datasets[2].data = [fPct, 100 - fPct];
+    this.macrosChart.data.datasets[0].data = [consumed, remaining];
+    this.macrosChart.data.datasets[0].backgroundColor = [
+      exceeded ? '#eb445a' : '#2dd36f',
+      '#f4f5f8'
+    ];
 
     this.macrosChart.update();
   }
@@ -220,44 +285,22 @@ export class MyDietPage implements OnInit {
       this.macrosChart = new Chart(this.macrosChartCanvas.nativeElement, {
         type: 'doughnut',
         data: {
-          labels: ['Proteínas', 'Carbohidratos', 'Grasas'],
-          datasets: [
-            // Middle Ring - Carbs
-            {
-              data: [0, 100],
-              backgroundColor: ['#ffc409', '#f4f5f8'],
-              borderWidth: 2,
-              circumference: 360,
-              weight: 5
-            },
-            // Outer Ring - Protein
-            {
-              data: [0, 100],
-              backgroundColor: ['#eb445a', '#f4f5f8'],
-              borderWidth: 2,
-              circumference: 360,
-              weight: 5
-            },
-            // Inner Ring - Fats
-            {
-              data: [0, 100],
-              backgroundColor: ['#3880ff', '#f4f5f8'],
-              borderWidth: 2,
-              circumference: 360,
-              weight: 5
-            }
-          ]
+          labels: ['Consumidas', 'Restantes'],
+          datasets: [{
+            data: [0, 100],
+            backgroundColor: ['#2dd36f', '#f4f5f8'],
+            borderWidth: 0,
+          }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '40%',
+          cutout: '75%',
           plugins: {
             legend: { display: false },
             tooltip: { enabled: false }
           },
           animation: {
-            animateScale: true,
             animateRotate: true
           }
         }
@@ -278,7 +321,7 @@ export class MyDietPage implements OnInit {
     const now = Date.now();
 
     // Limpiar timestamps de hace más de 1 minuto
-    this.searchTimestamps = this.searchTimestamps.filter(t => now - t < 60000);
+    this.searchTimestamps = this.searchTimestamps.filter(timestamp => now - timestamp < 60000);
 
     // Límite por minuto
     if (this.searchTimestamps.length >= this.LIMIT_PER_MIN) {
@@ -364,15 +407,17 @@ export class MyDietPage implements OnInit {
 
     const newExtra = {
       name: this.extraName,
-      amount: this.extraAmount + ' g',
-      kcal: this.extraKcal,
-      protein: this.extraProtein,
-      carbs: this.extraCarbs,
-      fat: this.extraFat
+      amount: Number(this.extraAmount) + ' g',
+      kcal: Number(this.extraKcal),
+      protein: Number(this.extraProtein),
+      carbs: Number(this.extraCarbs),
+      fat: Number(this.extraFat)
     };
 
-    this.extras.push(newExtra);
-    this.calculateTotalCalories();
+    this.extras.update(current => [...current, newExtra]);
+    this.saveExtras();
+    this.recalculate();
+    this.updateChartData();
 
     this.setOpen(false);
 
@@ -387,13 +432,26 @@ export class MyDietPage implements OnInit {
   }
 
   removeExtra(index: number) {
-    this.extras.splice(index, 1);
-    this.calculateTotalCalories();
+    this.extras.update(current => current.filter((_, idx) => idx !== index));
+    this.saveExtras();
+    this.recalculate();
+    this.updateChartData();
   }
 
-  // Guardar resumen de dieta
+  // Toggle completar comida y persistir
+  toggleMealCompleted(index: number) {
+    this.meals.update(current =>
+      current.map((meal, idx) => idx === index ? { ...meal, completed: !meal.completed } : meal)
+    );
+    this.saveCompletedMeals();
+    this.recalculate();
+    this.updateChartData();
+  }
+
+  // Guardar resumen de dieta (acumula kcal semanales)
   saveDiet() {
-    this.weeklyCaloriesConsumed += this.caloriesConsumed;
+    this.weeklyCaloriesConsumed.update(current => current + this.caloriesConsumed());
+    this.saveWeeklyKcal();
     this.toastService.success('Resumen de dieta guardado correctamente');
   }
 

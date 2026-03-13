@@ -21,7 +21,7 @@
             <ion-button fill="clear" size="small" (click)="prevWeek()">
               <ion-icon name="chevron-back-outline" slot="icon-only" color="primary"></ion-icon>
             </ion-button>
-            <span>{{ weekLabel }}</span>
+            <span>{{ weekLabel() }}</span>
             <ion-button fill="clear" size="small" (click)="nextWeek()">
               <ion-icon name="chevron-forward-outline" slot="icon-only" color="primary"></ion-icon>
             </ion-button>
@@ -50,12 +50,12 @@
               <div class="progress-container">
                 <canvas #progressChart></canvas>
                 <div class="progress-text">
-                  <strong>{{ stepsProgress }}%</strong>
+                  <strong>{{ cardioProgress() }}%</strong>
                 </div>
               </div>
               <div class="progress-details">
-                <span>{{ weeklyStepsTotal | number }} /</span>
-                <span>{{ weeklyStepsGoal | number }}</span>
+                <span>{{ weeklyCardioKcalTotal() | number }} /</span>
+                <span>{{ cardioKcalGoal() | number }}</span>
               </div>
             </ion-card-content>
           </ion-card>

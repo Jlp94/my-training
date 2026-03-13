@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, inject, OnDestroy, OnInit, signal, computed, WritableSignal, Signal, effect } from '@angular/core';
 import {
   IonContent, IonCard, IonCardHeader,
   IonCardTitle, IonCardContent, IonButton, IonIcon, IonGrid, IonRow, IonCol,
@@ -48,10 +48,10 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   private stepsChart: Chart | null = null;
   private progressChart: Chart | null = null;
 
-  // Datos del usuario
+  // Datos del usuario (Signals)
   private userId: string = '';
-  neatLogs: UserNeat[] = [];
-  private cardioKcalGoal: number = 0;
+  neatLogs: WritableSignal<UserNeat[]> = signal([]);
+  cardioKcalGoal: WritableSignal<number> = signal(0);
 
   // Modal de registro
   isModalOpen = false;
@@ -67,31 +67,74 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   get peso() { return this.registroForm.get('peso'); }
   get pasos() { return this.registroForm.get('pasos'); }
 
-  // Navegación semanal de pasos
-  currentWeekStart: Date = this.getMonday(new Date());
+  // Navegación semanal de pasos (Signal)
+  currentWeekStart: WritableSignal<Date> = signal(this.getMonday(new Date()));
 
   private readonly meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
-  get weekLabel(): string {
-    const start = this.currentWeekStart;
+  weekLabel = computed(() => {
+    const start = this.currentWeekStart();
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
     const dStart = String(start.getDate()).padStart(2, '0');
     const dEnd = String(end.getDate()).padStart(2, '0');
     return `${dStart} ${this.meses[start.getMonth()]} — ${dEnd} ${this.meses[end.getMonth()]}`;
-  }
+  });
 
-  // Pasos totales de la semana y porcentaje de progreso semanal
-  get weeklyStepsTotal(): number {
-    return this.getWeekStepsData().reduce((sum, s) => sum + s, 0);
-  }
+  // Datos de pasos de la semana
+  weekStepsData = computed(() => {
+    const weekData: number[] = [];
+    const logs = this.neatLogs();
+    const start = this.currentWeekStart();
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(start);
+      day.setDate(day.getDate() + i);
+      const y = day.getFullYear();
+      const m = String(day.getMonth() + 1).padStart(2, '0');
+      const d = String(day.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${d}`;
+      const log = logs.find(l => l.date === dateStr);
+      weekData.push(log?.steps || 0);
+    }
+    return weekData;
+  });
 
-  get weeklyStepsGoal(): number {
-    return this.cardioKcalGoal > 0 ? this.cardioKcalGoal : 70000;
-  }
+  weeklyStepsTotal = computed(() => {
+    return this.weekStepsData().reduce((sum, s) => sum + s, 0);
+  });
 
-  get stepsProgress(): number {
-    return this.weeklyStepsGoal > 0 ? Math.min(Math.round((this.weeklyStepsTotal / this.weeklyStepsGoal) * 100), 100) : 0;
+  weeklyStepsGoal = computed(() => {
+    return this.cardioKcalGoal() > 0 ? this.cardioKcalGoal() * 7 : 70000;
+  });
+
+  stepsProgress = computed(() => {
+    const goal = this.weeklyStepsGoal();
+    return goal > 0 ? Math.min(Math.round((this.weeklyStepsTotal() / goal) * 100), 100) : 0;
+  });
+
+  // Progreso de CARDIO Semanal
+  weeklyCardioKcalTotal = computed(() => {
+    const raw = localStorage.getItem('cardio_weekly_kcal');
+    // Forzamos dependencia de la semana actual para que se recalcule al cambiar de semana
+    const start = this.currentWeekStart();
+    if (!raw) return 0;
+    try {
+      const data = JSON.parse(raw);
+      return data.week === this.getWeekNumber(start) ? data.kcal : 0;
+    } catch {
+      return 0;
+    }
+  });
+
+  cardioProgress = computed(() => {
+    const goal = this.cardioKcalGoal();
+    return goal > 0 ? Math.min(Math.round((this.weeklyCardioKcalTotal() / goal) * 100), 100) : 0;
+  });
+
+  private getWeekNumber(d: Date): number {
+    const start = new Date(d.getFullYear(), 0, 1);
+    const diff = d.getTime() - start.getTime();
+    return Math.ceil((diff / 86400000 + start.getDay()) / 7);
   }
 
   private getMonday(d: Date): Date {
@@ -110,17 +153,26 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   prevWeek() {
-    this.currentWeekStart = new Date(this.currentWeekStart.getTime() - 7 * 86400000);
+    this.currentWeekStart.update(d => new Date(d.getTime() - 7 * 86400000));
     this.updateStepsChart();
   }
 
   nextWeek() {
-    this.currentWeekStart = new Date(this.currentWeekStart.getTime() + 7 * 86400000);
+    this.currentWeekStart.update(d => new Date(d.getTime() + 7 * 86400000));
     this.updateStepsChart();
   }
 
   constructor() {
     addIcons({ chevronBackOutline, chevronForwardOutline, pencilOutline, body, medkitOutline, analyticsOutline, scaleOutline, footstepsOutline, barbellOutline });
+
+    // Efecto reactivo: si cambia el progreso de cardio (ej. por cambiar currentWeekStart), actualizar el gráfico
+    effect(() => {
+      const progress = this.cardioProgress();
+      if (this.progressChart) {
+        this.progressChart.data.datasets[0].data = [progress, 100 - progress];
+        this.progressChart.update();
+      }
+    });
   }
 
   ngOnInit() {
@@ -149,8 +201,8 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
     this.userService.getUser().subscribe({
       next: (user) => {
         this.userId = user._id;
-        this.neatLogs = user.profile.neatLogs || [];
-        this.cardioKcalGoal = user.profile.cardioKcalGoal || 0;
+        this.neatLogs.set(user.profile.neatLogs || []);
+        this.cardioKcalGoal.set(user.profile.cardioKcalGoal || 0);
 
         // Crear gráficas con datos reales
         setTimeout(() => {
@@ -169,7 +221,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   // ──── GRÁFICA DE PESO ────
   // Últimos N registros que tengan peso
   private getWeightData(): { labels: string[]; data: number[] } {
-    const withWeight = this.neatLogs
+    const withWeight = this.neatLogs()
       .filter(log => log.weight != null)
       .sort((a, b) => a.date.localeCompare(b.date))
       .slice(-12); // Últimos 12 registros
@@ -193,7 +245,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
         labels: labels.length > 0 ? labels : ['Sin datos'],
         datasets: [{
           data: data.length > 0 ? data : [0],
-          borderColor: '#5260ff',
+          borderColor: '#5261ff9d',
           backgroundColor: 'rgba(82, 96, 255, 0.15)',
           fill: true,
           tension: 0.4,
@@ -217,26 +269,10 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // ──── GRÁFICA DE PASOS ────
-  // Datos de pasos para la semana seleccionada (Lun-Dom)
-  getWeekStepsData(): number[] {
-    const weekData: number[] = [];
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(this.currentWeekStart);
-      day.setDate(day.getDate() + i);
-      // Formatear fecha local (sin pasar por UTC para evitar desfase de zona horaria)
-      const y = day.getFullYear();
-      const m = String(day.getMonth() + 1).padStart(2, '0');
-      const d = String(day.getDate()).padStart(2, '0');
-      const dateStr = `${y}-${m}-${d}`;
-      const log = this.neatLogs.find(l => l.date === dateStr);
-      weekData.push(log?.steps || 0);
-    }
-    return weekData;
-  }
-
+  // Los datos de pasos se cogen del computed this.weekStepsData()
   createStepsChart() {
     if (!this.stepsChartCanvas) return;
-    const stepsData = this.getWeekStepsData();
+    const stepsData = this.weekStepsData();
 
     this.stepsChart = new Chart(this.stepsChartCanvas.nativeElement, {
       type: 'bar',
@@ -262,7 +298,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
 
   updateStepsChart() {
     if (!this.stepsChart) return;
-    this.stepsChart.data.datasets[0].data = this.getWeekStepsData();
+    this.stepsChart.data.datasets[0].data = this.weekStepsData();
     this.stepsChart.update();
   }
 
@@ -274,7 +310,8 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
       type: 'doughnut',
       data: {
         datasets: [{
-          data: [this.stepsProgress, 100 - this.stepsProgress],
+          // Ahora muestra el progreso de CARDIO, no el de pasos
+          data: [this.cardioProgress(), 100 - this.cardioProgress()],
           backgroundColor: ['#ffc409', '#f0f0f0'],
           borderWidth: 0
         }]
@@ -318,7 +355,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
 
   private loadExistingLog() {
     const fechaValue = this.registroForm.get('fecha')?.value;
-    const existing = this.neatLogs.find(l => l.date === fechaValue);
+    const existing = this.neatLogs().find(l => l.date === fechaValue);
     if (existing) {
       this.registroForm.patchValue({
         peso: existing.weight ?? null,
@@ -343,11 +380,11 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const log: { date: string; weight?: number; steps?: number } = { date: fecha };
-    if (peso) log.weight = peso;
-    if (pasos) log.steps = pasos;
+    if (peso) log.weight = Number(peso);
+    if (pasos) log.steps = Number(pasos);
 
     // Comprobar si ya existe un log para esa fecha → update, sino → add
-    const existingLog = this.neatLogs.find(l => l.date === fecha);
+    const existingLog = this.neatLogs().find(l => l.date === fecha);
 
     if (existingLog) {
       this.userService.updateNeatLog(this.userId, fecha, log).subscribe({

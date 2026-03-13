@@ -6,6 +6,12 @@ import { catchError, throwError } from 'rxjs';
 // Interceptor que añade el token JWT y redirige al login si recibe 401
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
+
+  // No añadir JWT a peticiones externas (ej. Cloudinary)
+  if (req.url.includes('cloudinary.com')) {
+    return next(req);
+  }
+
   const token = localStorage.getItem('access_token');
 
   const authReq = token

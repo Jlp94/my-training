@@ -79,104 +79,142 @@
     margin: 16px;
     background: var(--ion-color-light);
 
-    ion-card-header {
-        padding-bottom: 0;
-    }
-
-    ion-card-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-    }
-
-    .subtitle-container {
+    .macros-top {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-top: 4px;
-
-        ion-card-subtitle {
-            font-size: 0.9rem;
-            text-transform: none;
-            margin: 0;
-        }
-
-        ion-icon {
-            font-size: 1.2rem;
-        }
+        justify-content: space-between;
+        gap: 12px;
     }
 
-    .chart-container {
+    .macros-info {
+        flex: 1;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        padding: 20px;
+        gap: 4px;
 
-        .chart-wrapper {
-            position: relative;
-            height: 200px;
-            width: 200px;
+        .macros-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--ion-color-dark);
+        }
+
+        .macros-subtitle {
+            font-size: 0.85rem;
+            color: var(--ion-color-medium);
+        }
+
+        .macros-status {
             display: flex;
             align-items: center;
+            gap: 6px;
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
 
-            .chart-text {
-                position: absolute;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                pointer-events: none;
-
-                .calories-value {
-                    font-size: 1.8rem;
-                    font-weight: 700;
-                    color: var(--ion-color-dark);
-                    line-height: 1;
-                }
-
-                .calories-label {
-                    font-size: 0.8rem;
-                    color: var(--ion-color-medium);
-                    margin-top: 4px;
-                }
+            ion-icon {
+                font-size: 16px;
+                color: white;
             }
+
+            &.success { background: var(--ion-color-success); }
+            &.danger { background: var(--ion-color-danger); }
         }
 
-        .custom-legend {
-            width: 100%;
+        .excess-warning {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--ion-color-danger);
+        }
+    }
 
-            .legend-item {
-                display: flex;
-                align-items: center;
-                font-size: 0.85rem;
+    .chart-wrapper {
+        position: relative;
+        height: 100px;
+        width: 100px;
+        min-width: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .chart-text {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+
+            .calories-value {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: var(--ion-color-dark);
+                line-height: 1;
+
+                &.exceeded {
+                    color: var(--ion-color-danger);
+                }
+            }
+
+            .calories-label {
+                font-size: 0.65rem;
                 color: var(--ion-color-medium);
-                margin: 0 8px;
-
-                .dot {
-                    width: 8px;
-                    height: 8px;
-                    border-radius: 50%;
-                    display: inline-block;
-                    margin-right: 6px;
-
-                    &.protein {
-                        background-color: #eb445a;
-                    }
-
-                    &.carbs {
-                        background-color: #ffc409;
-                    }
-
-                    &.fats {
-                        background-color: #3880ff;
-                    }
-
-                    &.fiber {
-                        background-color: #2dd36f;
-                        /* Green for fiber if present */
-                    }
-                }
+                margin-top: 2px;
             }
         }
+    }
+
+    .macro-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 0 4px 8px;
+    }
+
+    .macro-bar {
+        &__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        &__label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--ion-color-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        &__values {
+            font-size: 0.8rem;
+            color: var(--ion-color-medium);
+            font-weight: 500;
+        }
+
+        ion-progress-bar {
+            height: 8px;
+            border-radius: 4px;
+        }
+    }
+
+    .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+
+        &.protein { background-color: #eb445a; }
+        &.carbs { background-color: #ffc409; }
+        &.fats { background-color: #3880ff; }
     }
 }
 

@@ -9,6 +9,25 @@
     </ion-row>
     } @else {
 
+    <!-- Avatar -->
+    <ion-row class="ion-justify-content-center ion-margin-top">
+      <div class="avatar-upload" (click)="fileInput.click()">
+        <ion-avatar class="avatar-upload__avatar">
+          @if (isUploading()) {
+            <div class="avatar-upload__spinner"><ion-spinner name="circles" color="light"></ion-spinner></div>
+          } @else if (avatarUrl()) {
+            <img [src]="avatarUrl()" alt="Avatar">
+          } @else {
+            <div class="initials"><span>{{ userInitials() }}</span></div>
+          }
+        </ion-avatar>
+        <div class="avatar-upload__badge">
+          <ion-icon name="camera-outline"></ion-icon>
+        </div>
+      </div>
+      <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)">
+    </ion-row>
+
     <!-- Tarjeta de datos personales -->
     <ion-row class="ion-margin-top">
       <ion-col class="ion-margin-top">
