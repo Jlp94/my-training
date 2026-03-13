@@ -57,27 +57,26 @@
         <!-- Fila: info izquierda, chart derecha -->
         <div class="macros-top">
           <div class="macros-info">
-            <h3 class="macros-title">Macros</h3>
-            <span class="macros-subtitle">Objetivo: {{ adjustedTarget() }} kcal</span>
-            @if (mealsCalories() >= adjustedTarget() && adjustedTarget() > 0) {
-            <div class="macros-status">
-              @if (mealsCalories() > adjustedTarget()) {
-              <span class="status-badge danger">
-                <ion-icon name="close-outline"></ion-icon>
-              </span>
-              <span class="excess-warning">+{{ mealsCalories() - adjustedTarget() }} kcal</span>
-              } @else {
-              <span class="status-badge success">
-                <ion-icon name="checkmark-outline"></ion-icon>
-              </span>
+            <div class="macros-title-row">
+              <h3 class="macros-title">Macros</h3>
+              @if (caloriesConsumed() >= adjustedTarget() && adjustedTarget() > 0) {
+              <div class="macros-status">
+                @if (caloriesConsumed() > adjustedTarget()) {
+                <span class="excess-warning">+{{ caloriesConsumed() - adjustedTarget() }} kcal extra</span>
+                } @else {
+                <span class="status-badge success">
+                  <ion-icon name="checkmark-outline"></ion-icon>
+                </span>
+                }
+              </div>
               }
             </div>
-            }
+            <span class="macros-subtitle">Objetivo: {{ adjustedTarget() }} kcal</span>
           </div>
           <div class="chart-wrapper">
             <canvas #macrosChart></canvas>
             <div class="chart-text">
-              <span class="calories-value" [class.exceeded]="mealsCalories() > adjustedTarget() && adjustedTarget() > 0">{{ mealsCalories() }}</span>
+              <span class="calories-value" [class.exceeded]="caloriesConsumed() > adjustedTarget() && adjustedTarget() > 0">{{ caloriesConsumed() }}</span>
               <span class="calories-label">/ {{ adjustedTarget() }}</span>
             </div>
           </div>
