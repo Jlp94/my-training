@@ -27,6 +27,11 @@
     .progress-thick {
         height: 12px;
         border-radius: 6px;
+        --transition: transform 1s ease-in-out;
+        
+        &::part(progress) {
+            transition: transform 1s ease-in-out;
+        }
     }
 
     .weekly-stats {
@@ -203,6 +208,11 @@
         ion-progress-bar {
             height: 8px;
             border-radius: 4px;
+            --transition: transform 1s ease-in-out;
+
+            &::part(progress) {
+                transition: transform 1s ease-in-out;
+            }
         }
     }
 
