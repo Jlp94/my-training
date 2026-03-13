@@ -97,6 +97,12 @@
         flex-direction: column;
         gap: 4px;
 
+        .macros-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .macros-title {
             font-size: 1.1rem;
             font-weight: 700;
@@ -222,9 +228,9 @@
         border-radius: 50%;
         display: inline-block;
 
-        &.protein { background-color: #eb445a; }
-        &.carbs { background-color: #ffc409; }
-        &.fats { background-color: #3880ff; }
+        &.protein { background-color: var(--ion-color-primary, #3880ff); }
+        &.carbs { background-color: var(--ion-color-warning, #ffc409); }
+        &.fats { background-color: #fd8d14; }
     }
 }
 
@@ -253,15 +259,15 @@
 
         .macro {
             &.protein {
-                color: #eb445a;
+                color: var(--ion-color-primary, #3880ff);
             }
 
             &.carbs {
-                color: #ffc409;
+                color: var(--ion-color-warning, #ffc409);
             }
 
             &.fat {
-                color: #3880ff;
+                color: #fd8d14;
             }
         }
     }
@@ -330,15 +336,15 @@
 
                 .macro {
                     &.protein {
-                        color: #eb445a;
+                        color: var(--ion-color-primary, #3880ff);
                     }
 
                     &.carbs {
-                        color: #ffc409;
+                        color: var(--ion-color-warning, #ffc409);
                     }
 
                     &.fat {
-                        color: #3880ff;
+                        color: #fd8d14;
                     }
                 }
             }

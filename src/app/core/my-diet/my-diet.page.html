@@ -90,7 +90,7 @@
               <span class="macro-bar__values">{{ consumedMacros().protein }}g / {{ macros().protein }}g</span>
             </div>
             <ion-progress-bar [value]="macros().protein > 0 ? consumedMacros().protein / macros().protein : 0"
-              color="danger"></ion-progress-bar>
+              color="primary"></ion-progress-bar>
           </div>
 
           <div class="macro-bar">
@@ -108,7 +108,7 @@
               <span class="macro-bar__values">{{ consumedMacros().fat }}g / {{ macros().fat }}g</span>
             </div>
             <ion-progress-bar [value]="macros().fat > 0 ? consumedMacros().fat / macros().fat : 0"
-              color="primary"></ion-progress-bar>
+              style="--progress-background: #fd8d14;"></ion-progress-bar>
           </div>
         </div>
 
@@ -149,9 +149,9 @@
       <!-- Macros de la comida -->
       <ion-footer class="ion-text-center ion-padding-bottom">
         <div class="meal-macros-summary ion-display-flex ion-justify-content-evenly">
+          <ion-text color="primary"><span class="macro protein">P: {{ meal.totalMacros.protein }}g</span></ion-text>
           <ion-text color="warning"><span class="macro carbs">C: {{ meal.totalMacros.carbs }}g</span></ion-text>
-          <ion-text color="danger"><span class="macro protein">P: {{ meal.totalMacros.protein }}g</span></ion-text>
-          <ion-text color="primary"><span class="macro fat">G: {{ meal.totalMacros.fat }}g</span></ion-text>
+          <ion-text style="color: #fd8d14;"><span class="macro fat">G: {{ meal.totalMacros.fat }}g</span></ion-text>
         </div>
       </ion-footer>
     </ion-card>
@@ -184,8 +184,8 @@
                 <span class="extra-kcal">{{ extra.kcal }} kcal</span>
               </div>
               <div class="extra-macros">
-                <span class="macro carbs">C: {{ extra.carbs }}g</span>
                 <span class="macro protein">P: {{ extra.protein }}g</span>
+                <span class="macro carbs">C: {{ extra.carbs }}g</span>
                 <span class="macro fat">G: {{ extra.fat }}g</span>
               </div>
             </div>
