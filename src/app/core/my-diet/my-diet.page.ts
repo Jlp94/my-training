@@ -130,15 +130,42 @@ export class MyDietPage implements OnInit {
     const raw = localStorage.getItem(this.WEEKLY_KEY);
     if (!raw) return 0;
     const data = JSON.parse(raw);
-    // Si la semana cambió (nuevo lunes), reiniciar
-    return data.weekStart === this.getWeekStart() ? data.consumed : 0;
+    // Verificar si la semana cambió (nuevo lunes)
+    if (data.weekStart !== this.getWeekStart()) {
+      localStorage.removeItem(this.WEEKLY_KEY);
+      return 0;
+    }
+    // Si viene del formato antiguo, migrar los datos a dailyTotals
+    if (!data.dailyTotals) {
+      data.dailyTotals = { [this.getToday()]: data.consumed || 0 };
+    }
+    // Sumamos los totales de todos los días registrados en esa semana
+    const dailyTotals: Record<string, number> = data.dailyTotals || {};
+    return Object.values(dailyTotals).reduce((sum, val) => sum + val, 0);
   }
 
   private saveWeeklyKcal() {
-    localStorage.setItem(this.WEEKLY_KEY, JSON.stringify({
-      weekStart: this.getWeekStart(),
-      consumed: this.weeklyCaloriesConsumed()
-    }));
+    let raw = localStorage.getItem(this.WEEKLY_KEY);
+    let data: any = raw ? JSON.parse(raw) : { weekStart: this.getWeekStart(), dailyTotals: {} };
+
+    // Si cambió la semana, resetear
+    if (data.weekStart !== this.getWeekStart()) {
+      data = { weekStart: this.getWeekStart(), dailyTotals: {} };
+    }
+
+    // Si viene del formato antiguo (no cambió semana pero no tiene dailyTotals)
+    if (!data.dailyTotals) {
+      data.dailyTotals = { [this.getToday()]: data.consumed || 0 };
+    }
+
+    // Actualizar el valor del día actual dentro de la semana
+    data.dailyTotals[this.getToday()] = this.caloriesConsumed();
+    
+    localStorage.setItem(this.WEEKLY_KEY, JSON.stringify(data));
+    
+    // Y actualizar el signal
+    const sum = Object.values(data.dailyTotals).reduce((acc: any, val: any) => acc + val, 0);
+    this.weeklyCaloriesConsumed.set(sum as number);
   }
 
   // Datos del Modal de Extras
@@ -448,9 +475,8 @@ export class MyDietPage implements OnInit {
     this.updateChartData();
   }
 
-  // Guardar resumen de dieta (acumula kcal semanales)
+  // Guardar resumen de dieta (acumula kcal semanales guardando por día)
   saveDiet() {
-    this.weeklyCaloriesConsumed.update(current => current + this.caloriesConsumed());
     this.saveWeeklyKcal();
     this.toastService.success('Resumen de dieta guardado correctamente');
   }
