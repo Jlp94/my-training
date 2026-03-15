@@ -39,7 +39,6 @@ export class MyDietPage implements OnInit {
 
   // Macros objetivo del usuario (viene del perfil)
   macros = signal<UserMacros>({ targetKcal: 0, protein: 0, carbs: 0, fat: 0 });
-  caloriesTarget = signal(0);
 
   // Calorías de comidas y extras del usuario (signals)
   mealsCalories = signal(0);
@@ -49,11 +48,11 @@ export class MyDietPage implements OnInit {
   dietExtraKcal = signal(0);
 
   // Derivados con computed
-  adjustedTarget = computed(() => this.caloriesTarget() - this.dietExtraKcal());
+  adjustedTarget = computed(() => this.macros().targetKcal - this.dietExtraKcal());
   caloriesConsumed = computed(() => this.mealsCalories() + this.extrasCalories());
 
   // Progreso semanal
-  weeklyCaloriesTarget = signal(0);
+  weeklyCaloriesTarget = computed(() => this.macros().targetKcal * 7);
   weeklyCaloriesConsumed = signal(0);
 
   weeklyProgress = computed(() =>
@@ -205,8 +204,6 @@ export class MyDietPage implements OnInit {
         // Macros objetivo del perfil
         const profileMacros = profile.macros || { targetKcal: 0, protein: 0, carbs: 0, fat: 0 };
         this.macros.set(profileMacros);
-        this.caloriesTarget.set(profileMacros.targetKcal);
-        this.weeklyCaloriesTarget.set(profileMacros.targetKcal * 7);
         this.dietExtraKcal.set(diet.extraKcal || 0);
 
         // Mapa foodId → alimento completo
@@ -292,11 +289,11 @@ export class MyDietPage implements OnInit {
   updateChartData() {
     if (!this.macrosChart) return;
 
-    const meals = this.mealsCalories();
+    const totalKcal = this.caloriesConsumed();
     const target = this.adjustedTarget();
-    const consumed = Math.min(meals, target);
-    const remaining = Math.max(0, target - meals);
-    const exceeded = meals > target;
+    const consumed = Math.min(totalKcal, target);
+    const remaining = Math.max(0, target - totalKcal);
+    const exceeded = totalKcal > target;
 
     this.macrosChart.data.datasets[0].data = [consumed, remaining];
     this.macrosChart.data.datasets[0].backgroundColor = [
