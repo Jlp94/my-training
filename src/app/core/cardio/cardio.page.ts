@@ -28,21 +28,16 @@ import { Cardio } from 'src/app/common/cardio-interface';
 })
 export class CardioPage implements OnInit {
   private readonly toastService: ToastService = inject(ToastService);
-  private readonly cardioService: CardioService = inject(CardioService);
+  public readonly cardioService: CardioService = inject(CardioService);
   private readonly userService: UserService = inject(UserService);
   
   constructor() {
     addIcons({ timeOutline, flameOutline, heartOutline, speedometerOutline, saveOutline, bicycleOutline, walkOutline, trendingUpOutline });
   }
 
-  private readonly STORAGE_KEY = 'cardio_weekly_kcal';
-
   cardioList: WritableSignal<Cardio[]> = signal<Cardio[]>([]);
   isLoading = signal(true);
   weeklyKcalTarget = signal(0);
-
-  // Señales — Acumuladores de la semana
-  currentKcal = signal(0);
 
   // Señales — Registro (solo lo que introduce el cliente)
   selectedCardioId = signal<string>('');
@@ -65,13 +60,13 @@ export class CardioPage implements OnInit {
   // Computed — Progreso basado en KCAL
   progress = computed(() => {
     const target = this.weeklyKcalTarget();
-    return target > 0 ? Math.min(this.currentKcal() / target, 1) : 0;
+    return target > 0 ? Math.min(this.cardioService.weeklyCardioKcal() / target, 1) : 0;
   });
 
-  isCompleted = computed(() => this.currentKcal() >= this.weeklyKcalTarget());
+  isCompleted = computed(() => this.cardioService.weeklyCardioKcal() >= this.weeklyKcalTarget());
 
   extraKcal = computed(() => {
-    const diff = this.currentKcal() - this.weeklyKcalTarget();
+    const diff = this.cardioService.weeklyCardioKcal() - this.weeklyKcalTarget();
     return diff > 0 ? diff : 0;
   });
 
@@ -79,7 +74,7 @@ export class CardioPage implements OnInit {
   targetMinutes = computed(() => {
     const config = this.configActual();
     if (!config) return 0;
-    const kcalRestantes = Math.max(this.weeklyKcalTarget() - this.currentKcal(), 0);
+    const kcalRestantes = Math.max(this.weeklyKcalTarget() - this.cardioService.weeklyCardioKcal(), 0);
     return Math.ceil(kcalRestantes / config.kcalMin);
   });
 
@@ -87,7 +82,7 @@ export class CardioPage implements OnInit {
   currentMinutes = computed(() => {
     const config = this.configActual();
     if (!config) return 0;
-    return Math.round(this.currentKcal() / config.kcalMin);
+    return Math.round(this.cardioService.weeklyCardioKcal() / config.kcalMin);
   });
 
   // Computed — Estimación kcal de la sesión que va a registrar
@@ -101,9 +96,6 @@ export class CardioPage implements OnInit {
 
   // Carga las configuraciones de cardio y el objetivo del usuario
   ngOnInit() {
-    // Cargar kcal de localStorage (con control de semana)
-    this.loadWeeklyKcal();
-
     // Cargar cardios de la API
     this.cardioService.findAll().subscribe({
       next: (cardios) => {
@@ -145,38 +137,13 @@ export class CardioPage implements OnInit {
     }
 
     const kcal = Math.round(min * this.configActual().kcalMin);
-    this.currentKcal.update(current => current + kcal);
-    this.saveWeeklyKcal();
+    
+    // Usar el servicio centralizado
+    this.cardioService.addKcal(kcal);
+    
     this.toastService.success(`${min} min de ${this.configActual().label} → ${kcal} kcal`);
 
     // Resetear input
     this.duracion.set(null);
-  }
-
-  // Nº de semana del año (lunes = inicio de semana)
-  private getWeekNumber(): number {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 1);
-    const diff = now.getTime() - start.getTime();
-    return Math.ceil((diff / 86400000 + start.getDay()) / 7);
-  }
-
-  // Carga kcal del localStorage si es la misma semana, si no resetea
-  private loadWeeklyKcal() {
-    const raw = localStorage.getItem(this.STORAGE_KEY);
-    if (raw) {
-      const data = JSON.parse(raw);
-      if (data.week === this.getWeekNumber()) {
-        this.currentKcal.set(data.kcal || 0);
-      } else {
-        localStorage.removeItem(this.STORAGE_KEY);
-      }
-    }
-  }
-
-  // Guarda kcal actual + semana en localStorage
-  private saveWeeklyKcal() {
-    const data = { week: this.getWeekNumber(), kcal: this.currentKcal() };
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
   }
 }

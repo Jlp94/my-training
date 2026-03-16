@@ -17,6 +17,7 @@ import { RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastService } from 'src/app/services/toast-service';
 import { UserService } from 'src/app/services/user-service';
+import { CardioService } from 'src/app/services/cardio-service';
 import { UserNeat } from 'src/app/common/userInterface';
 
 Chart.register(...registerables);
@@ -41,6 +42,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
 
   private readonly toastService: ToastService = inject(ToastService);
   private readonly userService: UserService = inject(UserService);
+  private readonly cardioService: CardioService = inject(CardioService);
   private readonly fb: FormBuilder = inject(FormBuilder);
 
   // Instancias de charts
@@ -114,16 +116,12 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
 
   // Progreso de CARDIO Semanal
   weeklyCardioKcalTotal = computed(() => {
-    const raw = localStorage.getItem('cardio_weekly_kcal');
-    // Forzamos dependencia de la semana actual para que se recalcule al cambiar de semana
+    // Si estamos en la semana actual basada en currentWeekStart, mostrar el dato real del servicio
+    // De lo contrario, no tenemos histórico en localStorage (podría mejorarse a futuro si la API lo guarda)
     const start = this.currentWeekStart();
-    if (!raw) return 0;
-    try {
-      const data = JSON.parse(raw);
-      return data.week === this.getWeekNumber(start) ? data.kcal : 0;
-    } catch {
-      return 0;
-    }
+    const isCurrentWeek = this.getWeekNumber(start) === this.getWeekNumber(new Date());
+    
+    return isCurrentWeek ? this.cardioService.weeklyCardioKcal() : 0;
   });
 
   cardioProgress = computed(() => {
