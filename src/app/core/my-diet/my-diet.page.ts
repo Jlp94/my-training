@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, linkedSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonGrid, IonRow, IonCol, IonButton, IonIcon, IonModal, IonInput, IonItem, IonLabel, IonCheckbox, IonList, IonNote, IonFooter, IonText, IonFab, IonFabButton, IonProgressBar, IonSpinner } from '@ionic/angular/standalone';
@@ -167,14 +167,34 @@ export class MyDietPage implements OnInit {
     this.weeklyCaloriesConsumed.set(sum as number);
   }
 
-  // Datos del Modal de Extras
+  // Datos del Modal de Extras (Signals)
   isModalOpen = false;
-  extraName: string = '';
-  extraAmount: number | null = null;
-  extraKcal: number | null = null;
-  extraProtein: number | null = null;
-  extraCarbs: number | null = null;
-  extraFat: number | null = null;
+  extraName = signal('');
+  extraAmount = signal<number | null>(null);
+
+  // Valores base por cada 100g (de donde beberán los linkedSignals)
+  private baseMacros = signal({ kcal: 0, protein: 0, carbs: 0, fat: 0 });
+
+  // linkedSignals: dependen de la cantidad y de los valores base, pero permiten edición manual
+  extraKcal = linkedSignal({
+    source: () => ({ amount: this.extraAmount(), base: this.baseMacros().kcal }),
+    computation: (src) => src.amount ? Math.round((src.base * src.amount) / 100) : null
+  });
+
+  extraProtein = linkedSignal({
+    source: () => ({ amount: this.extraAmount(), base: this.baseMacros().protein }),
+    computation: (src) => src.amount ? Number(((src.base * src.amount) / 100).toFixed(1)) : null
+  });
+
+  extraCarbs = linkedSignal({
+    source: () => ({ amount: this.extraAmount(), base: this.baseMacros().carbs }),
+    computation: (src) => src.amount ? Number(((src.base * src.amount) / 100).toFixed(1)) : null
+  });
+
+  extraFat = linkedSignal({
+    source: () => ({ amount: this.extraAmount(), base: this.baseMacros().fat }),
+    computation: (src) => src.amount ? Number(((src.base * src.amount) / 100).toFixed(1)) : null
+  });
 
   // Rate limiting búsqueda Edamam
   private searchTimestamps: number[] = []; // últimas búsquedas (ms)
@@ -332,14 +352,6 @@ export class MyDietPage implements OnInit {
     }
   }
 
-  setOpen(isOpen: boolean) {
-    this.isModalOpen = isOpen;
-    if (!isOpen) {
-      this.searchResults = [];
-      this.searching = false;
-    }
-  }
-
   // Comprobar rate limits antes de buscar
   private checkRateLimit(): { ok: boolean; message?: string } {
     const now = Date.now();
@@ -383,7 +395,8 @@ export class MyDietPage implements OnInit {
 
   // Buscar alimentos en Edamam
   searchFood() {
-    if (!this.extraName || this.extraName.length < 2) return;
+    const query = this.extraName();
+    if (!query || query.length < 2) return;
 
     const { ok, message } = this.checkRateLimit();
     if (!ok) {
@@ -395,7 +408,7 @@ export class MyDietPage implements OnInit {
     this.incrementDailyCount();
 
     this.searching = true;
-    this.edamamService.searchFood(this.extraName).subscribe({
+    this.edamamService.searchFood(query).subscribe({
       next: (results) => {
         this.searchResults = results;
         this.searching = false;
@@ -410,32 +423,42 @@ export class MyDietPage implements OnInit {
 
   // Seleccionar alimento de los resultados
   selectFood(food: EdamamFood) {
-    this.extraName = food.name;
-    this.extraKcal = food.kcal;
-    this.extraProtein = food.protein;
-    this.extraCarbs = food.carbs;
-    this.extraFat = food.fat;
+    this.extraName.set(food.name);
+    this.extraAmount.set(100); // Por defecto 100g al seleccionar
+    this.baseMacros.set({
+      kcal: food.kcal,
+      protein: food.protein,
+      carbs: food.carbs,
+      fat: food.fat
+    });
     this.searchResults = [];
   }
 
   addExtra() {
-    if (!this.extraName || this.extraAmount === null || this.extraKcal === null || this.extraProtein === null || this.extraCarbs === null || this.extraFat === null) {
+    const name = this.extraName();
+    const amount = this.extraAmount();
+    const kcal = this.extraKcal();
+    const protein = this.extraProtein();
+    const carbs = this.extraCarbs();
+    const fat = this.extraFat();
+
+    if (!name || amount === null || kcal === null || protein === null || carbs === null || fat === null) {
       this.toastService.error('Todos los campos son obligatorios');
       return;
     }
 
-    if (this.extraAmount < 0 || this.extraKcal < 0 || this.extraProtein < 0 || this.extraCarbs < 0 || this.extraFat < 0) {
+    if (amount < 0 || kcal < 0 || protein < 0 || carbs < 0 || fat < 0) {
       this.toastService.error('Los valores no pueden ser negativos');
       return;
     }
 
     const newExtra = {
-      name: this.extraName,
-      amount: Number(this.extraAmount) + ' g',
-      kcal: Number(this.extraKcal),
-      protein: Number(this.extraProtein),
-      carbs: Number(this.extraCarbs),
-      fat: Number(this.extraFat)
+      name: name,
+      amount: Number(amount) + ' g',
+      kcal: Number(kcal),
+      protein: Number(protein),
+      carbs: Number(carbs),
+      fat: Number(fat)
     };
 
     this.extras.update(current => [...current, newExtra]);
@@ -445,14 +468,19 @@ export class MyDietPage implements OnInit {
 
     this.setOpen(false);
 
-    this.extraName = '';
-    this.extraAmount = null;
-    this.extraKcal = null;
-    this.extraProtein = null;
-    this.extraCarbs = null;
-    this.extraFat = null;
-
     this.toastService.success('Extra añadido correctamente');
+  }
+
+  setOpen(isOpen: boolean) {
+    this.isModalOpen = isOpen;
+    if (!isOpen) {
+      this.searchResults = [];
+      this.searching = false;
+      // Resetear signals
+      this.extraName.set('');
+      this.extraAmount.set(null);
+      this.baseMacros.set({ kcal: 0, protein: 0, carbs: 0, fat: 0 });
+    }
   }
 
   removeExtra(index: number) {
