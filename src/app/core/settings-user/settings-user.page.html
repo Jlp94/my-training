@@ -5,7 +5,7 @@
 
     @if (isLoading()) {
     <ion-row class="ion-justify-content-center ion-align-items-center spinner-centered">
-      <ion-spinner name="circles" color="tertiary"></ion-spinner>
+      <ion-spinner name="bubbles" color="tertiary"></ion-spinner>
     </ion-row>
     } @else {
 
@@ -14,7 +14,7 @@
       <div class="avatar-upload" (click)="fileInput.click()">
         <ion-avatar class="avatar-upload__avatar">
           @if (isUploading()) {
-            <div class="avatar-upload__spinner"><ion-spinner name="circles" color="light"></ion-spinner></div>
+            <div class="avatar-upload__spinner"><ion-spinner name="bubbles" color="light"></ion-spinner></div>
           } @else if (avatarUrl()) {
             <img [src]="avatarUrl()" alt="Avatar">
           } @else {

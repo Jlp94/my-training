@@ -38,11 +38,13 @@ export class CardioService {
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));
   }
 
-  private getWeekNumber(): number {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 1);
-    const diff = now.getTime() - start.getTime();
-    return Math.ceil((diff / 86400000 + start.getDay()) / 7);
+  private getMondayISO(): string {
+    const d = new Date();
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day; // ajustar a lunes
+    const monday = new Date(d.setDate(d.getDate() + diff));
+    monday.setHours(0, 0, 0, 0);
+    return monday.toISOString().split('T')[0];
   }
 
   private loadWeeklyKcal() {
@@ -50,14 +52,14 @@ export class CardioService {
     if (raw) {
       try {
         const data = JSON.parse(raw);
-        if (data.week === this.getWeekNumber()) {
+        if (data.monday === this.getMondayISO()) {
           this._weeklyCardioKcal.set(data.kcal || 0);
         } else {
-          localStorage.removeItem(this.STORAGE_KEY);
+          // Si es una nueva semana, empezamos de cero
           this._weeklyCardioKcal.set(0);
+          this.saveWeeklyKcal();
         }
       } catch (e) {
-        localStorage.removeItem(this.STORAGE_KEY);
         this._weeklyCardioKcal.set(0);
       }
     }
@@ -65,7 +67,7 @@ export class CardioService {
 
   private saveWeeklyKcal() {
     const data = { 
-      week: this.getWeekNumber(), 
+      monday: this.getMondayISO(), 
       kcal: this._weeklyCardioKcal() 
     };
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));

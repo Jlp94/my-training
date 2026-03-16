@@ -71,6 +71,7 @@ export class MyRoutinePage implements OnInit, OnDestroy {
   currentSession = signal<SesionRutina | null>(null);
   selectedDate = signal<string>((() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })());
   hasRoutineForDay = signal<boolean | null>(null);
+  isDataReady = signal<boolean>(false);
   showObservations = signal<boolean>(false);
   workoutNotes = signal('');
   showNotesModal = signal(false);
@@ -106,6 +107,7 @@ export class MyRoutinePage implements OnInit, OnDestroy {
     // Limpiar estado previo
     this.exercises.clear();
     this.hasRoutineForDay.set(null); // null = cargando
+    this.isDataReady.set(false);
     this.currentSession.set(null);
     this.showObservations.set(false);
 
@@ -124,7 +126,7 @@ export class MyRoutinePage implements OnInit, OnDestroy {
     try {
       // 1. Obtención de Plantilla Base
       const data = await firstValueFrom(this.routinesService.getMyRoutineSession(dayNum));
-    console.log('Sesion:', data.session);
+      console.log('Sesion:', data.session);
       
       this.currentRoutineId.set(data.profile.currentRoutineId || '');
       this.currentSession.set(data.session);
@@ -132,19 +134,23 @@ export class MyRoutinePage implements OnInit, OnDestroy {
 
       // 2. Obtención de Workout previo para hoy
       let existingLog: WorkoutLog | undefined = undefined;
-    const dateStr = this.selectedDate(); // Ya es YYYY-MM-DD local
+      const dateStr = this.selectedDate(); // Ya es YYYY-MM-DD local
       try {
         existingLog = await firstValueFrom(this.userService.getWorkoutLogByDate(userId, dateStr));
-      console.log('Log previo:', existingLog);
+        console.log('Log previo:', existingLog);
       } catch (e) {
         // Si no existe, usamos el Log vacío
       }
 
       this.buildFormFromSession(data.session, existingLog);
+      
+      // Marcar como listo después de construir el formulario
+      this.isDataReady.set(true);
 
     } catch (err) {
       console.log('Sin datos para este día');
       this.hasRoutineForDay.set(false); // false = día sin rutina
+      this.isDataReady.set(true); // Listo para mostrar el estado "sin rutina"
     }
   }
 

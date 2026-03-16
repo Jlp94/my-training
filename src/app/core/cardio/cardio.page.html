@@ -5,7 +5,7 @@
 
     @if (isLoading()) {
     <ion-row class="ion-justify-content-center ion-align-items-center spinner-centered">
-      <ion-spinner name="circles" color="tertiary"></ion-spinner>
+      <ion-spinner name="bubbles" color="tertiary"></ion-spinner>
     </ion-row>
     } @else if (cardioList().length === 0) {
     <ion-card mode="ios">
@@ -33,7 +33,7 @@
           <ion-col class="ion-no-padding ion-display-flex ion-align-items-center stat-col">
             <ion-icon name="flame-outline" color="danger" class="stat-icon"></ion-icon>
             <div class="ion-display-flex ion-flex-column stat-text-container">
-              <ion-text class="stat-value">{{ currentKcal() }}</ion-text>
+              <ion-text class="stat-value">{{ cardioService.weeklyCardioKcal() }}</ion-text>
               <ion-text color="medium" class="stat-label">/ {{ weeklyKcalTarget() }} kcal</ion-text>
             </div>
           </ion-col>

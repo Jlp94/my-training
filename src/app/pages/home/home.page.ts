@@ -117,9 +117,10 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   // Progreso de CARDIO Semanal
   weeklyCardioKcalTotal = computed(() => {
     // Si estamos en la semana actual basada en currentWeekStart, mostrar el dato real del servicio
-    // De lo contrario, no tenemos histórico en localStorage (podría mejorarse a futuro si la API lo guarda)
     const start = this.currentWeekStart();
-    const isCurrentWeek = this.getWeekNumber(start) === this.getWeekNumber(new Date());
+    const realMonday = this.getMonday(new Date());
+    
+    const isCurrentWeek = start.getTime() === realMonday.getTime();
     
     return isCurrentWeek ? this.cardioService.weeklyCardioKcal() : 0;
   });
@@ -128,12 +129,6 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
     const goal = this.cardioKcalGoal();
     return goal > 0 ? Math.min(Math.round((this.weeklyCardioKcalTotal() / goal) * 100), 100) : 0;
   });
-
-  private getWeekNumber(d: Date): number {
-    const start = new Date(d.getFullYear(), 0, 1);
-    const diff = d.getTime() - start.getTime();
-    return Math.ceil((diff / 86400000 + start.getDay()) / 7);
-  }
 
   private getMonday(d: Date): Date {
     const date = new Date(d);

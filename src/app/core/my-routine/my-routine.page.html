@@ -17,9 +17,9 @@
 
   <app-layout>
 
-    @if (hasRoutineForDay() === null) {
+    @if (!isDataReady()) {
     <ion-row class="ion-justify-content-center ion-align-items-center spinner-centered">
-      <ion-spinner name="circles" color="tertiary"></ion-spinner>
+      <ion-spinner name="bubbles" color="tertiary"></ion-spinner>
     </ion-row>
     } @else if (hasRoutineForDay()) {
     <div class="ion-padding-horizontal">

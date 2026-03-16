@@ -6,7 +6,7 @@
     <!-- Cargando -->
     @if (isLoading()) {
     <ion-row class="ion-justify-content-center ion-align-items-center loading-row">
-      <ion-spinner name="circles" color="primary"></ion-spinner>
+      <ion-spinner name="bubbles" color="tertiary"></ion-spinner>
     </ion-row>
     } @else if (noDiet()) {
     <!-- Sin dieta asignada -->
@@ -213,7 +213,7 @@
           <!-- Resultados de búsqueda Edamam -->
           @if (searching) {
           <div class="search-loading">
-            <ion-spinner name="dots" color="primary"></ion-spinner>
+            <ion-spinner name="bubbles" color="tertiary"></ion-spinner>
           </div>
           } @else if (searchResults.length > 0) {
           <div class="search-results">
