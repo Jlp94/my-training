@@ -218,6 +218,14 @@ canvas {
           font-weight: 500;
         }
       }
+      .invalid-text{
+        gap: .3rem;
+        font-size: .8rem;
+        margin-top: .2rem;
+        padding-left: .3rem;
+        border-left: 3px solid var(--ion-color-danger);
+        border-radius: .2rem;
+      }
 
       .guardar-btn {
         --border-radius: 14px;

@@ -2,14 +2,14 @@ import { Component, AfterViewInit, ViewChild, ElementRef, inject, OnDestroy, OnI
 import {
   IonContent, IonCard, IonCardHeader,
   IonCardTitle, IonCardContent, IonButton, IonIcon, IonGrid, IonRow, IonCol,
-  IonFab, IonFabButton, IonModal, IonInput, IonItem, IonLabel, IonDatetime, IonDatetimeButton
+  IonFab, IonFabButton, IonModal, IonInput, IonItem, IonLabel, IonDatetime, IonDatetimeButton, IonText
 } from '@ionic/angular/standalone';
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { Chart, registerables } from 'chart.js';
 import { addIcons } from 'ionicons';
 import {
-  chevronBackOutline, chevronForwardOutline, pencilOutline,
-  analyticsOutline, medkitOutline, body, scaleOutline, footstepsOutline, barbellOutline
+  analyticsOutline, medkitOutline, body, scaleOutline, footstepsOutline, barbellOutline, warningOutline,
+  chevronBackOutline, chevronForwardOutline, pencilOutline
 } from 'ionicons/icons';
 import { LayoutComponent } from "src/app/components/layout/layout.component";
 import { CommonModule } from '@angular/common';
@@ -30,7 +30,7 @@ Chart.register(...registerables);
   imports: [
     IonContent, IonCard, IonCardHeader,
     IonCardTitle, IonCardContent, IonButton, IonIcon, IonGrid, IonRow, IonCol,
-    IonFab, IonFabButton, IonModal, IonInput, IonItem, IonLabel, IonDatetime, IonDatetimeButton,
+    IonFab, IonFabButton, IonModal, IonInput, IonItem, IonLabel, IonDatetime, IonDatetimeButton, IonText,
     HeaderComponent, LayoutComponent, RouterLink, ReactiveFormsModule, CommonModule
   ],
 })
@@ -156,7 +156,11 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   constructor() {
-    addIcons({ chevronBackOutline, chevronForwardOutline, pencilOutline, body, medkitOutline, analyticsOutline, scaleOutline, footstepsOutline, barbellOutline });
+    addIcons({ 
+      chevronBackOutline, chevronForwardOutline, pencilOutline, 
+      body, medkitOutline, analyticsOutline, scaleOutline, 
+      footstepsOutline, barbellOutline, warningOutline 
+    });
 
     // Efecto reactivo: si cambia el progreso de cardio (ej. por cambiar currentWeekStart), actualizar el gráfico
     effect(() => {

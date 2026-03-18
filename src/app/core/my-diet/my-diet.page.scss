@@ -478,7 +478,7 @@ ion-modal.add-extra-modal {
         background: var(--ion-color-light);
         padding: 20px;
         border-radius: 16px;
-        /* If using --border-radius on modal, content should fill or handle radius */
+        box-shadow: 0 4px 16px rgba(var(--ion-color-dark-rgb), 0.25);
     }
 
     .modal-search {
@@ -486,7 +486,7 @@ ion-modal.add-extra-modal {
 
         .search-item {
             --background: var(--ion-color-light);
-            border: 1px solid var(--ion-color-light-shade);
+            border: 1px solid var(--ion-color-medium);
             border-radius: 8px;
             --padding-start: 12px;
 
@@ -518,7 +518,7 @@ ion-modal.add-extra-modal {
             overflow-y: auto;
             padding: 0;
             border-radius: 8px;
-            border: 1px solid var(--ion-color-light-shade);
+            border: 1px solid var(--ion-color-medium);
 
             .result-item {
                 --padding-start: 12px;
@@ -544,7 +544,7 @@ ion-modal.add-extra-modal {
     .modal-form {
         ion-label {
             font-size: 0.9rem;
-            color: var(--ion-color-dark);
+            color: var(--ion-color-medium);
             font-weight: 500;
             margin-bottom: 8px;
             display: block;
@@ -552,7 +552,7 @@ ion-modal.add-extra-modal {
 
         .input-item {
             --background: var(--ion-color-light);
-            border: 1px solid var(--ion-color-light-shade);
+            border: 1px solid var(--ion-color-medium);
             border-radius: 8px;
             margin-bottom: 16px;
             --padding-start: 12px;

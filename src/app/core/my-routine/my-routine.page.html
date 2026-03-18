@@ -101,15 +101,18 @@
                   <ion-row class="ion-align-items-center ion-margin-top ion-justify-content-between ion-margin-bottom">
                     <ion-col class="ion-no-padding ion-margin-end set-input-col">
                       <ion-label position="stacked" color="medium" class="input-label">Kg</ion-label>
-                      <ion-input fill="solid" type="text" inputmode="decimal" formControlName="kg" placeholder="0" class="ion-text-center"></ion-input>
+                      <ion-input fill="solid" type="text" inputmode="decimal" formControlName="kg" placeholder="0" class="ion-text-center"
+                        [class.is-invalid]="(set.get('kg')?.touched || set.get('kg')?.dirty) && set.get('kg')?.invalid"/>                    
                     </ion-col>
                     <ion-col class="ion-no-padding ion-margin-end set-input-col">
                       <ion-label position="stacked" color="medium" class="input-label">Reps</ion-label>
-                      <ion-input fill="solid" type="text" inputmode="decimal" formControlName="reps" placeholder="0" class="ion-text-center"></ion-input>
+                      <ion-input fill="solid" type="text" inputmode="decimal" formControlName="reps" placeholder="0" class="ion-text-center"
+                        [class.is-invalid]="(set.get('reps')?.touched || set.get('reps')?.dirty) && set.get('reps')?.invalid"/>
                     </ion-col>
                     <ion-col class="ion-no-padding ion-margin-end set-input-col">
                       <ion-label position="stacked" color="medium" class="input-label">Rir</ion-label>
-                      <ion-input fill="solid" type="text" inputmode="decimal" formControlName="rir" placeholder="0" class="ion-text-center"></ion-input>
+                      <ion-input fill="solid" type="text" inputmode="decimal" formControlName="rir" placeholder="0" class="ion-text-center"
+                        [class.is-invalid]="(set.get('rir')?.touched || set.get('rir')?.dirty) && set.get('rir')?.invalid"/>
                     </ion-col>
                     <ion-col class="ion-no-padding ion-text-end">
                       <ion-button fill="clear" color="warning" class="ion-margin-end ion-margin-top ion-no-padding" (click)="startTimer(i, j)">

@@ -105,13 +105,40 @@
 
             <ion-item lines="none" class="registro-input">
               <ion-label position="stacked">Pasos</ion-label>
-              <ion-input type="text" inputmode="numeric" placeholder="12000" formControlName="pasos" mode="ios"
-                fill="outline"></ion-input>
+              <ion-input 
+              type="text" 
+              inputmode="numeric" 
+              placeholder="12000" 
+              formControlName="pasos" 
+              mode="ios"
+              fill="outline"/>
+              @if (pasos && pasos.invalid && (pasos.dirty || pasos.touched)) {
+              <ion-text color="danger">
+                <small class="ion-display-flex ion-align-items-center invalid-text">
+                  <ion-icon name="warning-outline"></ion-icon>
+                  <ion-text>Los pasos no pueden ser negativos</ion-text>
+                </small>
+              </ion-text>
+              }
             </ion-item>
 
             <ion-item lines="none" class="registro-input">
               <ion-label position="stacked">Peso (kg)</ion-label>
-              <ion-input type="text" inputmode="decimal" placeholder="80" formControlName="peso" mode="ios" fill="outline"></ion-input>
+              <ion-input 
+              type="text"   
+              inputmode="decimal" 
+              placeholder="80" 
+              formControlName="peso" 
+              mode="ios"
+              fill="outline"/>
+              @if (peso && peso.invalid && (peso.dirty || peso.touched)) {
+              <ion-text color="danger" >
+                <small class="ion-display-flex ion-align-items-center invalid-text">
+                  <ion-icon name="warning-outline"></ion-icon>
+                  <ion-text>El peso no puede ser negativo</ion-text>
+                </small>
+              </ion-text>
+              }
             </ion-item>
 
             <ion-button expand="block" color="primary" class="guardar-btn" type="submit">
