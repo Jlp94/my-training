@@ -13,8 +13,8 @@ import {
 } from 'ionicons/icons';
 import { Router, RouterLink } from '@angular/router';
 import { LayoutComponent } from "src/app/components/layout/layout.component";
-import { AuthService } from 'src/app/services/auth-service';
-import { UserService } from 'src/app/services/user-service';
+import { AuthService } from 'src/app/services/auth/auth-service';
+import { UserService } from 'src/app/services/user/user-service';
 
 @Component({
   selector: 'app-user',

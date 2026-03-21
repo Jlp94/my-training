@@ -21,15 +21,15 @@ export const routes: Routes = [
           },
           {
             path: 'my-routine',
-            loadComponent: () => import('./core/my-routine/my-routine.page').then(m => m.MyRoutinePage)
+            loadComponent: () => import('./core/training/my-routine/my-routine.page').then(m => m.MyRoutinePage)
           },
           {
             path: 'exercise-library',
-            loadComponent: () => import('./core/exercise-library/exercise-library.page').then(m => m.ExerciseLibraryPage)
+            loadComponent: () => import('./core/training/exercise-library/exercise-library.page').then(m => m.ExerciseLibraryPage)
           },
           {
             path: 'cardio',
-            loadComponent: () => import('./core/cardio/cardio.page').then(m => m.CardioPage)
+            loadComponent: () => import('./core/training/cardio/cardio.page').then(m => m.CardioPage)
           },
         ]
       },
@@ -42,19 +42,19 @@ export const routes: Routes = [
           },
           {
             path: 'my-diet',
-            loadComponent: () => import('./core/my-diet/my-diet.page').then(m => m.MyDietPage)
+            loadComponent: () => import('./core/diet/my-diet/my-diet.page').then(m => m.MyDietPage)
           },
           {
             path: 'shopping-list',
-            loadComponent: () => import('./core/shopping-list/shopping-list.page').then(m => m.ShoppingListPage)
+            loadComponent: () => import('./core/diet/shopping-list/shopping-list.page').then(m => m.ShoppingListPage)
           },
           {
             path: 'supplementation',
-            loadComponent: () => import('./core/supplementation/supplementation.page').then(m => m.SupplementationPage)
+            loadComponent: () => import('./core/diet/supplementation/supplementation.page').then(m => m.SupplementationPage)
           },
           {
             path: 'food-equivalence',
-            loadComponent: () => import('./core/food-equivalence/food-equivalence.page').then(m => m.FoodEquivalencePage)
+            loadComponent: () => import('./core/diet/food-equivalence/food-equivalence.page').then(m => m.FoodEquivalencePage)
           },
         ]
       },
@@ -67,11 +67,11 @@ export const routes: Routes = [
           },
           {
             path: 'medidas',
-            loadComponent: () => import('./core/medidas/medidas.page').then(m => m.MedidasPage)
+            loadComponent: () => import('./core/user/medidas/medidas.page').then(m => m.MedidasPage)
           },
           {
             path: 'settings-user',
-            loadComponent: () => import('./core/settings-user/settings-user.page').then(m => m.SettingsUserPage)
+            loadComponent: () => import('./core/user/settings-user/settings-user.page').then(m => m.SettingsUserPage)
           },
 
 

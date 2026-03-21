@@ -1,0 +1,214 @@
+<app-header titulo="Mi Rutina" url="/tabs/training" [showBack]="true"></app-header>
+
+<ion-content class="ion-padding-bottom">
+
+  <!-- Timer flotante -->
+  <!-- Timer flotante -->
+  @if (timerService.timerRunning()) {
+  <div class="floating-timer">
+    <div class="floating-timer__info">
+      <ion-icon name="alarm-outline"></ion-icon>
+      <span>{{ timerService.timerSeconds() }}s</span>
+    </div>
+    <ion-button fill="clear" color="light" size="small" class="floating-timer__close" (click)="stopTimer()">
+      <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+  </div>
+  }
+
+  <app-layout>
+
+    @if (!isDataReady()) {
+    <ion-row class="ion-justify-content-center ion-align-items-center spinner-centered">
+      <ion-spinner name="bubbles" color="tertiary"></ion-spinner>
+    </ion-row>
+    } @else if (hasRoutineForDay()) {
+    <div class="ion-padding-horizontal">
+      <h2 class="ion-margin-bottom capitalize"><strong>{{ selectedDate() | date:'EEEE' }}</strong></h2>
+      <h6 class="ion-display-flex ion-justify-content-between ion-align-items-center">
+        <ion-row class="ion-align-items-center">
+          @if (currentSession()?.observations) {
+          <ion-button fill="clear" size="small" class="ion-no-margin ion-no-padding ion-margin-end obs-toggle-btn" (click)="showObservations.set(!showObservations())">
+            <ion-icon name="chatbubble-ellipses-outline" slot="icon-only"
+              [color]="showObservations() ? 'primary' : 'medium'"></ion-icon>
+          </ion-button>
+          }
+          <ion-text class="ion-margin-end"><strong>{{ currentSession()?.routineType }}</strong></ion-text>
+          <ion-text color="medium"><span>{{ currentSession()?.category }}</span></ion-text>
+        </ion-row>
+        <ion-datetime-button datetime="routineDatetime"></ion-datetime-button>
+      </h6>
+
+      <!-- Observaciones expandibles -->
+      @if (showObservations() && currentSession()?.observations) {
+      <ion-row class="ion-padding ion-margin-bottom ion-align-items-center observations-box">
+        <ion-icon name="information-circle-outline" color="primary" class="ion-margin-end"></ion-icon>
+        <ion-col class="ion-no-padding">
+          <ion-text color="dark"><strong>Observaciones de la sesión:</strong><br/></ion-text>
+          <ion-text color="medium" class="obs-content">{{ currentSession()?.observations }}</ion-text>
+        </ion-col>
+      </ion-row>
+      }
+    </div>
+
+    <form [formGroup]="routineForm">
+      <ion-accordion-group class="ion-margin-top">
+        <ng-container formArrayName="exercises">
+          @for (exercise of exercises.controls; track i; let i = $index) {
+          <ion-accordion [value]="'exercise-'+i" mode="ios" [formGroupName]="i">
+            <ion-item slot="header" lines="none">
+              <ion-thumbnail slot="start">
+                <div class="thumbnail-icon">
+                  <ion-icon name="barbell" color="primary"></ion-icon>
+                </div>
+              </ion-thumbnail>
+              <ion-label>
+                <ion-row class="ion-justify-content-between ion-align-items-center exercise-title-row">
+                  <ion-text class="exercise-name">{{exercise.get('name')?.value}}</ion-text>
+                  @if (exercise.get('executionType')?.value !== 'normal') {
+                  <ion-badge [color]="exercise.get('executionType')?.value === 'superset' ? 'tertiary' : exercise.get('executionType')?.value === 'restpause' ? 'warning' : 'danger'" mode="ios">
+                    {{exercise.get('executionType')?.value}}
+                  </ion-badge>
+                  }
+                </ion-row>
+                <ion-text color="medium" class="exercise-target">
+                  {{exercise.get('target')?.value}}
+                </ion-text>
+                <ion-row class="ion-align-items-center ion-margin-top exercise-info-row">
+                  <ion-text color="medium" class="info-item">
+                    <ion-icon name="timer-outline" color="primary"></ion-icon>
+                    {{exercise.get('rest')?.value || 120}}s
+                  </ion-text>
+                  <ion-text color="medium" class="info-item">
+                    <ion-text color="primary">Tempo:</ion-text> {{exercise.get('tempo')?.value || '2-1-0'}}
+                  </ion-text>
+                </ion-row>
+              </ion-label>
+            </ion-item>
+
+            <ion-grid class="ion-padding" slot="content">
+              <ng-container formArrayName="sets">
+                @for (set of getSets(i).controls; track j; let j = $index) {
+                <ion-grid  [formGroupName]="j">
+                  <ion-row class="ion-justify-content-between">
+                    <ion-text color="primary">Serie {{j+1}}</ion-text>
+                    @if (isSetCompleted(i, j)) {
+                    <ion-icon name="checkmark-circle" size="small" color="success"></ion-icon>
+                    } @else {
+                    <ion-icon name="ellipse-outline" size="small" color="light"></ion-icon>
+                    }
+                  </ion-row>
+                  
+                  <ion-row class="ion-align-items-center ion-margin-top ion-justify-content-between ion-margin-bottom">
+                    <ion-col class="ion-no-padding ion-margin-end set-input-col">
+                      <ion-label position="stacked" color="medium" class="input-label">Kg</ion-label>
+                      <ion-input fill="solid" type="text" inputmode="decimal" formControlName="kg" placeholder="0" class="ion-text-center"
+                        [class.is-invalid]="(set.get('kg')?.touched || set.get('kg')?.dirty) && set.get('kg')?.invalid"/>                    
+                    </ion-col>
+                    <ion-col class="ion-no-padding ion-margin-end set-input-col">
+                      <ion-label position="stacked" color="medium" class="input-label">Reps</ion-label>
+                      <ion-input fill="solid" type="text" inputmode="decimal" formControlName="reps" placeholder="0" class="ion-text-center"
+                        [class.is-invalid]="(set.get('reps')?.touched || set.get('reps')?.dirty) && set.get('reps')?.invalid"/>
+                    </ion-col>
+                    <ion-col class="ion-no-padding ion-margin-end set-input-col">
+                      <ion-label position="stacked" color="medium" class="input-label">Rir</ion-label>
+                      <ion-input fill="solid" type="text" inputmode="decimal" formControlName="rir" placeholder="0" class="ion-text-center"
+                        [class.is-invalid]="(set.get('rir')?.touched || set.get('rir')?.dirty) && set.get('rir')?.invalid"/>
+                    </ion-col>
+                    <ion-col class="ion-no-padding ion-text-end">
+                      <ion-button fill="clear" color="warning" class="ion-margin-end ion-margin-top ion-no-padding" (click)="startTimer(i, j)">
+                        <ion-icon name="alarm-outline" size="large" slot="icon-only"></ion-icon>
+                      </ion-button>
+                    </ion-col>
+                  </ion-row>
+                    
+                </ion-grid>
+                }
+              </ng-container>
+
+              <ion-row>
+                <ion-col>
+                  <ion-button  fill="outline"  (click)="addSet(i)">
+                    <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+                    Añadir serie
+                  </ion-button>
+                </ion-col>
+                <ion-col>
+                  @if (getSets(i).length > 1) {
+                  <ion-button  fill="solid" color="danger"  (click)="removeLastSet(i)">
+                    <ion-icon name="trash-outline" slot="start"></ion-icon>
+                    Eliminar serie
+                  </ion-button>
+                  }
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-accordion>
+          }
+        </ng-container>
+      </ion-accordion-group>
+    </form>
+
+
+    } @else {
+    <ion-row class="ion-padding ion-justify-content-center ion-align-items-center ion-text-center routine-empty-state">
+      <ion-datetime-button datetime="routineDatetime"></ion-datetime-button>
+      <ion-text color="medium" class="ion-margin-top">
+        <p>No hay rutina asignada para el <strong class="capitalize">{{ selectedDate() | date:'EEEE' }}</strong></p>
+      </ion-text>
+      <ion-text color="medium">
+        <small>Día de descanso o sin planificar</small>
+      </ion-text>
+    </ion-row>
+    }
+
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime id="routineDatetime" presentation="date" [value]="selectedDate()"
+          (ionChange)="onDateChange($event)"></ion-datetime>
+      </ng-template>
+    </ion-modal>
+
+  </app-layout>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="secondary" (click)="saveRoutine()">
+      <ion-icon name="save-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  <ion-fab vertical="bottom" horizontal="start" slot="fixed">
+    <ion-fab-button color="tertiary" (click)="showNotesModal.set(true)">
+      <ion-icon name="document-text-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <!-- Modal de notas del entreno -->
+  <ion-modal [isOpen]="showNotesModal()" (didDismiss)="showNotesModal.set(false)" class="ion-padding modal-half-height">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Notas del entreno</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="showNotesModal.set(false)">
+              <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-textarea fill="outline" label="¿Cómo ha ido la sesión?" label-placement="floating"
+          [autoGrow]="true" [rows]="5"
+          placeholder="Ej: Hoy he subido peso en press banca, me sentía con más energía..."
+          [ngModel]="workoutNotes()" (ngModelChange)="workoutNotes.set($event)">
+        </ion-textarea>
+      </ion-content>
+      <ion-footer class="ion-padding">
+        <ion-button expand="block" color="tertiary" (click)="saveNote()">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          Guardar nota
+        </ion-button>
+      </ion-footer>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

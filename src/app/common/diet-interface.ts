@@ -33,7 +33,7 @@ export interface DietMacros {
 }
 
 // Alimento de la BBDD (viene de /foods)
-export interface Alimento {
+export interface Food {
   _id: string;
   name: string;
   brand?: string;

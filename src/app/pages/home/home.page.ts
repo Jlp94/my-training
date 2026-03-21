@@ -15,10 +15,11 @@ import { LayoutComponent } from "src/app/components/layout/layout.component";
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ToastService } from 'src/app/services/toast-service';
-import { UserService } from 'src/app/services/user-service';
-import { CardioService } from 'src/app/services/cardio-service';
+import { ToastService } from 'src/app/services/ui/toast-service';
+import { UserService } from 'src/app/services/user/user-service';
 import { UserNeat } from 'src/app/common/userInterface';
+import { NeatService } from 'src/app/services/user/neat-service';
+import { CardioService } from 'src/app/services/workout/cardio-service';
 
 Chart.register(...registerables);
 
@@ -34,7 +35,7 @@ Chart.register(...registerables);
     HeaderComponent, LayoutComponent, RouterLink, ReactiveFormsModule, CommonModule
   ],
 })
-export class HomePage implements OnInit, AfterViewInit, OnDestroy {
+export class HomePage implements OnInit, OnDestroy {
 
   @ViewChild('weightChart') weightChartCanvas!: ElementRef;
   @ViewChild('stepsChart') stepsChartCanvas!: ElementRef;
@@ -42,6 +43,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
 
   private readonly toastService: ToastService = inject(ToastService);
   private readonly userService: UserService = inject(UserService);
+  public readonly neatService: NeatService = inject(NeatService);
   private readonly cardioService: CardioService = inject(CardioService);
   private readonly fb: FormBuilder = inject(FormBuilder);
 
@@ -52,12 +54,12 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
 
   // Datos del usuario (Signals)
   private userId: string = '';
-  neatLogs: WritableSignal<UserNeat[]> = signal([]);
   cardioKcalGoal: WritableSignal<number> = signal(0);
 
   // Modal de registro
   isModalOpen = false;
   maxDate: string = new Date().toISOString();
+  private viewEntered = false;
 
   registroForm: FormGroup = this.fb.group({
     fecha: [this.todayLocal(), [Validators.required]],
@@ -68,41 +70,8 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   get fecha() { return this.registroForm.get('fecha'); }
   get peso() { return this.registroForm.get('peso'); }
   get pasos() { return this.registroForm.get('pasos'); }
-
-  // Navegación semanal de pasos (Signal)
-  currentWeekStart: WritableSignal<Date> = signal(this.getMonday(new Date()));
-
-  private readonly meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-
-  weekLabel = computed(() => {
-    const start = this.currentWeekStart();
-    const end = new Date(start);
-    end.setDate(end.getDate() + 6);
-    const dStart = String(start.getDate()).padStart(2, '0');
-    const dEnd = String(end.getDate()).padStart(2, '0');
-    return `${dStart} ${this.meses[start.getMonth()]} — ${dEnd} ${this.meses[end.getMonth()]}`;
-  });
-
-  // Datos de pasos de la semana
-  weekStepsData = computed(() => {
-    const weekData: number[] = [];
-    const logs = this.neatLogs();
-    const start = this.currentWeekStart();
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(start);
-      day.setDate(day.getDate() + i);
-      const y = day.getFullYear();
-      const m = String(day.getMonth() + 1).padStart(2, '0');
-      const d = String(day.getDate()).padStart(2, '0');
-      const dateStr = `${y}-${m}-${d}`;
-      const log = logs.find(l => l.date === dateStr);
-      weekData.push(log?.steps || 0);
-    }
-    return weekData;
-  });
-
   weeklyStepsTotal = computed(() => {
-    return this.weekStepsData().reduce((sum, s) => sum + s, 0);
+    return this.neatService.weeklyStepsTotal();
   });
 
   weeklyStepsGoal = computed(() => {
@@ -117,7 +86,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   // Progreso de CARDIO Semanal
   weeklyCardioKcalTotal = computed(() => {
     // Si estamos en la semana actual basada en currentWeekStart, mostrar el dato real del servicio
-    const start = this.currentWeekStart();
+    const start = this.neatService.currentWeekStart();
     const realMonday = this.getMonday(new Date());
     
     const isCurrentWeek = start.getTime() === realMonday.getTime();
@@ -146,12 +115,12 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   prevWeek() {
-    this.currentWeekStart.update(d => new Date(d.getTime() - 7 * 86400000));
+    this.neatService.prevWeek();
     this.updateStepsChart();
   }
 
   nextWeek() {
-    this.currentWeekStart.update(d => new Date(d.getTime() + 7 * 86400000));
+    this.neatService.nextWeek();
     this.updateStepsChart();
   }
 
@@ -173,11 +142,15 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
+  }
+
+  ionViewWillEnter() {
     this.loadUserData();
   }
 
-  ngAfterViewInit() {
-    // Charts se crean después de cargar datos
+  ionViewDidEnter() {
+    this.viewEntered = true;
+    this.createAllCharts();
   }
 
   ngOnDestroy() {
@@ -198,16 +171,12 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
     this.userService.getUser().subscribe({
       next: (user) => {
         this.userId = user._id;
-        this.neatLogs.set(user.profile.neatLogs || []);
+        this.neatService.setInitialLogs(user.profile.neatLogs || []);
         this.cardioKcalGoal.set(user.profile.cardioKcalGoal || 0);
 
-        // Crear gráficas con datos reales
-        setTimeout(() => {
-          this.destroyCharts();
-          this.createWeightChart();
-          this.createStepsChart();
-          this.createProgressChart();
-        }, 100);
+        if (this.viewEntered) {
+          this.createAllCharts();
+        }
       },
       error: (err) => {
         console.error('Error cargando usuario:', err);
@@ -215,26 +184,17 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // ──── GRÁFICA DE PESO ────
-  // Últimos N registros que tengan peso
-  private getWeightData(): { labels: string[]; data: number[] } {
-    const withWeight = this.neatLogs()
-      .filter(log => log.weight != null)
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .slice(-12); // Últimos 12 registros
-
-    return {
-      labels: withWeight.map(log => {
-        const parts = log.date.split('-');
-        return `${parts[2]}/${parts[1]}`;
-      }),
-      data: withWeight.map(log => log.weight!)
-    };
+  private createAllCharts() {
+    this.destroyCharts();
+    this.createWeightChart();
+    this.createStepsChart();
+    this.createProgressChart();
   }
 
+  // ──── GRÁFICA DE PESO ────
   createWeightChart() {
     if (!this.weightChartCanvas) return;
-    const { labels, data } = this.getWeightData();
+    const { labels, data } = this.neatService.getWeightChartData();
 
     this.weightChart = new Chart(this.weightChartCanvas.nativeElement, {
       type: 'line',
@@ -259,17 +219,22 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
             grid: { color: '#f0f0f0' },
             ticks: { callback: (value) => value + ' kg' }
           },
-          x: { grid: { display: false } }
+          x: { 
+            display: true,
+            grid: { display: false },
+            ticks: {
+              autoSkip: false // Mostrar todos los días ya que ahora son cortos
+            }
+          }
         }
       }
     });
   }
 
   // ──── GRÁFICA DE PASOS ────
-  // Los datos de pasos se cogen del computed this.weekStepsData()
   createStepsChart() {
     if (!this.stepsChartCanvas) return;
-    const stepsData = this.weekStepsData();
+    const stepsData = this.neatService.weekStepsData();
 
     this.stepsChart = new Chart(this.stepsChartCanvas.nativeElement, {
       type: 'bar',
@@ -295,7 +260,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
 
   updateStepsChart() {
     if (!this.stepsChart) return;
-    this.stepsChart.data.datasets[0].data = this.weekStepsData();
+    this.stepsChart.data.datasets[0].data = this.neatService.weekStepsData();
     this.stepsChart.update();
   }
 
@@ -352,7 +317,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
 
   private loadExistingLog() {
     const fechaValue = this.registroForm.get('fecha')?.value;
-    const existing = this.neatLogs().find(l => l.date === fechaValue);
+    const existing = this.neatService.neatLogs().find(l => l.date === fechaValue);
     if (existing) {
       this.registroForm.patchValue({
         peso: existing.weight ?? null,
@@ -381,10 +346,10 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
     if (pasos) log.steps = Number(pasos);
 
     // Comprobar si ya existe un log para esa fecha → update, sino → add
-    const existingLog = this.neatLogs().find(l => l.date === fecha);
+    const existingLog = this.neatService.neatLogs().find(l => l.date === fecha);
 
     if (existingLog) {
-      this.userService.updateNeatLog(this.userId, fecha, log).subscribe({
+      this.neatService.updateNeatLog(this.userId, fecha, log).subscribe({
         next: () => {
           this.toastService.success('Registro actualizado correctamente');
           this.closeRegistroModal();
@@ -396,7 +361,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
         }
       });
     } else {
-      this.userService.addNeatLog(this.userId, log).subscribe({
+      this.neatService.addNeatLog(this.userId, log).subscribe({
         next: () => {
           this.toastService.success('Registro guardado correctamente');
           this.closeRegistroModal();
