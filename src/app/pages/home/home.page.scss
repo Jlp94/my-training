@@ -44,6 +44,30 @@ ion-card-title {
   color: var(--ion-color-medium);
 }
 
+.date-selector {
+  display: flex;
+  align-items: center;
+  background: rgba(var(--ion-color-primary-rgb), 0.1);
+  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.2);
+  border-radius: 20px;
+  padding: 0 2px; // Un poco más ajustado
+
+  span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+    margin: 0 4px;
+    white-space: nowrap;
+  }
+
+  ion-button {
+    --padding-start: 4px;
+    --padding-end: 4px;
+    height: 32px;
+    margin: 0;
+  }
+}
+
 .steps-header {
   padding-bottom: 0;
 
@@ -51,23 +75,6 @@ ion-card-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-
-    .date-selector {
-      display: flex;
-      align-items: center;
-      background: rgba(var(--ion-color-primary-rgb), 0.2);
-      border-radius: 20px;
-      padding: 0 4px;
-
-      span {
-        font-size: 0.8rem;
-        font-weight: 500;
-        color: var(--ion-color-primary);
-        margin: 0 4px;
-      }
-    }
-
   }
 }
 

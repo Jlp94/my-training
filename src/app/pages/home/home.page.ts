@@ -1,4 +1,5 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, inject, OnDestroy, OnInit, signal, computed, WritableSignal, Signal, effect } from '@angular/core';
+import { Component, ViewChild, ElementRef, inject, OnDestroy, signal, computed, effect } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import {
   IonContent, IonCard, IonCardHeader,
   IonCardTitle, IonCardContent, IonButton, IonIcon, IonGrid, IonRow, IonCol,
@@ -17,7 +18,6 @@ import { RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastService } from 'src/app/services/ui/toast-service';
 import { UserService } from 'src/app/services/user/user-service';
-import { UserNeat } from 'src/app/common/userInterface';
 import { NeatService } from 'src/app/services/user/neat-service';
 import { CardioService } from 'src/app/services/workout/cardio-service';
 
@@ -35,15 +35,15 @@ Chart.register(...registerables);
     HeaderComponent, LayoutComponent, RouterLink, ReactiveFormsModule, CommonModule
   ],
 })
-export class HomePage implements OnInit, OnDestroy {
+export class HomePage implements OnDestroy {
 
-  @ViewChild('weightChart') weightChartCanvas!: ElementRef;
-  @ViewChild('stepsChart') stepsChartCanvas!: ElementRef;
-  @ViewChild('progressChart') progressChartCanvas!: ElementRef;
+  @ViewChild('weightChart') protected weightChartCanvas!: ElementRef;
+  @ViewChild('stepsChart') protected stepsChartCanvas!: ElementRef;
+  @ViewChild('progressChart') protected progressChartCanvas!: ElementRef;
 
   private readonly toastService: ToastService = inject(ToastService);
   private readonly userService: UserService = inject(UserService);
-  public readonly neatService: NeatService = inject(NeatService);
+  protected readonly neatService: NeatService = inject(NeatService);
   private readonly cardioService: CardioService = inject(CardioService);
   private readonly fb: FormBuilder = inject(FormBuilder);
 
@@ -54,37 +54,37 @@ export class HomePage implements OnInit, OnDestroy {
 
   // Datos del usuario (Signals)
   private userId: string = '';
-  cardioKcalGoal: WritableSignal<number> = signal(0);
+  protected cardioKcalGoal = signal<number>(0);
 
   // Modal de registro
-  isModalOpen = false;
-  maxDate: string = new Date().toISOString();
+  protected isModalOpen = false;
+  protected maxDate: string = new Date().toISOString();
   private viewEntered = false;
 
-  registroForm: FormGroup = this.fb.group({
+  protected registroForm: FormGroup = this.fb.group({
     fecha: [this.todayLocal(), [Validators.required]],
     peso: [null as number | null, [Validators.min(0)]],
     pasos: [null as number | null, [Validators.min(0)]]
   });
 
-  get fecha() { return this.registroForm.get('fecha'); }
-  get peso() { return this.registroForm.get('peso'); }
-  get pasos() { return this.registroForm.get('pasos'); }
-  weeklyStepsTotal = computed(() => {
+  protected get fecha() { return this.registroForm.get('fecha'); }
+  protected get peso() { return this.registroForm.get('peso'); }
+  protected get pasos() { return this.registroForm.get('pasos'); }
+  protected weeklyStepsTotal = computed(() => {
     return this.neatService.weeklyStepsTotal();
   });
 
-  weeklyStepsGoal = computed(() => {
+  protected weeklyStepsGoal = computed(() => {
     return this.cardioKcalGoal() > 0 ? this.cardioKcalGoal() * 7 : 70000;
   });
 
-  stepsProgress = computed(() => {
+  protected stepsProgress = computed(() => {
     const goal = this.weeklyStepsGoal();
     return goal > 0 ? Math.min(Math.round((this.weeklyStepsTotal() / goal) * 100), 100) : 0;
   });
 
   // Progreso de CARDIO Semanal
-  weeklyCardioKcalTotal = computed(() => {
+  protected weeklyCardioKcalTotal = computed(() => {
     // Si estamos en la semana actual basada en currentWeekStart, mostrar el dato real del servicio
     const start = this.neatService.currentWeekStart();
     const realMonday = this.getMonday(new Date());
@@ -94,7 +94,7 @@ export class HomePage implements OnInit, OnDestroy {
     return isCurrentWeek ? this.cardioService.weeklyCardioKcal() : 0;
   });
 
-  cardioProgress = computed(() => {
+  protected cardioProgress = computed(() => {
     const goal = this.cardioKcalGoal();
     return goal > 0 ? Math.min(Math.round((this.weeklyCardioKcalTotal() / goal) * 100), 100) : 0;
   });
@@ -114,12 +114,12 @@ export class HomePage implements OnInit, OnDestroy {
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
 
-  prevWeek() {
+  protected prevWeek() {
     this.neatService.prevWeek();
     this.updateStepsChart();
   }
 
-  nextWeek() {
+  protected nextWeek() {
     this.neatService.nextWeek();
     this.updateStepsChart();
   }
@@ -139,16 +139,27 @@ export class HomePage implements OnInit, OnDestroy {
         this.progressChart.update();
       }
     });
+
+    // Efecto reactivo: cuando se carga o recarga el usuario, actualiza el estado interno
+    effect(() => {
+      const user = this.userResource.value();
+      if (user) {
+        this.userId = user._id;
+        this.neatService.setInitialLogs(user.profile.neatLogs || []);
+        this.cardioKcalGoal.set(user.profile.cardioKcalGoal || 0);
+
+        if (this.viewEntered) {
+          this.createAllCharts();
+        }
+      }
+    });
   }
 
-  ngOnInit() {
-  }
-
-  ionViewWillEnter() {
+  protected ionViewWillEnter() {
     this.loadUserData();
   }
 
-  ionViewDidEnter() {
+  protected ionViewDidEnter() {
     this.viewEntered = true;
     this.createAllCharts();
   }
@@ -167,21 +178,12 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   // Cargar usuario → neatLogs → crear gráficas
-  loadUserData() {
-    this.userService.getUser().subscribe({
-      next: (user) => {
-        this.userId = user._id;
-        this.neatService.setInitialLogs(user.profile.neatLogs || []);
-        this.cardioKcalGoal.set(user.profile.cardioKcalGoal || 0);
+  private readonly userResource = rxResource({
+    stream: () => this.userService.getUser()
+  });
 
-        if (this.viewEntered) {
-          this.createAllCharts();
-        }
-      },
-      error: (err) => {
-        console.error('Error cargando usuario:', err);
-      }
-    });
+  protected loadUserData() {
+    this.userResource.reload();
   }
 
   private createAllCharts() {

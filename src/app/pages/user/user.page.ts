@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -29,43 +30,42 @@ import { UserService } from 'src/app/services/user/user-service';
     RouterLink
   ]
 })
-export class UserPage implements OnInit {
+export class UserPage {
   private readonly router: Router = inject(Router);
   private readonly authService: AuthService = inject(AuthService);
   private readonly userService = inject(UserService);
 
+  private readonly userResource = rxResource({
+    stream: () => this.userService.getUser()
+  });
+
   // Datos del perfil
-  userName = signal('Cargando...');
-  userInitials = signal('...');
-  avatarUrl = signal<string | null>(null);
-  notifications = signal(true);
+  protected readonly userName = computed(() => {
+    const user = this.userResource.value();
+    if (!user) return 'Cargando...';
+    const name = user.profile?.name || '';
+    const lastName = user.profile?.lastName || '';
+    return `${name} ${lastName}`.trim() || 'Usuario';
+  });
+
+  protected readonly userInitials = computed(() => {
+    const user = this.userResource.value();
+    if (!user) return '...';
+    const name = user.profile?.name || '';
+    const lastName = user.profile?.lastName || '';
+    const initials = (name.charAt(0) + lastName.charAt(0)).toUpperCase();
+    return initials || 'U';
+  });
+
+  protected readonly avatarUrl = computed(() => this.userResource.value()?.profile?.avatarUrl ?? null);
+  protected readonly notifications = computed(() => this.userResource.value()?.profile?.notifications ?? true);
 
   constructor() {
     addIcons({ restaurant, cog, logOutOutline, barbell, analyticsOutline, chevronBackOutline, notificationsOutline });
   }
 
-  ngOnInit() {
-    this.loadUserData();
-  }
-
   ionViewWillEnter() {
-    this.loadUserData();
-  }
-
-  loadUserData() {
-    this.userService.getUser().subscribe({
-      next: (user) => {
-        const name = user.profile?.name || '';
-        const lastName = user.profile?.lastName || '';
-        this.userName.set(`${name} ${lastName}`.trim() || 'Usuario');
-        const initials = (name.charAt(0) + lastName.charAt(0)).toUpperCase();
-        this.userInitials.set(initials || 'U');
-        if (user.profile?.avatarUrl) {
-          this.avatarUrl.set(user.profile.avatarUrl);
-        }
-        this.notifications.set(user.profile?.notifications ?? true);
-      }
-    });
+    this.userResource.reload();
   }
 
   logout() {

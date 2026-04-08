@@ -1,5 +1,5 @@
-import { Component, OnInit, signal, computed, WritableSignal, inject } from '@angular/core';
-
+import { Component, signal, computed, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import {
   IonContent,
   IonItem,
@@ -51,30 +51,21 @@ import { FormsModule } from '@angular/forms';
     IonCardContent
   ]
 })
-export class ExerciseLibraryPage implements OnInit {
+export class ExerciseLibraryPage {
   private readonly exercisesService: ExercisesService = inject(ExercisesService);
 
-  searchTerm: WritableSignal<string> = signal<string>('');
+  private readonly searchTerm = signal<string>('');
 
-  // Ejercicios cargados desde la API
-  exercises: WritableSignal<Ejercicio[]> = signal<Ejercicio[]>([]);
-  isLoading = signal(true);
+  // Ejercicios cargados desde la API mediante rxResource
+  private readonly exercisesResource = rxResource({
+    stream: () => this.exercisesService.findAll()
+  });
+
+  protected readonly exercises = computed(() => this.exercisesResource.value() ?? []);
+  protected readonly isLoading = this.exercisesResource.isLoading;
 
   constructor() {
     addIcons({ barbell, logoYoutube });
-  }
-
-  // Carga los ejercicios de la API al iniciar
-  ngOnInit() {
-    this.exercisesService.findAll().subscribe({
-      next: (ejercicios) => {
-        this.exercises.set(ejercicios);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-      }
-    });
   }
 
   // Signal computada que filtra ejercicios por nombre, categoría, equipamiento o etiquetas

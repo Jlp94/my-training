@@ -3,7 +3,7 @@
 // Rutina principal (MicroCiclo)
 export interface Rutina {
   _id: string;
-  userId: string;
+  userIds: string[];
   name: string;
   isActive: boolean;
   sessions: SesionRutina[];

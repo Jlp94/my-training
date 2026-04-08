@@ -1,4 +1,5 @@
-import { Component, OnInit, signal, computed, inject, WritableSignal } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -26,26 +27,45 @@ import { Cardio } from 'src/app/common/cardio-interface';
     IonSelect, IonSelectOption, IonItem,
   ]
 })
-export class CardioPage implements OnInit {
+export class CardioPage {
   private readonly toastService: ToastService = inject(ToastService);
-  public readonly cardioService: CardioService = inject(CardioService);
+  protected readonly cardioService: CardioService = inject(CardioService);
   private readonly userService: UserService = inject(UserService);
   
   constructor() {
     addIcons({ timeOutline, flameOutline, heartOutline, speedometerOutline, saveOutline, bicycleOutline, walkOutline, trendingUpOutline });
   }
 
-  cardioList: WritableSignal<Cardio[]> = signal<Cardio[]>([]);
-  isLoading = signal(true);
-  weeklyKcalTarget = signal(0);
+  // Cargar cardios de la API
+  private readonly cardiosResource = rxResource({
+    stream: () => this.cardioService.findAll()
+  });
+
+  // Cargar objetivo semanal de kcal del perfil del usuario
+  private readonly profileResource = rxResource({
+    stream: () => this.userService.getProfile()
+  });
+
+  protected readonly cardioList = computed(() => {
+    const cardios = this.cardiosResource.value() ?? [];
+    if (cardios.length > 0 && !this.selectedCardioId()) {
+      // Configuracion por default
+      this.selectedCardioId.set(cardios[0]._id);
+    }
+    return cardios;
+  });
+
+  protected readonly isLoading = computed(() => this.cardiosResource.isLoading() || this.profileResource.isLoading());
+  
+  protected readonly weeklyKcalTarget = computed(() => this.profileResource.value()?.cardioKcalGoal ?? 0);
 
   // Señales — Registro (solo lo que introduce el cliente)
-  selectedCardioId = signal<string>('');
-  duracion = signal<number | null>(null);
+  protected selectedCardioId = signal<string>('');
+  protected duracion = signal<number | null>(null);
 
   // Computed — Config actual según ID seleccionado
   configActual = computed(() =>
-    this.cardioList().find(cardio => cardio._id === this.selectedCardioId())!
+    this.cardioList().find((cardio: Cardio) => cardio._id === this.selectedCardioId())!
   );
 
   // Computed — Icono según tipo (cinta → walk, bici → bicycle, resto → speedometer)
@@ -92,35 +112,6 @@ export class CardioPage implements OnInit {
     if (!config) return 0;
     return Math.round(min * config.kcalMin);
   });
-
-
-  // Carga las configuraciones de cardio y el objetivo del usuario
-  ngOnInit() {
-    // Cargar cardios de la API
-    this.cardioService.findAll().subscribe({
-      next: (cardios) => {
-        this.cardioList.set(cardios);
-        if (cardios.length > 0) {
-          this.selectedCardioId.set(cardios[0]._id);
-        }
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-      }
-    });
-
-    // Cargar objetivo semanal de kcal del perfil del usuario
-    this.userService.getProfile().subscribe({
-      next: (profile) => {
-        const goal = profile.cardioKcalGoal || 0;
-        this.weeklyKcalTarget.set(goal);
-      },
-      error: (err) => {
-        console.error('Error cargando perfil:', err);
-      }
-    });
-  }
 
   // Cambiar tipo de cardio
   cambiarTipoCardio(event: any) {
