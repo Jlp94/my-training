@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, catchError, of, map, timeout } from 'rxjs';
 import { LoginResponse } from '../../common/auth-interface';
 
 @Injectable({
@@ -37,9 +37,35 @@ export class AuthService {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  // Comprueba si el usuario está autenticado
+  // Comprueba si el usuario tiene un token válido (no expirado)
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) return false;
+    return !this.isTokenExpired(token);
+  }
+
+  // Comprueba si el token JWT ha expirado decodificando el payload
+  isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // exp está en segundos, Date.now() en milisegundos
+      const expirationDate = payload.exp * 1000;
+      return Date.now() >= expirationDate;
+    } catch {
+      // Si el token es malformado, lo consideramos expirado
+      return true;
+    }
+  }
+
+  // Ping al servidor para comprobar si está vivo (cold start de Render)
+  pingServer(): Observable<boolean> {
+    // Construimos la URL del health endpoint (sin el prefijo /my-training/v1)
+    const baseUrl = this.apiUrl.replace('/my-training/v1', '');
+    return this.http.get<{ status: string }>(`${baseUrl}/my-training/v1/health`).pipe(
+      timeout(25000), // Timeout generoso para el cold start de Render
+      map(() => true),
+      catchError(() => of(false))
+    );
   }
 
   // Cierra sesión eliminando el token

@@ -8,9 +8,9 @@ ion-card-content {
 }
 
 .custom-avatar{
-  width: 120px;  
-  height: 120px;
-  --border-radius: 50%; 
+    width: 120px;  
+    height: 120px;
+    --border-radius: 50%; 
 }
 
 .subtitle {
@@ -58,4 +58,34 @@ ion-card-content {
             color: var(--ion-color-medium);
         }
     }
+}
+
+// Overlay de espera del servidor (cold start de Render)
+.server-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  margin-bottom: 16px;
+  text-align: center;
+
+  ion-spinner {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 16px;
+  }
+
+  .server-message {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin: 0 0 8px;
+  }
+
+  .server-hint {
+    font-size: 0.8rem;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
 }

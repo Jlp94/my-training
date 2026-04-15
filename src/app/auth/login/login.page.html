@@ -2,7 +2,15 @@
 
   <app-layout>
 
-   
+    <!-- Overlay de carga del servidor -->
+    @if (checkingServer() && !serverReady()) {
+      <div class="server-overlay">
+        <ion-spinner name="crescent" color="secondary"></ion-spinner>
+        <p class="server-message">{{ serverMessage() }}</p>
+        <p class="server-hint">El servidor puede tardar unos segundos en responder</p>
+      </div>
+    }
+
       <ion-card-content class="ion-text-center">
         <div class="ion-display-flex ion-justify-content-center">
           <ion-avatar class="ion-margin-bottom custom-avatar">
@@ -32,8 +40,13 @@
             <ion-label>Recordarme</ion-label>
           </div>
 
-          <ion-button expand="block" shape="round" (click)='onLogin()' color="secondary">
-            Entrar
+          <ion-button expand="block" shape="round" (click)='onLogin()' color="secondary"
+            [disabled]="!serverReady() || isLoggingIn()">
+            @if (isLoggingIn()) {
+              <ion-spinner name="dots" color="light"></ion-spinner>
+            } @else {
+              Entrar
+            }
           </ion-button>
         </div>
       </ion-card-content>
