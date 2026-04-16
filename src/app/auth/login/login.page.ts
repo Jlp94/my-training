@@ -14,8 +14,8 @@ import { mailOutline, lockClosedOutline } from 'ionicons/icons';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonSpinner, IonText, IonAvatar, IonImg, IonContent, IonItem, IonInput, IonCheckbox,
-    IonButton, IonCardContent, IonLabel, CommonModule, FormsModule, LayoutComponent, IonIcon]
+  imports: [IonAvatar, IonImg, IonContent, IonItem, IonInput, IonCheckbox,
+    IonButton, IonCardContent, IonLabel, CommonModule, FormsModule, LayoutComponent, IonIcon, IonSpinner]
 })
 export class LoginPage implements OnInit {
   private readonly toastService: ToastService = inject(ToastService);
@@ -30,8 +30,6 @@ export class LoginPage implements OnInit {
 
   // Estado del servidor (cold start de Render)
   protected readonly serverReady = signal(false);
-  protected readonly checkingServer = signal(true);
-  protected readonly serverMessage = signal('Conectando con el servidor...');
   protected readonly isLoggingIn = signal(false);
 
   private readonly REMEMBER_KEY = 'remember_email';
@@ -47,12 +45,6 @@ export class LoginPage implements OnInit {
       return;
     }
 
-    // Si viene del guard con servidor caído
-    const serverDown = this.route.snapshot.queryParamMap.get('serverDown');
-    if (serverDown === 'true') {
-      this.serverMessage.set('El servidor se está despertando...');
-    }
-
     // Cargar email recordado
     const savedEmail = localStorage.getItem(this.REMEMBER_KEY);
     if (savedEmail) {
@@ -64,17 +56,14 @@ export class LoginPage implements OnInit {
     this.pingServer();
   }
 
-  // Hace ping al servidor para verificar si está preparado
+  // Hace ping al servidor silenciosamente
   private pingServer() {
-    this.checkingServer.set(true);
     this.authService.pingServer().subscribe({
       next: (isAlive) => {
         this.serverReady.set(isAlive);
-        this.checkingServer.set(false);
         if (!isAlive) {
-          this.serverMessage.set('No se pudo conectar. Reintentando...');
-          // Reintentar automáticamente cada 3 segundos
-          setTimeout(() => this.pingServer(), 3000);
+          // Reintentar silenciosamente cada 5 segundos
+          setTimeout(() => this.pingServer(), 5000);
         }
       }
     });
@@ -91,21 +80,38 @@ export class LoginPage implements OnInit {
     }
 
     this.isLoggingIn.set(true);
+
+    // Programamos un aviso diferido de 2.5s: Solo si la petición tarda (Cold Start)
+    // Mostramos el aviso solo si en ese momento seguimos intentando loguear.
+    const coldStartTimer = setTimeout(() => {
+      if (this.isLoggingIn() && !this.serverReady()) {
+        this.toastService.warning('Conectando... El servidor se está despertando (Cold Start).', 5000);
+      }
+    }, 2500);
+
     this.authService.login(correo, clave).subscribe({
-      next: () => {
+      next: (res) => {
+        clearTimeout(coldStartTimer);
+        
         // Guardar o borrar email según el checkbox
         if (this.rememberMe()) {
           localStorage.setItem(this.REMEMBER_KEY, correo);
         } else {
           localStorage.removeItem(this.REMEMBER_KEY);
         }
+        
         this.isLoggingIn.set(false);
+        this.authService.setServerUp(true); // Informamos al servicio de que el servidor está OK
+        this.serverReady.set(true); 
         this.toastService.success('¡Bienvenido de nuevo!');
         this.router.navigate(['/tabs/home']);
       },
       error: (err) => {
+        clearTimeout(coldStartTimer);
         this.isLoggingIn.set(false);
-        const mensaje = err.error?.message || 'Credenciales inválidas';
+        
+        // El error solo salta si hay una respuesta de error real o timeout
+        const mensaje = err.error?.message || 'Error de conexión o credenciales inválidas';
         this.toastService.error(mensaje);
       }
     });

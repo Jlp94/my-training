@@ -26,4 +26,7 @@ export class ToastService {
     await this.cargarToast(message, 3000, 'danger');
   }
 
+  async warning(message: string, duration: number = 3000) {
+    await this.cargarToast(message, duration, 'warning');
+  }
 }

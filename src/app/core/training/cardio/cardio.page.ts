@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, effect } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -34,6 +34,14 @@ export class CardioPage {
   
   constructor() {
     addIcons({ timeOutline, flameOutline, heartOutline, speedometerOutline, saveOutline, bicycleOutline, walkOutline, trendingUpOutline });
+
+    // Efecto para la selección por defecto (evita NG0600)
+    effect(() => {
+      const cardios = this.cardiosResource.value();
+      if (cardios && cardios.length > 0 && !this.selectedCardioId()) {
+        this.selectedCardioId.set(cardios[0]._id);
+      }
+    });
   }
 
   // Cargar cardios de la API
@@ -46,14 +54,7 @@ export class CardioPage {
     stream: () => this.userService.getProfile()
   });
 
-  protected readonly cardioList = computed(() => {
-    const cardios = this.cardiosResource.value() ?? [];
-    if (cardios.length > 0 && !this.selectedCardioId()) {
-      // Configuracion por default
-      this.selectedCardioId.set(cardios[0]._id);
-    }
-    return cardios;
-  });
+  protected readonly cardioList = computed(() => this.cardiosResource.value() ?? []);
 
   protected readonly isLoading = computed(() => this.cardiosResource.isLoading() || this.profileResource.isLoading());
   

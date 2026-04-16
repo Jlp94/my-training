@@ -53,11 +53,6 @@ ion-content {
     margin: 12px 0 4px;
 }
 
-ion-datetime-button {
-    --background: transparent;
-}
-
-
 
 .obs-toggle-btn {
     --padding-start: 2px;
@@ -157,14 +152,6 @@ ion-accordion {
     }
 }
 
-
-
-
-
-
-
-
-
 // Etiqueta de la serie ("Serie 1")
 .set-label {
     font-weight: 600;
@@ -193,13 +180,27 @@ ion-modal {
 }
 
 ion-datetime-button {
+    margin: 0;
     &::part(native) {
         background: transparent;
-        padding: .1rem;
+        padding: 0.2rem 0.8rem;
         color: var(--ion-color-primary);
-        box-shadow: 0px 2px 4px 1px rgba(var(--ion-color-primary-shade-rgb), 0.2);
+        font-weight: 600;
+        border-radius: 10px;
+        border: 1px solid rgba(var(--ion-color-primary-rgb), 0.2);
+        box-shadow: 0px 4px 10px rgba(var(--ion-color-primary-rgb), 0.3);
+        transition: all 0.2s ease-in-out;
     }
-}.modal-half-height { --height: 50%; }
+
+    &:active::part(native) {
+        transform: scale(0.96);
+        opacity: 0.8;
+    }
+}
+
+.modal-half-height {
+    --height: 50%;
+}
 
 ion-input.is-invalid {
     border-color: var(--ion-color-danger);
