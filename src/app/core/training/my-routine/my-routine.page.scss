@@ -2,7 +2,6 @@ ion-content {
     background: var(--ion-color-light);
 }
 
-// Timer flotante
 .floating-timer {
     position: sticky;
     top: 0;
@@ -38,21 +37,16 @@ ion-content {
     50% { opacity: 0.7; }
 }
 
-// Texto capitalizado (sustituye style inline)
 .capitalize {
     text-transform: capitalize;
 }
 
-
-
-// Título del día de la semana
 .day-title {
     font-size: 1.4rem;
     font-weight: 800;
     color: var(--ion-text-color);
     margin: 12px 0 4px;
 }
-
 
 .obs-toggle-btn {
     --padding-start: 2px;
@@ -65,10 +59,9 @@ ion-content {
     }
 }
 
-// Acordeón y Lista de Ejercicios
 ion-accordion-group {
     background: var(--ion-color-light);
-    margin-bottom: 80px; // Espacio para el footer fijo
+    margin-bottom: 80px;
     border-radius: 12px;
 }
 
@@ -82,7 +75,6 @@ ion-accordion {
     }
 }
 
-// Icono del ejercicio en la cabecera
 .thumbnail-icon {
     background: var(--ion-color-light);
     width: 100%;
@@ -97,7 +89,6 @@ ion-accordion {
     }
 }
 
-// Estados de carga y vacío
 .spinner-centered {
     height: 50vh;
 }
@@ -107,7 +98,6 @@ ion-accordion {
     flex-direction: column;
 }
 
-// Observaciones
 .observations-box {
     background: var(--ion-color-light);
     border-radius: 10px;
@@ -118,7 +108,6 @@ ion-accordion {
     }
 }
 
-// Info de ejercicio (nombre, target, tempo)
 .exercise-title-row {
     .exercise-name {
         font-size: 15px;
@@ -143,7 +132,6 @@ ion-accordion {
     }
 }
 
-// Inputs de series
 .set-input-col {
     .input-label {
         font-size: 11px;
@@ -152,7 +140,6 @@ ion-accordion {
     }
 }
 
-// Etiqueta de la serie ("Serie 1")
 .set-label {
     font-weight: 600;
     color: var(--ion-color-medium);

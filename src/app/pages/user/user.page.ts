@@ -39,7 +39,6 @@ export class UserPage {
     stream: () => this.userService.getUser()
   });
 
-  // Datos del perfil
   protected readonly userName = computed(() => {
     const user = this.userResource.value();
     if (!user) return 'Cargando...';
@@ -72,5 +71,4 @@ export class UserPage {
    this.authService.logout();
    this.router.navigate(['/login']);
   }
-
 }

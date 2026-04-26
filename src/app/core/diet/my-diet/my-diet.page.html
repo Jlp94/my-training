@@ -3,13 +3,11 @@
 <ion-content>
   <app-layout>
 
-    <!-- Cargando -->
     @if (dietStateService.isLoading()) {
     <ion-row class="ion-justify-content-center ion-align-items-center loading-row">
       <ion-spinner name="bubbles" color="tertiary"></ion-spinner>
     </ion-row>
     } @else if (dietStateService.noDiet()) {
-    <!-- Sin dieta asignada -->
     <ion-card mode="ios" class="empty-state-card">
       <ion-card-content class="ion-text-center ion-padding">
         <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
@@ -18,7 +16,6 @@
       </ion-card-content>
     </ion-card>
     } @else {
-    <!-- Dashboard Progreso Semanal de Calorías -->
     <ion-card class="weekly-card" mode="ios">
       <ion-card-header>
         <div class="weekly-header">
@@ -50,11 +47,9 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Macros Card -->
     <ion-card class="macros-card" mode="ios">
       <ion-card-content>
 
-        <!-- Fila: info izquierda, chart derecha -->
         <div class="macros-top">
           <div class="macros-info">
             <div class="macros-title-row">
@@ -82,7 +77,6 @@
           </div>
         </div>
 
-        <!-- Barras de progreso macros -->
         <div class="macro-bars">
           <div class="macro-bar">
             <div class="macro-bar__header">
@@ -115,7 +109,6 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Meal Cards Loop -->
     @for (meal of dietStateService.meals(); track meal.name; let idx = $index) {
     <ion-card class="meal-card" mode="ios">
       <ion-card-header class="ion-display-flex ion-align-items-center">
@@ -146,7 +139,6 @@
         </ion-list>
       </ion-card-content>
 
-      <!-- Macros de la comida -->
       <ion-footer class="ion-text-center ion-padding-bottom">
         <div class="meal-macros-summary ion-display-flex ion-justify-content-evenly">
           <ion-text color="primary"><span class="macro protein">P: {{ meal.totalMacros.protein }}g</span></ion-text>
@@ -157,7 +149,6 @@
     </ion-card>
     }
 
-    <!-- Extras Section -->
     <div class="extras-section ion-padding">
       <div class="extras-header">
         <h3>Extras del día</h3>
@@ -196,7 +187,6 @@
       }
     </div>
 
-    <!-- Modal añadir extra -->
     <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpen(false)" class="add-extra-modal">
       <ng-template>
         <div class="modal-content">
@@ -210,7 +200,6 @@
             </ion-button>
           </div>
 
-          <!-- Resultados de búsqueda Edamam -->
           @if (searching) {
           <div class="search-loading">
             <ion-spinner name="bubbles" color="tertiary"></ion-spinner>
@@ -269,15 +258,15 @@
 
             <div class="modal-actions">
               <ion-button expand="block" color="success" class="add-btn" (click)="addExtra()">Agregar</ion-button>
-              <ion-button expand="block" color="danger" fill="outline" class="cancel-btn"
-                (click)="setOpen(false)">Cancelar</ion-button>
-            </div>
+                <ion-button expand="block" color="danger" fill="outline" class="cancel-btn"
+                  (click)="setOpen(false)">Cancelar</ion-button>
+              </div>
           </div>
         </div>
       </ng-template>
     </ion-modal>
 
-    } <!-- end @else (tiene dieta) -->
+    }
 
   </app-layout>
 

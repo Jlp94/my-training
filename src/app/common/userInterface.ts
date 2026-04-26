@@ -1,4 +1,3 @@
-// Interfaz principal del usuario (sincronizada con API)
 export interface User {
     _id: string;
     email: string;
@@ -7,7 +6,6 @@ export interface User {
     profile: UserProfile;
 }
 
-// Perfil del usuario
 export interface UserProfile {
     name: string;
     lastName: string;
@@ -26,7 +24,6 @@ export interface UserProfile {
     workoutLogs: WorkoutLog[];
 }
 
-// Los objetivos marcados por el entrenador (en gramos absolutos)
 export interface UserMacros {
     targetKcal: number;
     protein: number;
@@ -34,21 +31,18 @@ export interface UserMacros {
     fat: number;
 }
 
-// Seguimiento del progreso (peso/pasos)
 export interface UserNeat {
     date: string;
     weight?: number;
     steps?: number;
 }
 
-// Log de dieta
 export interface DietLog {
     startDate: string;
     macros?: UserMacros;
     notes?: string;
 }
 
-// Log de ejercicio dentro de un workout
 export interface ExerciseLog {
     exerciseId: string;
     name: string;
@@ -56,7 +50,6 @@ export interface ExerciseLog {
     sets: { kg: number; reps: number; rir: number }[];
 }
 
-// Log de entrenamiento
 export interface WorkoutLog {
     doneAt: string;
     routineId: string;

@@ -36,17 +36,14 @@ import { firstValueFrom } from 'rxjs';
   ]
 })
 export class MyRoutinePage implements OnInit {
-// Injecciones
   private readonly userService: UserService = inject(UserService); 
   public readonly timerService: TimerService = inject(TimerService);
   public readonly workoutService: WorkoutService = inject(WorkoutService);
   public readonly workoutFormService: WorkoutFormService = inject(WorkoutFormService);
   private readonly toastService: ToastService = inject(ToastService);
 
-  // Formulario
   routineForm: FormGroup = this.workoutFormService.createWorkoutForm({ exercises: [] } as any);
 
-  // Variables 
   currentRoutineId = signal<string>('');
   currentSession = signal<SesionRutina | null>(null);
   selectedDate = signal<string>((() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })());
@@ -64,7 +61,6 @@ export class MyRoutinePage implements OnInit {
     this.loadRoutine();
   }
 
-  // Cuando el usuario cambia la fecha
   onDateChange(event: any) {
     const val = event?.detail?.value || event;
     if (typeof val === 'string') {
@@ -73,7 +69,6 @@ export class MyRoutinePage implements OnInit {
     }
   }
 
-
   get exercises() {
     return this.routineForm.get('exercises') as FormArray;
   }
@@ -81,7 +76,6 @@ export class MyRoutinePage implements OnInit {
   getSets(exerciseIndex: number) {
     return this.exercises.at(exerciseIndex).get('sets') as FormArray;
   }
-
 
   async loadRoutine() {
     this.exercises.clear();
@@ -100,7 +94,6 @@ export class MyRoutinePage implements OnInit {
       this.currentSession.set(data.session);
       this.hasRoutineForDay.set(true);
 
-      // Delegamos la construcción del formulario al servicio especializado
       this.routineForm = this.workoutFormService.createWorkoutForm(data.session, data.existingLog);
       this.isDataReady.set(true);
 
@@ -126,10 +119,6 @@ export class MyRoutinePage implements OnInit {
     return this.workoutFormService.isSetCompleted(this.exercises, exerciseIndex, setIndex);
   }
 
-
-  // ==========================================
-  // Timer y Alarma (Ahora delegados al TimerService)
-  // ==========================================
   startTimer(exerciseIndex: number, setIndex: number) {
     const ejercicio = this.exercises.at(exerciseIndex).value;
     const tiempoDescanso = ejercicio.rest || 120;
@@ -140,11 +129,6 @@ export class MyRoutinePage implements OnInit {
     this.timerService.stopTimer();
   }
 
-
-
-  // ==========================================
-  // Lógica de Guardado (WorkoutLogs)
-  // ==========================================
   async saveRoutine() {
     if (!this.hasRoutineForDay() || !this.currentSession()) {
       this.toastService.error('No hay rutina que guardar para hoy');
@@ -192,5 +176,4 @@ export class MyRoutinePage implements OnInit {
       this.showNotesModal.set(false);
     }
   }
-
 }

@@ -37,7 +37,6 @@ export class SettingsUserPage implements OnInit {
   private readonly alertCtrl = inject(AlertController);
   private readonly cloudinaryService = inject(CloudinaryService);
 
-  // Estado
   isLoading = signal(true);
   userId = signal('');
   email = signal('');
@@ -58,7 +57,6 @@ export class SettingsUserPage implements OnInit {
     this.loadData();
   }
 
-  // Carga el usuario actual y la lista de alimentos
   loadData() {
     this.userService.getUser().subscribe({
       next: (user) => {
@@ -84,7 +82,6 @@ export class SettingsUserPage implements OnInit {
     });
   }
 
-  // Añade o quita un alimento de favoritos
   toggleFood(foodId: string) {
     const current = this.favoriteFoodIds();
     if (current.includes(foodId)) {
@@ -94,7 +91,6 @@ export class SettingsUserPage implements OnInit {
     }
   }
 
-  // Comprueba si un alimento es favorito
   isFavorite(foodId: string): boolean {
     return this.favoriteFoodIds().includes(foodId);
   }
@@ -120,7 +116,6 @@ export class SettingsUserPage implements OnInit {
         this.isUploading.set(false);
         this.toastService.success('Foto subida correctamente');
 
-        // Guardar la URL en el perfil del usuario
         this.userService.update(this.userId(), { avatarUrl: url } as any).subscribe({
           next: () => {},
           error: () => this.toastService.error('Error al guardar la foto en el perfil')
@@ -133,7 +128,6 @@ export class SettingsUserPage implements OnInit {
     });
   }
 
-  // Guardar cambios
   async saveSettings() {
     const payload: any = {
       email: this.email(),
@@ -141,7 +135,6 @@ export class SettingsUserPage implements OnInit {
       notifications: this.notifications()
     };
 
-    // Si hay contraseña → confirmar antes de guardar
     if (this.password().trim() !== '') {
       const alert = await this.alertCtrl.create({
         header: 'Cambiar contraseña',
@@ -174,4 +167,3 @@ export class SettingsUserPage implements OnInit {
     });
   }
 }
-

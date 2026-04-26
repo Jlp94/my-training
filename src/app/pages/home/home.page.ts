@@ -47,16 +47,13 @@ export class HomePage implements OnDestroy {
   private readonly cardioService: CardioService = inject(CardioService);
   private readonly fb: FormBuilder = inject(FormBuilder);
 
-  // Instancias de charts
   private weightChart: Chart | null = null;
   private stepsChart: Chart | null = null;
   private progressChart: Chart | null = null;
 
-  // Datos del usuario (Signals)
   private userId: string = '';
   protected cardioKcalGoal = signal<number>(0);
 
-  // Modal de registro
   protected isModalOpen = false;
   protected maxDate: string = new Date().toISOString();
   private viewEntered = false;
@@ -83,9 +80,7 @@ export class HomePage implements OnDestroy {
     return goal > 0 ? Math.min(Math.round((this.weeklyStepsTotal() / goal) * 100), 100) : 0;
   });
 
-  // Progreso de CARDIO Semanal
   protected weeklyCardioKcalTotal = computed(() => {
-    // Si estamos en la semana actual basada en currentWeekStart, mostrar el dato real del servicio
     const start = this.neatService.currentWeekStart();
     const realMonday = this.getMonday(new Date());
     
@@ -108,7 +103,6 @@ export class HomePage implements OnDestroy {
     return date;
   }
 
-  // Fecha local en formato YYYY-MM-DD (evita desfase UTC)
   private todayLocal(): string {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -131,7 +125,6 @@ export class HomePage implements OnDestroy {
       footstepsOutline, barbellOutline, warningOutline 
     });
 
-    // Efecto reactivo: si cambia el progreso de cardio (ej. por cambiar currentWeekStart), actualizar el gráfico
     effect(() => {
       const progress = this.cardioProgress();
       if (this.progressChart) {
@@ -140,7 +133,6 @@ export class HomePage implements OnDestroy {
       }
     });
 
-    // Efecto reactivo: cuando se carga o recarga el usuario, actualiza el estado interno
     effect(() => {
       const user = this.userResource.value();
       if (user) {
@@ -177,7 +169,6 @@ export class HomePage implements OnDestroy {
     this.progressChart = null;
   }
 
-  // Cargar usuario → neatLogs → crear gráficas
   private readonly userResource = rxResource({
     stream: () => this.userService.getUser()
   });
@@ -193,7 +184,6 @@ export class HomePage implements OnDestroy {
     this.createProgressChart();
   }
 
-  // ──── GRÁFICA DE PESO ────
   createWeightChart() {
     if (!this.weightChartCanvas) return;
     const { labels, data } = this.neatService.getWeightChartData();
@@ -225,7 +215,7 @@ export class HomePage implements OnDestroy {
             display: true,
             grid: { display: false },
             ticks: {
-              autoSkip: false // Mostrar todos los días ya que ahora son cortos
+              autoSkip: false 
             }
           }
         }
@@ -233,7 +223,6 @@ export class HomePage implements OnDestroy {
     });
   }
 
-  // ──── GRÁFICA DE PASOS ────
   createStepsChart() {
     if (!this.stepsChartCanvas) return;
     const stepsData = this.neatService.weekStepsData();
@@ -266,7 +255,6 @@ export class HomePage implements OnDestroy {
     this.stepsChart.update();
   }
 
-  // ──── GRÁFICA DE PROGRESO ────
   createProgressChart() {
     if (!this.progressChartCanvas) return;
 
@@ -274,7 +262,6 @@ export class HomePage implements OnDestroy {
       type: 'doughnut',
       data: {
         datasets: [{
-          // Ahora muestra el progreso de CARDIO, no el de pasos
           data: [this.cardioProgress(), 100 - this.cardioProgress()],
           backgroundColor: ['#ffc409', '#f0f0f0'],
           borderWidth: 0
@@ -292,7 +279,6 @@ export class HomePage implements OnDestroy {
     });
   }
 
-  // ──── MODAL ────
   openRegistroModal() {
     this.isModalOpen = true;
     this.loadExistingLog();
@@ -307,7 +293,6 @@ export class HomePage implements OnDestroy {
     });
   }
 
-  // Al cambiar la fecha → cargar datos existentes si los hay
   onDateChange(event: any) {
     const isoValue = event.detail.value;
     if (isoValue) {
@@ -347,7 +332,6 @@ export class HomePage implements OnDestroy {
     if (peso) log.weight = Number(peso);
     if (pasos) log.steps = Number(pasos);
 
-    // Comprobar si ya existe un log para esa fecha → update, sino → add
     const existingLog = this.neatService.neatLogs().find(l => l.date === fecha);
 
     if (existingLog) {

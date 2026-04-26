@@ -28,7 +28,6 @@ export class LoginPage implements OnInit {
   showPassword = signal(false);
   rememberMe = signal(false);
 
-  // Estado del servidor (cold start de Render)
   protected readonly serverReady = signal(false);
   protected readonly isLoggingIn = signal(false);
 
@@ -39,37 +38,31 @@ export class LoginPage implements OnInit {
   }
 
   ngOnInit() {
-    // Si ya hay token válido, redirige a home
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/tabs/home']);
       return;
     }
 
-    // Cargar email recordado
     const savedEmail = localStorage.getItem(this.REMEMBER_KEY);
     if (savedEmail) {
       this.email.set(savedEmail);
       this.rememberMe.set(true);
     }
 
-    // Ping silencioso al servidor
     this.pingServer();
   }
 
-  // Hace ping al servidor silenciosamente
   private pingServer() {
     this.authService.pingServer().subscribe({
       next: (isAlive) => {
         this.serverReady.set(isAlive);
         if (!isAlive) {
-          // Reintentar silenciosamente cada 5 segundos
           setTimeout(() => this.pingServer(), 5000);
         }
       }
     });
   }
 
-  // Envía las credenciales al backend y guarda el token
   onLogin() {
     const correo = this.email();
     const clave = this.password();
@@ -81,8 +74,6 @@ export class LoginPage implements OnInit {
 
     this.isLoggingIn.set(true);
 
-    // Programamos un aviso diferido de 2.5s: Solo si la petición tarda (Cold Start)
-    // Mostramos el aviso solo si en ese momento seguimos intentando loguear.
     const coldStartTimer = setTimeout(() => {
       if (this.isLoggingIn() && !this.serverReady()) {
         this.toastService.warning('Conectando... El servidor se está despertando (Cold Start).', 5000);
@@ -93,7 +84,6 @@ export class LoginPage implements OnInit {
       next: (res) => {
         clearTimeout(coldStartTimer);
         
-        // Guardar o borrar email según el checkbox
         if (this.rememberMe()) {
           localStorage.setItem(this.REMEMBER_KEY, correo);
         } else {
@@ -101,7 +91,7 @@ export class LoginPage implements OnInit {
         }
         
         this.isLoggingIn.set(false);
-        this.authService.setServerUp(true); // Informamos al servicio de que el servidor está OK
+        this.authService.setServerUp(true);
         this.serverReady.set(true); 
         this.toastService.success('¡Bienvenido de nuevo!');
         this.router.navigate(['/tabs/home']);
@@ -110,7 +100,6 @@ export class LoginPage implements OnInit {
         clearTimeout(coldStartTimer);
         this.isLoggingIn.set(false);
         
-        // El error solo salta si hay una respuesta de error real o timeout
         const mensaje = err.error?.message || 'Error de conexión o credenciales inválidas';
         this.toastService.error(mensaje);
       }

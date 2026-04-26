@@ -12,14 +12,11 @@ export class NeatService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
 
-  // Estado global de NEAT (peso y pasos)
   private _neatLogs = signal<UserNeat[]>([]);
   public neatLogs = this._neatLogs.asReadonly();
 
-  // Navegación semanal para las gráficas
   public currentWeekStart = signal<Date>(this.getMonday(new Date()));
 
-  // ETIQUETA: "15 mar — 21 mar"
   public weekLabel = computed(() => {
     const start = this.currentWeekStart();
     const end = new Date(start);
@@ -30,7 +27,6 @@ export class NeatService {
     return `${dStart} ${this.getMonthShort(start)} — ${dEnd} ${this.getMonthShort(end)}`;
   });
 
-  // Pasos de cada día de la semana seleccionada [L, M, X, J, V, S, D]
   public weekStepsData = computed(() => {
     const weekData: number[] = [];
     const logs = this._neatLogs();
@@ -48,12 +44,10 @@ export class NeatService {
     return weekData;
   });
 
-  // Suma de pasos de la semana
   public weeklyStepsTotal = computed(() => {
     return this.weekStepsData().reduce((sum, s) => sum + s, 0);
   });
 
-  // ETIQUETA PESO: "Feb — Mar" para los últimos registros
   public weightMonthLabel = computed(() => {
     const logs = this._neatLogs()
       .filter(log => log.weight != null)
@@ -72,12 +66,10 @@ export class NeatService {
     return `${firstMonth} — ${lastMonth}`;
   });
 
-  // Inicializar logs
   setInitialLogs(logs: UserNeat[]) {
     this._neatLogs.set(logs);
   }
 
-  // Navegación
   prevWeek() {
     this.currentWeekStart.update(d => new Date(d.getTime() - 7 * 86400000));
   }
@@ -86,7 +78,6 @@ export class NeatService {
     this.currentWeekStart.update(d => new Date(d.getTime() + 7 * 86400000));
   }
 
-  // Persistencia: Añadir o Actualizar registros NEAT
   addNeatLog(userId: string, log: { date: string; weight?: number; steps?: number }): Observable<User> {
     const url = `${this.apiUrl}${environment.users.neatLogs.replace(':id', userId)}`;
     return this.http.post<MessageApiResponse>(url, log).pipe(
@@ -103,18 +94,16 @@ export class NeatService {
     );
   }
 
-  // ──── GRÁFICA DE PESO ────
-  // Últimos N registros que tengan peso para la gráfica
   public getWeightChartData(): { labels: string[]; data: number[] } {
     const withWeight = this._neatLogs()
       .filter(log => log.weight != null)
       .sort((a, b) => a.date.localeCompare(b.date))
-      .slice(-15); // Últimos 15 registros de peso
+      .slice(-15);
 
     return {
       labels: withWeight.map(log => {
         const parts = log.date.split('-');
-        return parts[2]; // Solo el número del día (ej: "15")
+        return parts[2];
       }),
       data: withWeight.map(log => log.weight!)
     };

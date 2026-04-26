@@ -56,7 +56,6 @@ export class ExerciseLibraryPage {
 
   private readonly searchTerm = signal<string>('');
 
-  // Ejercicios cargados desde la API mediante rxResource
   private readonly exercisesResource = rxResource({
     stream: () => this.exercisesService.findAll()
   });
@@ -68,7 +67,6 @@ export class ExerciseLibraryPage {
     addIcons({ barbell, logoYoutube });
   }
 
-  // Signal computada que filtra ejercicios por nombre, categoría, equipamiento o etiquetas
   filteredExercises = computed(() => {
     const termino = this.searchTerm().toLowerCase().trim();
     const lista = this.exercises();
@@ -83,9 +81,7 @@ export class ExerciseLibraryPage {
     );
   });
 
-  // Manejador del evento de búsqueda
   onSearch(event: any) {
     this.searchTerm.set(event.detail.value || '');
   }
-
 }

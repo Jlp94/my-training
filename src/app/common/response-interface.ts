@@ -4,4 +4,3 @@ export interface MessageApiResponse {
     error: string | null;
     data?: any;
 }
-

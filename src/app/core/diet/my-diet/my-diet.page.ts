@@ -34,15 +34,12 @@ export class MyDietPage implements OnInit {
 
   macrosChart: any;
 
-  // Datos del Modal de Extras (Signals - Permanecen en el componente por ser puramente de UI)
   isModalOpen = false;
   extraName = signal('');
   extraAmount = signal<number | null>(null);
 
-  // Valores base por cada 100g
   private baseMacros = signal({ kcal: 0, protein: 0, carbs: 0, fat: 0 });
 
-  // linkedSignals baseeados en la búsqueda
   extraKcal = linkedSignal({
     source: () => ({ amount: this.extraAmount(), base: this.baseMacros().kcal }),
     computation: (src) => src.amount ? Math.round((src.base * src.amount) / 100) : null
@@ -63,7 +60,6 @@ export class MyDietPage implements OnInit {
     computation: (src) => src.amount ? Number(((src.base * src.amount) / 100).toFixed(1)) : null
   });
 
-  // Búsqueda Edamam
   searchResults: EdamamFood[] = [];
   searching = false;
   private searchTimestamps: number[] = [];
@@ -74,7 +70,6 @@ export class MyDietPage implements OnInit {
   constructor() {
     addIcons({ flame, alertCircle, closeOutline, checkmarkOutline, checkmarkCircle, close, search, saveOutline, timeOutline, add, barbell });
     
-    // Efecto para actualizar el gráfico cuando cambian los datos en el servicio
     effect(() => {
       this.dietStateService.caloriesConsumed();
       this.dietStateService.adjustedTarget();
@@ -132,19 +127,15 @@ export class MyDietPage implements OnInit {
     }
   }
 
-  // Comprobar rate limits antes de buscar
   private checkRateLimit(): { ok: boolean; message?: string } {
     const now = Date.now();
 
-    // Limpiar timestamps de hace más de 1 minuto
     this.searchTimestamps = this.searchTimestamps.filter(timestamp => now - timestamp < 60000);
 
-    // Límite por minuto
     if (this.searchTimestamps.length >= this.LIMIT_PER_MIN) {
       return { ok: false, message: 'Demasiadas búsquedas seguidas. Espera un momento.' };
     }
 
-    // Límite por día (localStorage)
     const stored = localStorage.getItem(this.STORAGE_KEY);
     const today = new Date().toISOString().split('T')[0];
     let dailyCount = 0;
@@ -173,7 +164,6 @@ export class MyDietPage implements OnInit {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify({ date: today, count }));
   }
 
-  // Buscar alimentos en Edamam
   searchFood() {
     const query = this.extraName();
     if (!query || query.length < 2) return;
@@ -201,7 +191,6 @@ export class MyDietPage implements OnInit {
     });
   }
 
-  // Seleccionar alimento de los resultados
   selectFood(food: EdamamFood) {
     this.extraName.set(food.name);
     this.extraAmount.set(100);
@@ -265,6 +254,5 @@ export class MyDietPage implements OnInit {
   }
 
   ngOnDestroy() {
-    // Opcional: limpiar suscripciones si las hubiera
   }
 }

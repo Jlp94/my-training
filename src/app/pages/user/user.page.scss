@@ -2,7 +2,6 @@ ion-content {
     --background: var(--ion-color-light);
 }
 
-// Perfil Card
 .profile-card {
     margin: 16px;
     border-radius: 20px;
@@ -24,8 +23,6 @@ ion-content {
         height: 100px;
         background: rgba(var(--ion-color-tertiary-rgb), 0.35);
         padding: 4px;
-        // border: 1px solid var(--ion-color-tertiary);
-
 
         .initials {
             width: 100%;
@@ -65,7 +62,6 @@ ion-content {
     }
 }
 
-// Option Grid
 ion-grid {
     padding: 8px 12px;
 }
@@ -103,7 +99,6 @@ ion-grid {
     }
 }
 
-// Badges Card
 .badges-card {
     margin: 16px;
     --background: var(--ion-color-light);

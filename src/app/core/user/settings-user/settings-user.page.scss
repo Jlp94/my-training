@@ -1,4 +1,3 @@
-// Avatar upload
 .avatar-upload {
     position: relative;
     cursor: pointer;
@@ -52,12 +51,10 @@
     color: white;
 }
 
-// Estado de carga
 .spinner-centered {
     height: 50vh;
 }
 
-// Items del formulario
 .settings-item {
     --background: var(--ion-color-light);
     --border-radius: 12px;
@@ -70,14 +67,12 @@
     }
 }
 
-// Contador de favoritos
 .fav-count {
     display: block;
     font-size: 12px;
     margin-top: 2px;
 }
 
-// Botón guardar
 .save-btn {
     --border-radius: 12px;
     font-weight: 600;
@@ -87,7 +82,6 @@
     margin-top: 8px;
 }
 
-// Modal de alimentos
 .thumb-icon {
     font-size: 22px;
     transition: color 0.2s ease;

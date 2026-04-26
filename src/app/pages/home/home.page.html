@@ -2,7 +2,6 @@
 
 <ion-content>
   <app-layout>
-    <!-- Weight Tracking Card -->
     <ion-card mode="ios">
       <ion-card-header class="ion-no-padding-bottom">
         <ion-row class="ion-justify-content-between ion-align-items-center">
@@ -21,7 +20,6 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Steps Tracking Card -->
     <ion-card mode="ios">
       <ion-card-header class="ion-no-padding-bottom">
         <ion-row class="ion-justify-content-between ion-align-items-center">
@@ -46,17 +44,8 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Bottom Small Cards Grid -->
     <ion-grid>
       <ion-row>
-        <!-- <ion-col size="4">
-          <ion-card mode="ios" class="small-card" routerLink="/tabs/user/medidas">
-            <ion-card-content class="ion-text-center">
-              <ion-icon name="body" class="card-icon" color="tertiary"></ion-icon>
-              <p>Medidas</p>
-            </ion-card-content>
-          </ion-card>
-        </ion-col> -->
         <ion-col size="4" >
         <ion-card mode="ios" class="small-card progress-card" routerLink="/tabs/training/cardio">
             <ion-card-content class="ion-text-center">
@@ -87,7 +76,6 @@
 
   </app-layout>
 
-  <!-- Modal Peso y Pasos -->
   <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeRegistroModal()" class="registro-modal">
     <ng-template>
       <div class="modal-body">
@@ -163,7 +151,6 @@
     </ng-template>
   </ion-modal>
 
-  <!-- FAB para registro -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button color="secondary" (click)="openRegistroModal()">
       <ion-icon name="scale-outline"></ion-icon>

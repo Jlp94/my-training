@@ -9,7 +9,6 @@
     </ion-row>
     } @else {
 
-    <!-- Avatar -->
     <ion-row class="ion-justify-content-center ion-margin-top">
       <div class="avatar-upload" (click)="fileInput.click()">
         <ion-avatar class="avatar-upload__avatar">
@@ -28,11 +27,9 @@
       <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)">
     </ion-row>
 
-    <!-- Tarjeta de datos personales -->
     <ion-row class="ion-margin-top">
       <ion-col class="ion-margin-top">
 
-        <!-- Email -->
         <ion-item lines="none" class="settings-item ion-margin-bottom">
           <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
           <ion-input label="Correo electrónico" label-placement="floating" type="email"
@@ -40,7 +37,6 @@
           </ion-input>
         </ion-item>
 
-        <!-- Password -->
         <ion-item lines="none" class="settings-item ion-margin-bottom">
           <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
           <ion-input label="Nueva contraseña" label-placement="floating" type="password"
@@ -49,7 +45,6 @@
           </ion-input>
         </ion-item>
 
-        <!-- Notificaciones -->
         <ion-item lines="none" class="settings-item ion-margin-bottom">
           <ion-icon name="notifications-outline" slot="start" color="primary"></ion-icon>
           <ion-label>Notificaciones</ion-label>
@@ -58,7 +53,6 @@
           </ion-toggle>
         </ion-item>
 
-        <!-- Comidas favoritas -->
         <ion-item lines="none" class="settings-item ion-margin-bottom" button="true" (click)="showFoodsModal.set(true)">
           <ion-icon name="fast-food-outline" slot="start" color="primary"></ion-icon>
           <ion-label>
@@ -67,7 +61,6 @@
           </ion-label>
         </ion-item>
 
-        <!-- Botón guardar -->
         <ion-button expand="block" color="secondary" class="save-btn" (click)="saveSettings()">
           <ion-icon name="save-outline" slot="start"></ion-icon>
           Guardar cambios
@@ -77,7 +70,6 @@
     </ion-row>
     }
 
-    <!-- Modal de alimentos -->
     <ion-modal [isOpen]="showFoodsModal()" (didDismiss)="showFoodsModal.set(false)">
       <ng-template>
         <ion-header>

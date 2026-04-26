@@ -2,7 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { DietService } from './diet-service';
 import { ToastService } from '../ui/toast-service';
 import { UserMacros } from '../../common/userInterface';
-import { MealView, MealFoodView, Food, EdamamFood } from '../../common/diet-interface';
+import { MealView, MealFoodView, Food } from '../../common/diet-interface';
 
 @Injectable({
   providedIn: 'root',
@@ -11,30 +11,24 @@ export class DietStateService {
   private readonly dietService = inject(DietService);
   private readonly toastService = inject(ToastService);
 
-  // Estado principal
   public isLoading = signal(true);
   public noDiet = signal(false);
 
-  // Macros objetivo
   public macros = signal<UserMacros>({ targetKcal: 0, protein: 0, carbs: 0, fat: 0 });
   public dietExtraKcal = signal(0);
 
-  // Comidas y extras
   private _meals = signal<MealView[]>([]);
   public meals = this._meals.asReadonly();
 
   private _extras = signal<any[]>([]);
   public extras = this._extras.asReadonly();
 
-  // Calorías acumuladas (signals internos para cálculos rápidos)
   private mealsCalories = signal(0);
   private extrasCalories = signal(0);
 
-  // Derivados
   public adjustedTarget = computed(() => this.macros().targetKcal - this.dietExtraKcal());
   public caloriesConsumed = computed(() => this.mealsCalories() + this.extrasCalories());
 
-  // Progreso semanal
   public weeklyCaloriesTarget = computed(() => this.macros().targetKcal * 7);
   public weeklyCaloriesConsumed = signal(0);
 
@@ -44,7 +38,6 @@ export class DietStateService {
   public weeklyExceeded = computed(() => this.weeklyCaloriesConsumed() > this.weeklyCaloriesTarget());
   public weeklyExcessCalories = computed(() => this.weeklyCaloriesConsumed() - this.weeklyCaloriesTarget());
 
-  // Macros consumidos
   public consumedMacros = computed(() => {
     let protein = 0, carbs = 0, fat = 0;
     this.meals().forEach(meal => {
@@ -62,7 +55,6 @@ export class DietStateService {
     return { protein, carbs, fat };
   });
 
-  // ---------- Helpers localStorage Keys ----------
   private readonly COMPLETED_KEY = 'diet_completed';
   private readonly EXTRAS_KEY = 'diet_extras';
   private readonly WEEKLY_KEY = 'diet_weekly_kcal';
@@ -107,7 +99,6 @@ export class DietStateService {
           return { name: meal.name, completed: false, totalKcal, totalMacros, foods: enrichedFoods };
         });
 
-        // Restaurar estado
         const completedIndices = this.loadCompletedMealsFromStorage();
         completedIndices.forEach(idx => {
           if (enrichedMeals[idx]) enrichedMeals[idx].completed = true;
@@ -164,8 +155,6 @@ export class DietStateService {
     const extrasCal = this._extras().reduce((total, extra) => total + (extra.kcal || 0), 0);
     this.extrasCalories.set(extrasCal);
   }
-
-  // ---------- PERSISTENCIA LOCALSTORAGE ----------
 
   private getToday(): string {
     const d = new Date();

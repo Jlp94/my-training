@@ -1,4 +1,3 @@
-// Interfaz de respuesta del login
 export interface LoginResponse {
   status: number;
   message: string;

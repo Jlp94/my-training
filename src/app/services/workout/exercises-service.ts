@@ -12,7 +12,6 @@ export class ExercisesService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
 
-  // Listar todos los ejercicios (con filtros opcionales)
   findAll(name?: string, category?: string): Observable<Ejercicio[]> {
     let url = `${this.apiUrl}${environment.exercises.base}`;
     const params: string[] = [];
@@ -22,7 +21,6 @@ export class ExercisesService {
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));
   }
 
-  // Obtener un ejercicio por ID
   findOne(exerciseId: string): Observable<Ejercicio> {
     const url = `${this.apiUrl}${environment.exercises.byId.replace(':id', exerciseId)}`;
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));

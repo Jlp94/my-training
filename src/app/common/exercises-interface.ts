@@ -1,4 +1,3 @@
-// Interfaz de ejercicio (sincronizada con API)
 export interface Ejercicio {
   _id: string;
   name: string;
@@ -10,7 +9,6 @@ export interface Ejercicio {
   videoUrl: string;
 }
 
-// Respuesta de la API para ejercicios
 export interface ExerciseListApiResponse {
   status: number;
   message: string;
@@ -25,7 +23,6 @@ export interface ExerciseApiResponse {
   data: Ejercicio;
 }
 
-// Enums de tipos de equipamiento (sincronizado con API)
 export enum EquipmentType {
   LIBRE = 'libre',
   MANCUERNAS = 'mancuernas',
@@ -37,7 +34,6 @@ export enum EquipmentType {
   DISCO = 'disco'
 }
 
-// Enums de grupos musculares (sincronizado con API)
 export enum MuscleGroup {
   CORE = 'core',
   PECTORAL = 'pectoral',
@@ -52,7 +48,6 @@ export enum MuscleGroup {
   ANTEBRAZO = 'antebrazo'
 }
 
-// Enum de tipos de movimiento
 export enum MovementType {
   PUSH = 'push',
   PULL = 'pull',

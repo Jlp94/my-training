@@ -2,8 +2,6 @@
 
 <ion-content class="ion-padding-bottom">
 
-  <!-- Timer flotante -->
-  <!-- Timer flotante -->
   @if (timerService.timerRunning()) {
   <div class="floating-timer">
     <div class="floating-timer__info">
@@ -39,7 +37,6 @@
         <ion-datetime-button datetime="routineDatetime"></ion-datetime-button>
       </h6>
 
-      <!-- Observaciones expandibles -->
       @if (showObservations() && currentSession()?.observations) {
       <ion-row class="ion-padding ion-margin-bottom ion-align-items-center observations-box">
         <ion-icon name="information-circle-outline" color="primary" class="ion-margin-end"></ion-icon>
@@ -182,7 +179,6 @@
     </ion-fab-button>
   </ion-fab>
 
-  <!-- Modal de notas del entreno -->
   <ion-modal [isOpen]="showNotesModal()" (didDismiss)="showNotesModal.set(false)" class="ion-padding modal-half-height">
     <ng-template>
       <ion-header>

@@ -17,7 +17,6 @@
     </ion-card>
     } @else {
 
-    <!-- Dashboard de Progreso Semanal -->
     <ion-card class="dashboard-card" mode="ios">
       <ion-card-header>
         <ion-row class="ion-justify-content-between ion-align-items-center">
@@ -64,14 +63,12 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Selector de Actividad + Registro -->
     <ion-card class="activity-card" mode="ios">
       <ion-card-header>
         <ion-card-title>Registrar sesión</ion-card-title>
       </ion-card-header>
       <ion-card-content>
 
-        <!-- Selector de tipo de cardio -->
         <ion-item lines="none" class="select-cardio">
           <ion-icon [name]="cardioIcon()" slot="start" color="primary"></ion-icon>
           <ion-select interface="action-sheet" [value]="selectedCardioId()" (ionChange)="cambiarTipoCardio($event)"
@@ -82,7 +79,6 @@
           </ion-select>
         </ion-item>
 
-        <!-- Instrucciones del entrenador (solo lectura) -->
         @if (configActual()) {
         <ion-row class="ion-margin-bottom ion-flex-column">
           <ion-text color="medium" class="instructions-title">Indicaciones del entrenador</ion-text>
@@ -97,7 +93,6 @@
         </ion-row>
         }
 
-        <!-- Inputs del cliente: solo Tiempo + Pulsaciones -->
         <ion-row>
             <ion-col class="ion-no-padding ion-margin-bottom">
               <ion-row class="ion-align-items-center  time-input-header">
@@ -108,7 +103,6 @@
             </ion-col>
         </ion-row>
 
-        <!-- Estimación de kcal -->
         @if (kcalEstimadas() > 0) {
         <ion-row class="ion-align-items-center ion-justify-content-center ion-margin-bottom ion-padding-vertical kcal-estimation-box">
           <ion-icon name="flame-outline" color="danger" class="kcal-icon"></ion-icon>
@@ -116,7 +110,6 @@
         </ion-row>
         }
 
-        <!-- Botón registrar -->
         <ion-button expand="block" color="secondary" class="register-btn" (click)="registrarSesion()">
           Registrar sesión
         </ion-button>

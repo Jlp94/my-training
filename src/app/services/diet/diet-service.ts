@@ -17,21 +17,17 @@ export class DietService {
   private readonly userService: UserService = inject(UserService);
   private readonly foodService: FoodService = inject(FoodService);
 
-  // Listar dietas (filtro opcional por userId)
   findAll(userId?: string): Observable<Dieta[]> {
     let url = `${this.apiUrl}${environment.diets.base}`;
     if (userId) url += `?userId=${userId}`;
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));
   }
 
-  // Obtener una dieta por ID
   findOne(dietId: string): Observable<Dieta> {
     const url = `${this.apiUrl}${environment.diets.byId.replace(':id', dietId)}`;
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));
   }
 
-  // Obtiene la dieta actual del usuario enriquecida con los alimentos
-  // Devuelve: perfil completo, dieta con meals/foods, y lista de alimentos
   getMyDiet(): Observable<{ profile: UserProfile; diet: Dieta; foods: Food[] }> {
     return this.userService.getProfile().pipe(
       switchMap(profile => {

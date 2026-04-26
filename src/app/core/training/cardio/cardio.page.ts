@@ -35,7 +35,6 @@ export class CardioPage {
   constructor() {
     addIcons({ timeOutline, flameOutline, heartOutline, speedometerOutline, saveOutline, bicycleOutline, walkOutline, trendingUpOutline });
 
-    // Efecto para la selección por defecto (evita NG0600)
     effect(() => {
       const cardios = this.cardiosResource.value();
       if (cardios && cardios.length > 0 && !this.selectedCardioId()) {
@@ -44,12 +43,10 @@ export class CardioPage {
     });
   }
 
-  // Cargar cardios de la API
   private readonly cardiosResource = rxResource({
     stream: () => this.cardioService.findAll()
   });
 
-  // Cargar objetivo semanal de kcal del perfil del usuario
   private readonly profileResource = rxResource({
     stream: () => this.userService.getProfile()
   });
@@ -60,16 +57,13 @@ export class CardioPage {
   
   protected readonly weeklyKcalTarget = computed(() => this.profileResource.value()?.cardioKcalGoal ?? 0);
 
-  // Señales — Registro (solo lo que introduce el cliente)
   protected selectedCardioId = signal<string>('');
   protected duracion = signal<number | null>(null);
 
-  // Computed — Config actual según ID seleccionado
   configActual = computed(() =>
     this.cardioList().find((cardio: Cardio) => cardio._id === this.selectedCardioId())!
   );
 
-  // Computed — Icono según tipo (cinta → walk, bici → bicycle, resto → speedometer)
   cardioIcon = computed(() => {
     const config = this.configActual();
     if (!config) return 'speedometer-outline';
@@ -78,7 +72,6 @@ export class CardioPage {
         : 'speedometer-outline';
   });
 
-  // Computed — Progreso basado en KCAL
   progress = computed(() => {
     const target = this.weeklyKcalTarget();
     return target > 0 ? Math.min(this.cardioService.weeklyCardioKcal() / target, 1) : 0;
@@ -91,7 +84,6 @@ export class CardioPage {
     return diff > 0 ? diff : 0;
   });
 
-  // Computed — Minutos objetivo estimados según el tipo de cardio actual
   targetMinutes = computed(() => {
     const config = this.configActual();
     if (!config) return 0;
@@ -99,14 +91,12 @@ export class CardioPage {
     return Math.ceil(kcalRestantes / config.kcalMin);
   });
 
-  // Computed — Minutos equivalentes realizados según el tipo actual
   currentMinutes = computed(() => {
     const config = this.configActual();
     if (!config) return 0;
     return Math.round(this.cardioService.weeklyCardioKcal() / config.kcalMin);
   });
 
-  // Computed — Estimación kcal de la sesión que va a registrar
   kcalEstimadas = computed(() => {
     const min = this.duracion() || 0;
     const config = this.configActual();
@@ -114,13 +104,11 @@ export class CardioPage {
     return Math.round(min * config.kcalMin);
   });
 
-  // Cambiar tipo de cardio
   cambiarTipoCardio(event: any) {
     this.selectedCardioId.set(event.detail.value);
     this.duracion.set(null);
   }
 
-  // Registrar sesión — suma kcal y guarda en localStorage
   registrarSesion() {
     const min = this.duracion();
     if (!min || min <= 0) {
@@ -130,12 +118,10 @@ export class CardioPage {
 
     const kcal = Math.round(min * this.configActual().kcalMin);
     
-    // Usar el servicio centralizado
     this.cardioService.addKcal(kcal);
     
     this.toastService.success(`${min} min de ${this.configActual().label} → ${kcal} kcal`);
 
-    // Resetear input
     this.duracion.set(null);
   }
 }

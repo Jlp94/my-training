@@ -13,15 +13,9 @@ export class TimerService {
   timerSeconds = signal(0);
   timerRunning = signal(false);
 
-  /**
-   * Inicia un temporizador basado en timestamps para mayor precisión.
-   * @param seconds Segundos de descanso
-   */
   startTimer(seconds: number) {
-    // Si ya hay uno, lo limpiamos
     this.stopTimerInternal();
 
-    // Guardamos el momento exacto en el que debe terminar
     this.endTime = Date.now() + seconds * 1000;
     this.timerSeconds.set(seconds);
     this.timerRunning.set(true);
@@ -47,16 +41,12 @@ export class TimerService {
   private finishTimer() {
     this.stopTimerInternal();
     
-    // Reproducir alarma
     this.alarmAudio.currentTime = 0;
     this.alarmAudio.play().catch(err => console.log('Error al reproducir audio:', err));
     
     this.toastService.success('¡A darle! 🔔');
   }
 
-  /**
-   * Cancela el timer actual
-   */
   stopTimer() {
     if (this.timerRunning()) {
       this.stopTimerInternal();

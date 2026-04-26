@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { EdamamFood } from '../../common/diet-interface';
 
-
 @Injectable({
   providedIn: 'root',
 })
@@ -14,7 +13,6 @@ export class EdamamService {
   private readonly APP_KEY = '66f140da739ea128b00820958f6eb27e';
   private readonly BASE_URL = 'https://api.edamam.com/api/food-database/v2/parser';
 
-  // Buscar alimentos por nombre → devuelve lista simplificada
   searchFood(query: string): Observable<EdamamFood[]> {
     const url = `${this.BASE_URL}?app_id=${this.APP_ID}&app_key=${this.APP_KEY}&ingr=${encodeURIComponent(query)}&nutrition-type=cooking`;
 

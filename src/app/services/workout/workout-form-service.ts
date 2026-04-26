@@ -9,9 +9,6 @@ import { WorkoutLog, ExerciseLog } from '../../common/userInterface';
 export class WorkoutFormService {
   private readonly fb = inject(FormBuilder);
 
-  /**
-   * Construye el formulario principal de la rutina a partir de una sesión y un log previo.
-   */
   createWorkoutForm(session: SesionRutina, logPrevio?: WorkoutLog): FormGroup {
     const routineForm = this.fb.group({
       exercises: this.fb.array([])
@@ -84,9 +81,6 @@ export class WorkoutFormService {
     return (kg != null && kg >= 0) && (reps != null && reps > 0) && (rir != null && rir >= 0);
   }
 
-  /**
-   * Mapea el valor del formulario a un objeto WorkoutLog para enviar a la API.
-   */
   mapFormToLog(formValue: any, dateStr: string, routineId: string, notes: string): WorkoutLog | null {
     const validExerciseLogs: ExerciseLog[] = [];
 

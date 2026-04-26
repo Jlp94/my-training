@@ -1,6 +1,3 @@
-// Interfaces de dietas (sincronizadas con API diets.schema.ts)
-
-// Dieta principal
 export interface Dieta {
   _id: string;
   userId: string;
@@ -13,26 +10,22 @@ export interface Dieta {
   totalMacros: DietMacros;
 }
 
-// Comida (Desayuno, Almuerzo, etc.)
 export interface Comida {
   name: string;
   foods: ComidaAlimento[];
 }
 
-// Alimento dentro de una comida (solo referencia + cantidad)
 export interface ComidaAlimento {
   foodId: string;
-  quantity: number; // gramos
+  quantity: number;
 }
 
-// Macros totales de la dieta
 export interface DietMacros {
   protein: number;
   carbs: number;
   fat: number;
 }
 
-// Alimento de la BBDD (viene de /foods)
 export interface Food {
   _id: string;
   name: string;
@@ -45,7 +38,6 @@ export interface Food {
   kcal: number;
 }
 
-// Alimento enriquecido para la vista (con nombre, kcal y macros calculados)
 export interface MealFoodView {
   name: string;
   quantity: number;
@@ -53,7 +45,6 @@ export interface MealFoodView {
   baseMacros: { carbs: number; protein: number; fat: number };
 }
 
-// Comida enriquecida para la vista
 export interface MealView {
   name: string;
   completed: boolean;
@@ -62,14 +53,12 @@ export interface MealView {
   foods: MealFoodView[];
 }
 
-// Item de la lista de la compra (calculado en el frontend)
 export interface ShoppingItem {
   name: string;
-  quantity: number; // gramos base (1 día)
+  quantity: number;
   selected: boolean;
 }
 
-// Enum de grupos de alimentos (sincronizado con API)
 export enum FoodGroup {
   CARNES = 'carnes',
   PESCADOS = 'pescados',
@@ -84,7 +73,6 @@ export enum FoodGroup {
   FRUTOS_SECOS = 'frutos secos',
 }
 
-// Enum de clasificación nutricional (sincronizado con API)
 export enum NutritionalType {
   PROTEINA_MAGRA = 'proteína magra',
   PROTEINA_GRASA = 'proteína grasa',
@@ -94,7 +82,6 @@ export enum NutritionalType {
   VEGETAL_FIBRA = 'vegetal fibra',
 }
 
-// Resultado simplificado del buscador Edamam
 export interface EdamamFood {
   name: string;
   kcal: number;

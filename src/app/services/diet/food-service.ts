@@ -12,14 +12,12 @@ export class FoodService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
 
-  // Listar alimentos (filtro opcional por nombre)
   findAll(name?: string): Observable<Food[]> {
     let url = `${this.apiUrl}${environment.foods.base}`;
     if (name) url += `?name=${name}`;
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));
   }
 
-  // Obtener un alimento por ID
   findOne(foodId: string): Observable<Food> {
     const url = `${this.apiUrl}${environment.foods.byId.replace(':id', foodId)}`;
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));

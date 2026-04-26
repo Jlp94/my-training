@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { IonContent, IonGrid, IonRow, IonCol } from "@ionic/angular/standalone";
+import { IonGrid, IonRow, IonCol } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-layout',

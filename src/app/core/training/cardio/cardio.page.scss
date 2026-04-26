@@ -2,8 +2,6 @@ ion-content {
     --background: var(--ion-color-light);
 }
 
-
-
 ion-card {
     box-shadow: 0 4px 16px rgba(var(--ion-color-medium-rgb), 0.15);
     border-radius: 16px;
@@ -14,9 +12,6 @@ ion-card {
     min-height: 200px;
 }
 
-// ========================
-// Dashboard de Progreso
-// ========================
 .dashboard-card {
     .dashboard-target-text {
         font-size: 12px;
@@ -64,16 +59,12 @@ ion-card {
     }
 }
 
-// ========================
-// Tarjeta de Actividad
-// ========================
 .activity-card {
     ion-card-title {
         font-size: 16px;
         font-weight: 700;
     }
 
-    // Selector de cardio
     .select-cardio {
         --background: var(--ion-color-light);
         --border-radius: 12px;
@@ -86,7 +77,6 @@ ion-card {
         }
     }
 
-    // Instrucciones
     .instructions-title {
         font-size: 11px;
         font-weight: 600;
@@ -109,20 +99,17 @@ ion-card {
         }
     }
 
-    // Inputs cliente
     .time-input-header {
         font-size: 13px;
         font-weight: 600;
         color: var(--ion-color-medium);
     }
 
-    // Borde y centrado del input de tiempo
     ion-input {
         width: 30%;
         
     }
 
-    // Estimación Kcal
     .kcal-estimation-box {
         gap: 6px;
         background: rgb(var(--ion-color-danger-rgb), 0.1);
@@ -138,7 +125,6 @@ ion-card {
         }
     }
 
-    // Botón registrar
     .register-btn {
         --border-radius: 12px;
         font-weight: 600;

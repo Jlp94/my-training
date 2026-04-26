@@ -32,16 +32,13 @@ export class FoodEquivalencePage implements OnInit {
   allFoods: Food[] = [];
   loading = true;
 
-  // Tipos nutricionales disponibles (del enum)
   categories = Object.values(NutritionalType);
 
-  // Estado de selección
   selectedCategory: string = '';
   filteredFoods: Food[] = [];
   selectedFood: Food | null = null;
   baseQuantity: number = 100;
 
-  // Resultados de equivalencias
   equivalences: FoodEquivalence[] = [];
 
   constructor() {
@@ -60,7 +57,6 @@ export class FoodEquivalencePage implements OnInit {
     });
   }
 
-  // Al cambiar tipo nutricional → filtrar alimentos
   onCategoryChange() {
     this.filteredFoods = this.allFoods
       .filter(food => food.nutritionalType === this.selectedCategory)
@@ -69,30 +65,25 @@ export class FoodEquivalencePage implements OnInit {
     this.equivalences = [];
   }
 
-  // Al seleccionar alimento → calcular equivalencias
   selectBaseFood(food: Food) {
     this.selectedFood = food;
     this.calculateEquivalences();
   }
 
-  // Recalcular cuando cambia la cantidad
   onQuantityChange() {
     if (this.selectedFood) {
       this.calculateEquivalences();
     }
   }
 
-  // Cálculo: kcal del alimento base × cantidad → gramos equivalentes de cada alimento
   calculateEquivalences() {
     if (!this.selectedFood || this.baseQuantity <= 0) {
       this.equivalences = [];
       return;
     }
 
-    // Kcal totales del alimento base con la cantidad indicada
     const baseKcalTotal = (this.selectedFood.kcal / 100) * this.baseQuantity;
 
-    // Calcular gramos equivalentes para cada alimento de la misma categoría
     this.equivalences = this.filteredFoods
       .filter(food => food._id !== this.selectedFood!._id && food.kcal > 0)
       .map(food => ({

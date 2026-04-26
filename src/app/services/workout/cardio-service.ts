@@ -13,7 +13,6 @@ export class CardioService {
   private readonly apiUrl = environment.apiUrl;
   private readonly STORAGE_KEY = 'cardio_weekly_kcal';
 
-  // State
   private _weeklyCardioKcal = signal(0);
   public weeklyCardioKcal = this._weeklyCardioKcal.asReadonly();
 
@@ -26,13 +25,11 @@ export class CardioService {
     this.saveWeeklyKcal();
   }
 
-  // Listar todas las configuraciones de cardio
   findAll(): Observable<Cardio[]> {
     const url = `${this.apiUrl}${environment.cardio.base}`;
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));
   }
 
-  // Obtener una configuración de cardio por ID
   findOne(cardioId: string): Observable<Cardio> {
     const url = `${this.apiUrl}${environment.cardio.byId.replace(':id', cardioId)}`;
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));
@@ -41,7 +38,7 @@ export class CardioService {
   private getMondayISO(): string {
     const d = new Date();
     const day = d.getDay();
-    const diff = day === 0 ? -6 : 1 - day; // ajustar a lunes
+    const diff = day === 0 ? -6 : 1 - day;
     const monday = new Date(d.setDate(d.getDate() + diff));
     monday.setHours(0, 0, 0, 0);
     return monday.toISOString().split('T')[0];
@@ -55,7 +52,6 @@ export class CardioService {
         if (data.monday === this.getMondayISO()) {
           this._weeklyCardioKcal.set(data.kcal || 0);
         } else {
-          // Si es una nueva semana, empezamos de cero
           this._weeklyCardioKcal.set(0);
           this.saveWeeklyKcal();
         }
