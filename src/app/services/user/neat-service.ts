@@ -4,6 +4,7 @@ import { environment } from 'src/environments/environment';
 import { Observable, map, tap } from 'rxjs';
 import { MessageApiResponse } from '../../common/response-interface';
 import { User, UserNeat } from '../../common/userInterface';
+import { getMondayDate } from '../../common/date-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -115,11 +116,6 @@ export class NeatService {
   }
 
   private getMonday(d: Date): Date {
-    const date = new Date(d);
-    const day = date.getDay();
-    const diff = day === 0 ? -6 : 1 - day;
-    date.setDate(date.getDate() + diff);
-    date.setHours(0, 0, 0, 0);
-    return date;
+    return getMondayDate(d);
   }
 }

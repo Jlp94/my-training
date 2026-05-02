@@ -25,13 +25,15 @@
 
 ion-content {
   --background: var(--ion-color-light);
+  --padding-bottom: 80px;
 }
 
 ion-card {
   border-color: 1px solid var(--ion-color-light-shade);
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(var(--ion-color-medium-rgb), 0.3);
-  margin: 16px;
+  margin: 16px 0;
+  width: 100%;
 }
 
 ion-card-title {

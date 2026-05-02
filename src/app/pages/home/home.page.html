@@ -2,11 +2,11 @@
 
 <ion-content>
   <app-layout>
-    <ion-card mode="ios">
+    <ion-card>
       <ion-card-header class="ion-no-padding-bottom">
         <ion-row class="ion-justify-content-between ion-align-items-center">
           <ion-col size="auto">
-             <ion-card-title>Peso</ion-card-title>
+            <ion-card-title>Peso</ion-card-title>
           </ion-col>
           <ion-col size="auto">
             <div class="date-selector">
@@ -20,7 +20,7 @@
       </ion-card-content>
     </ion-card>
 
-    <ion-card mode="ios">
+    <ion-card >
       <ion-card-header class="ion-no-padding-bottom">
         <ion-row class="ion-justify-content-between ion-align-items-center">
           <ion-col size="auto">
@@ -47,7 +47,7 @@
     <ion-grid>
       <ion-row>
         <ion-col size="4" >
-        <ion-card mode="ios" class="small-card progress-card" routerLink="/tabs/training/cardio">
+        <ion-card class="small-card progress-card" routerLink="/tabs/training/cardio">
             <ion-card-content class="ion-text-center">
               <div class="progress-container">
                 <canvas #progressChart></canvas>
@@ -63,10 +63,10 @@
           </ion-card>
         </ion-col>
         <ion-col size="4" offset="4">
-          <ion-card mode="ios" class="small-card" routerLink="/tabs/diet/supplementation">
+          <ion-card  class="small-card" routerLink="/tabs/diet/supplementation">
             <ion-card-content class="ion-text-center">
               <ion-icon name="medkit-outline" class="card-icon" color="danger"></ion-icon>
-              <p><small>Suplementacion</small></p>
+              <p><small>Suplementación</small></p>
             </ion-card-content>
           </ion-card>
         </ion-col>

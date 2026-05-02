@@ -3,6 +3,7 @@ import { DietService } from './diet-service';
 import { ToastService } from '../ui/toast-service';
 import { UserMacros } from '../../common/userInterface';
 import { MealView, MealFoodView, Food } from '../../common/diet-interface';
+import { getTodayISO, getMondayISO } from '../../common/date-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -157,16 +158,11 @@ export class DietStateService {
   }
 
   private getToday(): string {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return getTodayISO();
   }
 
   private getWeekStart(): string {
-    const d = new Date();
-    const day = d.getDay();
-    const diff = day === 0 ? 6 : day - 1;
-    d.setDate(d.getDate() - diff);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return getMondayISO();
   }
 
   private loadCompletedMealsFromStorage(): number[] {

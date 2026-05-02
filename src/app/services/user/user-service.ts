@@ -37,21 +37,6 @@ export class UserService {
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));
   }
 
-  getNeatLogs(userId: string): Observable<UserNeat[]> {
-    const url = `${this.apiUrl}${environment.users.neatLogs.replace(':id', userId)}`;
-    return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));
-  }
-
-  addNeatLog(userId: string, log: { date: string; weight?: number; steps?: number }): Observable<User> {
-    const url = `${this.apiUrl}${environment.users.neatLogs.replace(':id', userId)}`;
-    return this.http.post<MessageApiResponse>(url, log).pipe(map(res => res.data));
-  }
-
-  updateNeatLog(userId: string, date: string, log: { weight?: number; steps?: number }): Observable<User> {
-    const url = `${this.apiUrl}${environment.users.neatLogByDate.replace(':id', userId).replace(':date', date)}`;
-    return this.http.patch<MessageApiResponse>(url, log).pipe(map(res => res.data));
-  }
-
   getWorkoutLogs(userId: string): Observable<WorkoutLog[]> {
     const url = `${this.apiUrl}${environment.users.workoutLogs.replace(':id', userId)}`;
     return this.http.get<MessageApiResponse>(url).pipe(map(res => res.data));

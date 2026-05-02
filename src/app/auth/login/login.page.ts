@@ -28,7 +28,6 @@ export class LoginPage implements OnInit {
   showPassword = signal(false);
   rememberMe = signal(false);
 
-  protected readonly serverReady = signal(false);
   protected readonly isLoggingIn = signal(false);
 
   private readonly REMEMBER_KEY = 'remember_email';
@@ -49,18 +48,6 @@ export class LoginPage implements OnInit {
       this.rememberMe.set(true);
     }
 
-    this.pingServer();
-  }
-
-  private pingServer() {
-    this.authService.pingServer().subscribe({
-      next: (isAlive) => {
-        this.serverReady.set(isAlive);
-        if (!isAlive) {
-          setTimeout(() => this.pingServer(), 5000);
-        }
-      }
-    });
   }
 
   onLogin() {
@@ -74,16 +61,8 @@ export class LoginPage implements OnInit {
 
     this.isLoggingIn.set(true);
 
-    const coldStartTimer = setTimeout(() => {
-      if (this.isLoggingIn() && !this.serverReady()) {
-        this.toastService.warning('Conectando... El servidor se está despertando (Cold Start).', 5000);
-      }
-    }, 2500);
-
     this.authService.login(correo, clave).subscribe({
       next: (res) => {
-        clearTimeout(coldStartTimer);
-        
         if (this.rememberMe()) {
           localStorage.setItem(this.REMEMBER_KEY, correo);
         } else {
@@ -91,13 +70,10 @@ export class LoginPage implements OnInit {
         }
         
         this.isLoggingIn.set(false);
-        this.authService.setServerUp(true);
-        this.serverReady.set(true); 
         this.toastService.success('¡Bienvenido de nuevo!');
         this.router.navigate(['/tabs/home']);
       },
       error: (err) => {
-        clearTimeout(coldStartTimer);
         this.isLoggingIn.set(false);
         
         const mensaje = err.error?.message || 'Error de conexión o credenciales inválidas';

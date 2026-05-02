@@ -9,19 +9,22 @@
 UserInterfaceState.xcuserstate
 $RECYCLE.BIN/
 
+# Logs
 *.log
 log.txt
 
-
+# Source maps and versions
 /.sourcemaps
 /.versions
 /coverage
 
-# Ionic
+# Ionic / Capacitor
 /.ionic
 /www
 /platforms
 /plugins
+/android
+/ios
 
 # Compiled output
 /dist
@@ -32,6 +35,7 @@ log.txt
 # Node
 /node_modules
 npm-debug.log
+pnpm-debug.log*
 yarn-error.log
 
 # IDEs and editors
@@ -52,23 +56,30 @@ yarn-error.log
 !.vscode/extensions.json
 .history/*
 
-
-# Miscellaneous
+# Angular cache
 /.angular
 /.angular/cache
-.sass-cache/
 /.nx
 /.nx/cache
+
+# Miscellaneous
+.sass-cache/
 /connect.lock
 /coverage
 /libpeerconnection.log
 testem.log
 /typings
 
+# Environment files
+.env
+.env.*
+
 # System files
 .DS_Store
 Thumbs.db
 
-
-.agent/
-PROJECT_RULES.md
+# AI and local config
+/.agent
+/.claude
+/.gemini
+/PROJECT_RULES.md

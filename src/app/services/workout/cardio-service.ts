@@ -4,6 +4,7 @@ import { environment } from 'src/environments/environment';
 import { Observable, map } from 'rxjs';
 import { MessageApiResponse } from '../../common/response-interface';
 import { Cardio } from '../../common/cardio-interface';
+import { getMondayISO } from '../../common/date-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -36,12 +37,7 @@ export class CardioService {
   }
 
   private getMondayISO(): string {
-    const d = new Date();
-    const day = d.getDay();
-    const diff = day === 0 ? -6 : 1 - day;
-    const monday = new Date(d.setDate(d.getDate() + diff));
-    monday.setHours(0, 0, 0, 0);
-    return monday.toISOString().split('T')[0];
+    return getMondayISO();
   }
 
   private loadWeeklyKcal() {

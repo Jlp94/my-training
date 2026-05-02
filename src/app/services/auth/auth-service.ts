@@ -11,7 +11,6 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
   private readonly TOKEN_KEY = 'access_token';
-  private isServerUp = false;
 
   login(email: string, password: string): Observable<LoginResponse> {
     const url = `${this.apiUrl}${environment.auth.login}`;
@@ -19,7 +18,6 @@ export class AuthService {
       tap((response) => {
         if (response.data?.access_token) {
           localStorage.setItem(this.TOKEN_KEY, response.data.access_token);
-          this.isServerUp = true;
         }
       })
     );
@@ -49,21 +47,6 @@ export class AuthService {
     }
   }
 
-  pingServer(): Observable<boolean> {
-    if (this.isServerUp) return of(true);
-
-    const baseUrl = this.apiUrl.replace('/my-training/v1', '');
-    return this.http.get<{ status: string }>(`${baseUrl}/my-training/v1/health`).pipe(
-      timeout(25000),
-      tap(() => this.isServerUp = true),
-      map(() => true),
-      catchError(() => of(false))
-    );
-  }
-
-  setServerUp(value: boolean): void {
-    this.isServerUp = value;
-  }
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
