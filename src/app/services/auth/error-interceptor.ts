@@ -11,7 +11,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       let isExpected404 = false;
 
       if (error.status === 0) {
-        toastService.warning('No se pudo conectar con el servidor. Verifica tu conexión.');
+        toastService.error('Sin conexión con el servidor');
       } else if (error.status >= 500) {
         toastService.error('Error interno del servidor. Inténtalo de nuevo más tarde.');
       } else if (error.status === 404 && (
