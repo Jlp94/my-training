@@ -12,3 +12,15 @@ ion-card {
         object-fit: cover;
     }
 }
+
+ion-col:nth-child(1) ion-card {
+    background:#FC8042;
+}
+
+ion-col:nth-child(2) ion-card {
+    background: #4D4F53;
+}
+
+ion-col:nth-child(3) ion-card {
+    background: #D70901;
+}

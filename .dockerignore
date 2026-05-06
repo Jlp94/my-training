@@ -4,8 +4,4 @@ dist/
 .git/
 .gitignore
 .editorconfig
-tsconfig.*.json
-tslint.json
 *.md
-.gemini/
-.agents/
